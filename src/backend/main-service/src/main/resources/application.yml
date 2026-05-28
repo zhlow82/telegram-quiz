@@ -1,0 +1,10 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: main-service
+
+jwt:
+  # Must match the secret in auth-service exactly
+  secret: emh0ZW1wbGF0ZS1qd3Qtc2VjcmV0LWtleS1mb3ItZGV2ZWxvcG1lbnQtdXNlLW9ubHktMjAyNg==
