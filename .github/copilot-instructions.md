@@ -111,6 +111,8 @@ zh-template/
 - **Never edit or delete an applied migration file** — Flyway checksums each file
 - To reset local DB: `docker-compose -f docker-compose.dev.yml down -v && docker-compose -f docker-compose.dev.yml up -d`
 - Migration history table: `flyway_schema_history` in PostgreSQL
+- **Any change to the database schema (new table, new column, rename, drop, index, constraint, etc.) MUST be done via a new Flyway migration script — never by editing entities alone or running ad-hoc SQL**
+- When modifying a JPA entity (adding/removing/renaming a field mapped to a column), always create the corresponding migration script at the same time
 
 ---
 
