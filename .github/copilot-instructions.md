@@ -20,7 +20,7 @@ Full-stack application with a microservice backend and Vue 3 frontend.
 | Frontend | Vue 3, TypeScript, Pinia, Vue Router, Axios, Vite |
 | Backend | Spring Boot 4.0.6, Spring Security, Spring Data JPA |
 | Auth | JWT (jjwt 0.12.6), BCrypt password encoding |
-| Gateway | Spring Cloud Gateway 2025.0.0 |
+| Gateway | Spring Cloud Gateway 2025.1.1 (Oakwood — required for Spring Boot 4.x) |
 | Database | PostgreSQL 17 |
 | Cache | Redis 7 |
 | Build | Maven, Java 21 (Eclipse Temurin) |
@@ -113,6 +113,17 @@ zh-template/
 - Migration history table: `flyway_schema_history` in PostgreSQL
 - **Any change to the database schema (new table, new column, rename, drop, index, constraint, etc.) MUST be done via a new Flyway migration script — never by editing entities alone or running ad-hoc SQL**
 - When modifying a JPA entity (adding/removing/renaming a field mapped to a column), always create the corresponding migration script at the same time
+
+---
+
+## Spring Profiles (Multi-Environment)
+
+- Use Spring Boot profiles for environment-specific config: `dev`, `stg`, `prod`
+- File pattern: `application.yml` (shared) + `application-{profile}.yml` (overrides)
+- Activated via env var: `SPRING_PROFILES_ACTIVE=prod`
+- Sensitive values in `application-prod.yml` must use env var placeholders: `${DB_PASSWORD}` — never hardcoded
+- `docker-compose.dev.yml` is for local dev infrastructure only (Postgres, Redis, pgAdmin)
+- Production does not use Docker Compose — use cloud-managed services (Azure / AWS)
 
 ---
 
