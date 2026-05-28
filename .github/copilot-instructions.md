@@ -101,6 +101,19 @@ zh-template/
 
 ---
 
+## Database Migrations (Flyway)
+
+- Flyway is configured in `auth-service` only — it owns the schema
+- Migration files live in `src/backend/auth-service/src/main/resources/db/migration/`
+- Naming convention: `V{YYYYMMDDHHMMSS}__{verb}_{object}.sql` (timestamp = current local datetime)
+- `ddl-auto` is set to `validate` (not `update`) — Flyway owns DDL, Hibernate only validates
+- Migrations run automatically on startup before the app accepts traffic
+- **Never edit or delete an applied migration file** — Flyway checksums each file
+- To reset local DB: `docker-compose -f docker-compose.dev.yml down -v && docker-compose -f docker-compose.dev.yml up -d`
+- Migration history table: `flyway_schema_history` in PostgreSQL
+
+---
+
 ## Default Dev Credentials
 - **App login**: `zhlow` / `password88` (seeded on startup by `DataInitializer`)
 - **pgAdmin**: `admin@zhtemplate.com` / `admin`

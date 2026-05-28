@@ -231,3 +231,56 @@ Key settings in `application.yml` per service:
 | `spring.data.redis.*` | auth-service | Redis connection |
 
 > **Security note**: Change `jwt.secret` before deploying to any non-local environment and store it as an environment variable, not in source code.
+
+---
+
+## Database Migrations (Flyway)
+
+Schema changes are managed by **Flyway** in `auth-service`. Migrations run automatically on startup before the app accepts requests.
+
+### Migration files location
+
+```
+src/backend/auth-service/src/main/resources/db/migration/
+  V20260529000000__create_schema.sql    ← initial schema
+  V20260530143000__add_email_to_users.sql  ← example future migration
+```
+
+### Naming convention
+
+```
+V{YYYYMMDDHHMMSS}__{verb}_{object}.sql
+```
+
+Use the **current local datetime** as the timestamp when creating a new file. This prevents version conflicts when multiple developers create migrations on different branches simultaneously.
+
+Examples:
+- `V20260530091500__add_email_to_users.sql`
+- `V20260601120000__create_profiles_table.sql`
+- `V20260602083000__add_index_on_users_username.sql`
+
+### Rules
+
+| Rule | Reason |
+|---|---|
+| Never edit an applied migration file | Flyway checksums each file — changed content causes startup failure |
+| Never delete a migration file | Same checksum issue |
+| Always use a new timestamp | Versions must be unique and increasing |
+
+### Adding a new migration
+
+1. Create a new `.sql` file in `db/migration/` using the timestamp format
+2. Write your DDL (ALTER TABLE, CREATE TABLE, etc.)
+3. Restart `auth-service` — Flyway applies it automatically
+4. Update the corresponding Java entity to match
+
+### Checking migration history
+
+Connect to PostgreSQL and query:
+```sql
+SELECT version, description, installed_on, success FROM flyway_schema_history ORDER BY installed_rank;
+```
+
+### If a migration fails
+
+For local dev: `docker-compose -f docker-compose.dev.yml down -v && docker-compose -f docker-compose.dev.yml up -d` resets the DB and Flyway re-runs all migrations from scratch.
