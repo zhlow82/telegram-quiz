@@ -8,7 +8,7 @@
         <path d="M8 16L14 10L20 16L14 22L8 16Z" fill="white" opacity="0.9"/>
         <path d="M14 10L20 16L26 10L20 4L14 10Z" fill="white"/>
       </svg>
-      <span class="logo-text">ZH Template</span>
+      <span class="logo-text">Telegram Quiz</span>
     </div>
 
     <!-- Centered card -->

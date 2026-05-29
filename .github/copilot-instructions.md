@@ -1,4 +1,4 @@
-# GitHub Copilot Instructions — ZH Template
+# GitHub Copilot Instructions — Telegram Quiz
 
 ## Project Overview
 Full-stack application with a microservice backend and Vue 3 frontend.
@@ -31,7 +31,7 @@ Full-stack application with a microservice backend and Vue 3 frontend.
 ## Project Structure
 
 ```
-zh-template/
+telegram-quiz/
 ├── src/
 │   ├── backend/
 │   │   ├── auth-service/        # Login, logout, JWT issuance (port 8081)
@@ -46,9 +46,9 @@ zh-template/
 ---
 
 ## Package Naming Convention
-- Auth Service: `com.zhtemplate.auth`
-- Main Service: `com.zhtemplate.main`
-- API Gateway: `com.zhtemplate.gateway`
+- Auth Service: `com.telegramquiz.auth`
+- Main Service: `com.telegramquiz.main`
+- API Gateway: `com.telegramquiz.gateway`
 
 ---
 
@@ -129,7 +129,7 @@ zh-template/
 
 ## Default Dev Credentials
 - **App login**: `zhlow` / `password88` (seeded on startup by `DataInitializer`)
-- **pgAdmin**: `admin@zhtemplate.com` / `admin`
+- **pgAdmin**: `admin@telegramquiz.com` / `admin`
 - **PostgreSQL**: host `localhost:5432`, db/user/pass `postgres`
 - **Redis**: `localhost:6379` (no auth in dev)
 

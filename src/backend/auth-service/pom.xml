@@ -12,11 +12,11 @@
         <relativePath/>
     </parent>
 
-    <groupId>com.zhtemplate</groupId>
+    <groupId>com.telegramquiz</groupId>
     <artifactId>auth-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>auth-service</name>
-    <description>Auth Service for ZH Template</description>
+    <description>Auth Service for Telegram Quiz</description>
 
     <properties>
         <java.version>21</java.version>

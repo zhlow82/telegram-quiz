@@ -1,4 +1,4 @@
-# ZH Template
+# Telegram Quiz
 
 A full-stack application template built with a microservice backend and Vue 3 frontend, featuring JWT authentication backed by PostgreSQL and Redis.
 
@@ -22,7 +22,7 @@ A full-stack application template built with a microservice backend and Vue 3 fr
 ## Project Structure
 
 ```
-zh-template/
+telegram-quiz/
 ├── src/
 │   ├── backend/
 │   │   ├── auth-service/        # Login, logout, JWT issuance       (port 8081)
@@ -117,7 +117,7 @@ docker-compose -f docker-compose.dev.yml up -d
 | pgAdmin | http://localhost:5050 |
 | Redis | `localhost:6379` |
 
-pgAdmin login: `admin@zhtemplate.com` / `admin`
+pgAdmin login: `admin@telegramquiz.com` / `admin`
 
 PostgreSQL connection: host `localhost`, port `5432`, db/user/pass `postgres`
 

@@ -26,8 +26,8 @@ spring:
       port: 6379
 
 jwt:
-  # Base64-encoded secret: "zhtemplate-jwt-secret-key-for-development-use-only-2026"
+  # Base64-encoded secret: "telegramquiz-jwt-secret-key-for-development-use-only-2026"
   # IMPORTANT: Change this in production and store it as an environment variable
-  secret: emh0ZW1wbGF0ZS1qd3Qtc2VjcmV0LWtleS1mb3ItZGV2ZWxvcG1lbnQtdXNlLW9ubHktMjAyNg==
+  secret: dGVsZWdyYW1xdWl6LWp3dC1zZWNyZXQta2V5LWZvci1kZXZlbG9wbWVudC11c2Utb25seS0yMDI2
   expiration: 900000        # 15 minutes in milliseconds
   refresh-expiration: 604800000  # 7 days in milliseconds

@@ -8,7 +8,7 @@
       </button>
       <div class="mobile-brand">
         <div class="brand-dot">ZH</div>
-        <span>ZH Template</span>
+        <span>Telegram Quiz</span>
       </div>
     </header>
 
@@ -20,7 +20,7 @@
       <!-- Brand -->
       <div class="sidebar-brand">
         <div class="brand-dot">ZH</div>
-        <span class="brand-name">ZH Template</span>
+        <span class="brand-name">Telegram Quiz</span>
       </div>
 
       <!-- User profile -->
