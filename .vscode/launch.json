@@ -6,30 +6,36 @@
       "name": "Auth Service",
       "presentation": { "order": 2 },
       "request": "launch",
+      "noDebug": true,
       "mainClass": "com.telegramquiz.auth.AuthServiceApplication",
       "projectName": "auth-service",
-      "timeout": 60000,
-      "vmArgs": "-Dspring.devtools.restart.enabled=false"
+      "vmArgs": "-Dspring.devtools.restart.enabled=false",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen"
     },
     {
       "type": "java",
       "name": "Main Service",
       "presentation": { "order": 3 },
       "request": "launch",
+      "noDebug": true,
       "mainClass": "com.telegramquiz.main.MainServiceApplication",
       "projectName": "main-service",
-      "timeout": 60000,
-      "vmArgs": "-Dspring.devtools.restart.enabled=false"
+      "vmArgs": "-Dspring.devtools.restart.enabled=false",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen"
     },
     {
       "type": "java",
       "name": "API Gateway",
       "presentation": { "order": 4 },
       "request": "launch",
+      "noDebug": true,
       "mainClass": "com.telegramquiz.gateway.GatewayApplication",
       "projectName": "api-gateway",
-      "timeout": 60000,
-      "vmArgs": "-Dspring.devtools.restart.enabled=false"
+      "vmArgs": "-Dspring.devtools.restart.enabled=false",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen"
     },
     {
       "type": "node",
@@ -40,6 +46,7 @@
       "runtimeArgs": ["run", "dev"],
       "cwd": "${workspaceFolder}/src/frontend",
       "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
       "skipFiles": ["<node_internals>/**"]
     }
   ],

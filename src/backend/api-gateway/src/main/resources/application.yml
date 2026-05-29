@@ -14,21 +14,26 @@ spring:
               uri: http://localhost:8081
               predicates:
                 - Path=/auth/**
+              filters:
+                - RemoveRequestHeader=Origin
 
             - id: main-service
               uri: http://localhost:8082
               predicates:
                 - Path=/api/**
+              filters:
+                - RemoveRequestHeader=Origin
 
           globalcors:
             cors-configurations:
               '[/**]':
-                allowedOrigins:
-                  - "http://localhost:5173"
+                allowedOriginPatterns:
+                  - "*"
                 allowedMethods:
                   - GET
                   - POST
                   - PUT
+                  - PATCH
                   - DELETE
                   - OPTIONS
                 allowedHeaders:

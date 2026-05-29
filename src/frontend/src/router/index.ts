@@ -2,9 +2,10 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import LoginView from '@/views/LoginView.vue'
 import HomeView from '@/views/HomeView.vue'
+import QuestionBankView from '@/views/QuestionBankView.vue'
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHistory('/tg-quiz/'),
   routes: [
     {
       path: '/',
@@ -20,6 +21,12 @@ const router = createRouter({
       path: '/home',
       name: 'home',
       component: HomeView,
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/questions',
+      name: 'questions',
+      component: QuestionBankView,
       meta: { requiresAuth: true }
     }
   ]

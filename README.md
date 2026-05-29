@@ -8,10 +8,10 @@ A full-stack application template built with a microservice backend and Vue 3 fr
 
 | Layer | Technology |
 |---|---|
-| Frontend | Vue 3, TypeScript, Pinia, Vue Router, Axios, Vite |
+| Frontend | Vue 3, TypeScript, Pinia, Vue Router, Axios, Vite, **Tailwind CSS v3**, **@lucide/vue**, **vue-draggable-plus** |
 | Backend | Spring Boot 4.0.6, Spring Security, Spring Data JPA |
 | Auth | JWT (jjwt 0.12.6), BCrypt |
-| Gateway | Spring Cloud Gateway |
+| Gateway | Spring Cloud Gateway 2025.1.1 (Oakwood) |
 | Database | PostgreSQL 17 |
 | Cache | Redis 7 |
 | Build | Maven, Java 21 (Eclipse Temurin) |
@@ -153,7 +153,7 @@ npm run dev
 
 ### 4. Open the app
 
-Navigate to http://localhost:5173
+Navigate to http://localhost:5173/tg-quiz/
 
 Login with:
 - **Username**: `zhlow`
@@ -179,11 +179,32 @@ Login with:
 
 All requests go through the API Gateway at `http://localhost:8080`.
 
+### Auth
 | Method | Path | Auth | Description |
 |---|---|---|---|
-| `POST` | `/auth/login` | No | Login, returns JWT tokens |
-| `POST` | `/auth/logout` | Bearer token | Logout, invalidates refresh token |
-| `GET` | `/api/home` | Bearer token | Home page data |
+| `POST` | `/auth/login` | No | Login, returns `accessToken` + `refreshToken` |
+| `POST` | `/auth/logout` | Bearer token | Logout, invalidates refresh token in Redis |
+
+### Questions
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| `GET` | `/api/questions` | Bearer token | List all questions (ordered) |
+| `GET` | `/api/questions/{id}` | Bearer token | Get single question |
+| `POST` | `/api/questions` | Bearer token | Create question |
+| `PUT` | `/api/questions/{id}` | Bearer token | Replace question |
+| `DELETE` | `/api/questions/{id}` | Bearer token | Delete question |
+| `PATCH` | `/api/questions/reorder` | Bearer token | Reorder — body `{ "orderedIds": [1, 2, 3] }` |
+
+### Files
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| `POST` | `/api/files/upload` | Bearer token | Upload image (multipart); returns `{ "path": "<id>" }` |
+| `GET` | `/api/files/{id}` | Bearer token | Serve image bytes inline |
+
+### Home
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| `GET` | `/api/home` | Bearer token | Home page message |
 
 ### Login example
 
@@ -236,14 +257,18 @@ Key settings in `application.yml` per service:
 
 ## Database Migrations (Flyway)
 
-Schema changes are managed by **Flyway** in `auth-service`. Migrations run automatically on startup before the app accepts requests.
+Schema changes are managed by **Flyway**, running independently in both `auth-service` and `main-service`. Migrations run automatically on startup before the app accepts requests.
 
-### Migration files location
+### Migration locations
 
 ```
 src/backend/auth-service/src/main/resources/db/migration/
-  V20260529000000__create_schema.sql    ← initial schema
-  V20260530143000__add_email_to_users.sql  ← example future migration
+  └─ History table: flyway_schema_history
+  └─ Manages: users, user_roles tables
+
+src/backend/main-service/src/main/resources/db/migration/
+  └─ History table: flyway_schema_history_main
+  └─ Manages: questions, image_blobs tables
 ```
 
 ### Naming convention
@@ -269,16 +294,21 @@ Examples:
 
 ### Adding a new migration
 
-1. Create a new `.sql` file in `db/migration/` using the timestamp format
-2. Write your DDL (ALTER TABLE, CREATE TABLE, etc.)
-3. Restart `auth-service` — Flyway applies it automatically
-4. Update the corresponding Java entity to match
+1. Decide which service owns the table you're changing (`auth-service` → users schema, `main-service` → questions/files schema)
+2. Create a new `.sql` file in that service's `db/migration/` folder using the timestamp format
+3. Write your DDL (ALTER TABLE, CREATE TABLE, etc.)
+4. Restart the relevant service — Flyway applies it automatically
+5. Update the corresponding Java entity to match
 
 ### Checking migration history
 
 Connect to PostgreSQL and query:
 ```sql
+-- auth-service migrations
 SELECT version, description, installed_on, success FROM flyway_schema_history ORDER BY installed_rank;
+
+-- main-service migrations
+SELECT version, description, installed_on, success FROM flyway_schema_history_main ORDER BY installed_rank;
 ```
 
 ### If a migration fails
