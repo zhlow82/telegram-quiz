@@ -1,0 +1,54 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Auth Service",
+      "presentation": { "order": 2 },
+      "request": "launch",
+      "mainClass": "com.telegramquiz.auth.AuthServiceApplication",
+      "projectName": "auth-service",
+      "timeout": 60000,
+      "vmArgs": "-Dspring.devtools.restart.enabled=false"
+    },
+    {
+      "type": "java",
+      "name": "Main Service",
+      "presentation": { "order": 3 },
+      "request": "launch",
+      "mainClass": "com.telegramquiz.main.MainServiceApplication",
+      "projectName": "main-service",
+      "timeout": 60000,
+      "vmArgs": "-Dspring.devtools.restart.enabled=false"
+    },
+    {
+      "type": "java",
+      "name": "API Gateway",
+      "presentation": { "order": 4 },
+      "request": "launch",
+      "mainClass": "com.telegramquiz.gateway.GatewayApplication",
+      "projectName": "api-gateway",
+      "timeout": 60000,
+      "vmArgs": "-Dspring.devtools.restart.enabled=false"
+    },
+    {
+      "type": "node",
+      "name": "Frontend",
+      "presentation": { "order": 5 },
+      "request": "launch",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "cwd": "${workspaceFolder}/src/frontend",
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**"]
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Full Stack",
+      "configurations": ["Auth Service", "Main Service", "API Gateway", "Frontend"],
+      "stopAll": true,
+      "presentation": { "order": 1 }
+    }
+  ]
+}
