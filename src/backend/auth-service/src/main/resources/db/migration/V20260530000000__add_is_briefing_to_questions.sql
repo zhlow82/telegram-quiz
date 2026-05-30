@@ -1,2 +1,2 @@
-ALTER TABLE questions
-    ADD COLUMN IF NOT EXISTS is_briefing BOOLEAN NOT NULL DEFAULT FALSE;
+-- no-op: is_briefing migration moved to main-service
+SELECT 1;

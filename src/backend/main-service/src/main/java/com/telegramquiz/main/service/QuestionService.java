@@ -41,19 +41,15 @@ public class QuestionService {
                 : (int) questionRepository.count();
 
         Question question = Question.builder()
-                .questionText(dto.questionText())
+                .questionBlocks(dto.questionBlocks() != null ? dto.questionBlocks() : new ArrayList<>())
                 .orderIndex(nextOrder)
-                .intro(dto.intro())
-                .introBlue(Boolean.TRUE.equals(dto.introBlue()))
-                .questionImagePaths(dto.questionImagePaths() != null ? dto.questionImagePaths() : new ArrayList<>())
                 .options(dto.options() != null ? dto.options() : new ArrayList<>())
                 .answer(dto.answer())
                 .expectPhoto(Boolean.TRUE.equals(dto.expectPhoto()))
                 .isBriefing(Boolean.TRUE.equals(dto.isBriefing()))
-                .hintText(dto.hintText())
-                .hintImagePaths(dto.hintImagePaths() != null ? dto.hintImagePaths() : new ArrayList<>())
-                .explanationTexts(dto.explanationTexts() != null ? dto.explanationTexts() : new ArrayList<>())
-                .explanationImagePaths(dto.explanationImagePaths() != null ? dto.explanationImagePaths() : new ArrayList<>())
+                .hintBlocks(dto.hintBlocks() != null ? dto.hintBlocks() : new ArrayList<>())
+                .explanationBlocks(dto.explanationBlocks() != null ? dto.explanationBlocks() : new ArrayList<>())
+                .mark(dto.mark())
                 .build();
 
         return toDto(questionRepository.save(question));
@@ -62,19 +58,15 @@ public class QuestionService {
     @Transactional
     public QuestionResponseDto update(Long id, QuestionRequestDto dto) {
         Question question = getOrThrow(id);
-        question.setQuestionText(dto.questionText());
+        question.setQuestionBlocks(dto.questionBlocks() != null ? dto.questionBlocks() : new ArrayList<>());
         if (dto.orderIndex() != null) question.setOrderIndex(dto.orderIndex());
-        question.setIntro(dto.intro());
-        question.setIntroBlue(Boolean.TRUE.equals(dto.introBlue()));
-        question.setQuestionImagePaths(dto.questionImagePaths() != null ? dto.questionImagePaths() : new ArrayList<>());
         question.setOptions(dto.options() != null ? dto.options() : new ArrayList<>());
         question.setAnswer(dto.answer());
         question.setExpectPhoto(Boolean.TRUE.equals(dto.expectPhoto()));
         question.setBriefing(Boolean.TRUE.equals(dto.isBriefing()));
-        question.setHintText(dto.hintText());
-        question.setHintImagePaths(dto.hintImagePaths() != null ? dto.hintImagePaths() : new ArrayList<>());
-        question.setExplanationTexts(dto.explanationTexts() != null ? dto.explanationTexts() : new ArrayList<>());
-        question.setExplanationImagePaths(dto.explanationImagePaths() != null ? dto.explanationImagePaths() : new ArrayList<>());
+        question.setHintBlocks(dto.hintBlocks() != null ? dto.hintBlocks() : new ArrayList<>());
+        question.setExplanationBlocks(dto.explanationBlocks() != null ? dto.explanationBlocks() : new ArrayList<>());
+        question.setMark(dto.mark());
         return toDto(questionRepository.save(question));
     }
 
@@ -103,22 +95,18 @@ public class QuestionService {
                 .orElseThrow(() -> new EntityNotFoundException("Question not found: " + id));
     }
 
-    private QuestionResponseDto toDto(Question q) {
+    QuestionResponseDto toDto(Question q) {
         return new QuestionResponseDto(
                 q.getId(),
                 q.getOrderIndex(),
-                q.getQuestionText(),
-                q.getIntro(),
-                q.isIntroBlue(),
-                q.getQuestionImagePaths(),
+                q.getQuestionBlocks(),
                 q.getOptions(),
                 q.getAnswer(),
                 q.isExpectPhoto(),
                 q.isBriefing(),
-                q.getHintText(),
-                q.getHintImagePaths(),
-                q.getExplanationTexts(),
-                q.getExplanationImagePaths(),
+                q.getHintBlocks(),
+                q.getExplanationBlocks(),
+                q.getMark(),
                 q.getCreatedAt(),
                 q.getUpdatedAt()
         );

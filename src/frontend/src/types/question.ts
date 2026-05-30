@@ -1,34 +1,32 @@
+export interface ContentBlock {
+  type: 'text' | 'image'
+  content: string
+}
+
 export interface Question {
   id: number
   orderIndex: number
-  questionText: string
-  intro: string | null
-  introBlue: boolean
-  questionImagePaths: string[]
+  questionBlocks: ContentBlock[]
   options: string[]
   answer: string | null
   expectPhoto: boolean
   isBriefing: boolean
-  hintText: string | null
-  hintImagePaths: string[]
-  explanationTexts: string[]
-  explanationImagePaths: string[]
+  hintBlocks: ContentBlock[]
+  explanationBlocks: ContentBlock[]
+  mark: number | null
   createdAt: string
   updatedAt: string
 }
 
 export interface QuestionRequest {
-  questionText: string
+  questionBlocks?: ContentBlock[]
   orderIndex?: number
-  intro?: string | null
-  introBlue?: boolean
-  questionImagePaths?: string[]
   options?: string[]
   answer?: string | null
   expectPhoto?: boolean
   isBriefing?: boolean
-  hintText?: string | null
-  hintImagePaths?: string[]
-  explanationTexts?: string[]
-  explanationImagePaths?: string[]
+  hintBlocks?: ContentBlock[]
+  explanationBlocks?: ContentBlock[]
+  mark?: number | null
 }
+

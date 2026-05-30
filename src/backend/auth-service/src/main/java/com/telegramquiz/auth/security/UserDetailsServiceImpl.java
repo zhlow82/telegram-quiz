@@ -1,15 +1,17 @@
 package com.telegramquiz.auth.security;
 
-import com.telegramquiz.auth.model.User;
-import com.telegramquiz.auth.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
+import java.util.stream.Collectors;
+
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.stream.Collectors;
+import com.telegramquiz.auth.model.User;
+import com.telegramquiz.auth.repository.UserRepository;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +27,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         return org.springframework.security.core.userdetails.User.builder()
                 .username(user.getUsername())
                 .password(user.getPassword())
+                .disabled(!user.isActive())
                 .authorities(user.getRoles().stream()
                         .map(SimpleGrantedAuthority::new)
                         .collect(Collectors.toList()))

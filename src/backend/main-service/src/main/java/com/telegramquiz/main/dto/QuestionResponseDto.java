@@ -3,21 +3,19 @@ package com.telegramquiz.main.dto;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.telegramquiz.main.model.ContentBlock;
+
 public record QuestionResponseDto(
         Long id,
         int orderIndex,
-        String questionText,
-        String intro,
-        boolean introBlue,
-        List<String> questionImagePaths,
+        List<ContentBlock> questionBlocks,
         List<String> options,
         String answer,
         boolean expectPhoto,
         boolean isBriefing,
-        String hintText,
-        List<String> hintImagePaths,
-        List<String> explanationTexts,
-        List<String> explanationImagePaths,
+        List<ContentBlock> hintBlocks,
+        List<ContentBlock> explanationBlocks,
+        Integer mark,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {}

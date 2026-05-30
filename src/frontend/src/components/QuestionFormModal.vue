@@ -36,133 +36,135 @@
             >✕</button>
           </div>
 
-          <!-- Tabs -->
-          <div class="flex gap-1 border-b border-slate-200 px-4 pt-1">
-            <button
-              v-for="tab in tabs"
-              :key="tab.value"
-              type="button"
-              class="px-4 py-2 text-sm font-semibold rounded-t-lg border border-b-0 -mb-px transition cursor-pointer"
-              :class="activeTab === tab.value
-                ? 'bg-white border-slate-200 text-blue-600 shadow-sm'
-                : 'bg-slate-50 border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-100'"
-              @click="activeTab = tab.value"
-            >{{ tab.label }}</button>
-          </div>
-
           <!-- Body -->
           <div class="flex flex-1 overflow-hidden min-h-0">
             <!-- Form panel -->
-            <div class="w-1/2 min-w-0 overflow-y-auto border-r border-slate-100">
-              <form @submit.prevent="submit" class="p-6 space-y-5">
+            <div class="w-1/2 min-w-0 flex flex-col border-r border-slate-100">
 
-                <!-- ── Tab: Question ── -->
-                <template v-if="activeTab === 'question'">
+              <!-- Question Type (always visible) -->
+              <div class="px-6 pt-5 pb-4 border-b border-slate-100 shrink-0">
+                <div class="space-y-2">
+                  <label class="block text-sm font-semibold text-slate-700">Question Type</label>
+                  <div class="grid grid-cols-3 gap-3">
+                    <button
+                      type="button"
+                      class="flex flex-col items-center gap-2 px-3 py-4 rounded-xl border-2 transition cursor-pointer text-center"
+                      :class="!form.expectPhoto && !form.isBriefing
+                        ? 'border-blue-500 bg-blue-50 shadow-sm'
+                        : 'border-slate-200 bg-slate-50 hover:border-slate-300 hover:bg-white'"
+                      @click="setQuestionType(false, false)"
+                    >
+                      <span class="text-2xl leading-none">⌨️</span>
+                      <span class="text-sm font-bold" :class="!form.expectPhoto && !form.isBriefing ? 'text-blue-700' : 'text-slate-800'">Multiple Choice</span>
+                      <span class="text-xs text-slate-500 leading-snug">Players pick from A / B / C / D options</span>
+                    </button>
+                    <button
+                      type="button"
+                      class="flex flex-col items-center gap-2 px-3 py-4 rounded-xl border-2 transition cursor-pointer text-center"
+                      :class="form.expectPhoto && !form.isBriefing
+                        ? 'border-blue-500 bg-blue-50 shadow-sm'
+                        : 'border-slate-200 bg-slate-50 hover:border-slate-300 hover:bg-white'"
+                      @click="setQuestionType(true, false)"
+                    >
+                      <span class="text-2xl leading-none">📷</span>
+                      <span class="text-sm font-bold" :class="form.expectPhoto && !form.isBriefing ? 'text-blue-700' : 'text-slate-800'">Photo</span>
+                      <span class="text-xs text-slate-500 leading-snug">Players send a photo as their answer</span>
+                    </button>
+                    <button
+                      type="button"
+                      class="flex flex-col items-center gap-2 px-3 py-4 rounded-xl border-2 transition cursor-pointer text-center"
+                      :class="form.isBriefing
+                        ? 'border-blue-500 bg-blue-50 shadow-sm'
+                        : 'border-slate-200 bg-slate-50 hover:border-slate-300 hover:bg-white'"
+                      @click="setQuestionType(false, true)"
+                    >
+                      <span class="text-2xl leading-none">📋</span>
+                      <span class="text-sm font-bold" :class="form.isBriefing ? 'text-blue-700' : 'text-slate-800'">Briefing</span>
+                      <span class="text-xs text-slate-500 leading-snug">Instructions + photo, then READY</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
 
-                  <!-- Question Type -->
-                  <div class="space-y-2">
-                    <label class="block text-sm font-semibold text-slate-700">Question Type</label>
-                    <div class="grid grid-cols-3 gap-3">
-                      <button
-                        type="button"
-                        class="flex flex-col items-center gap-2 px-3 py-4 rounded-xl border-2 transition cursor-pointer text-center"
-                        :class="!form.expectPhoto && !form.isBriefing
-                          ? 'border-blue-500 bg-blue-50 shadow-sm'
-                          : 'border-slate-200 bg-slate-50 hover:border-slate-300 hover:bg-white'"
-                        @click="form.expectPhoto = false; form.isBriefing = false"
-                      >
-                        <span class="text-2xl leading-none">⌨️</span>
-                        <span class="text-sm font-bold" :class="!form.expectPhoto && !form.isBriefing ? 'text-blue-700' : 'text-slate-800'">Quick Reply</span>
-                        <span class="text-xs text-slate-500 leading-snug">Players pick from A / B / C / D options</span>
-                      </button>
-                      <button
-                        type="button"
-                        class="flex flex-col items-center gap-2 px-3 py-4 rounded-xl border-2 transition cursor-pointer text-center"
-                        :class="form.expectPhoto && !form.isBriefing
-                          ? 'border-blue-500 bg-blue-50 shadow-sm'
-                          : 'border-slate-200 bg-slate-50 hover:border-slate-300 hover:bg-white'"
-                        @click="form.expectPhoto = true; form.isBriefing = false"
-                      >
-                        <span class="text-2xl leading-none">📷</span>
-                        <span class="text-sm font-bold" :class="form.expectPhoto && !form.isBriefing ? 'text-blue-700' : 'text-slate-800'">Photo</span>
-                        <span class="text-xs text-slate-500 leading-snug">Players send a photo as their answer</span>
-                      </button>
-                      <button
-                        type="button"
-                        class="flex flex-col items-center gap-2 px-3 py-4 rounded-xl border-2 transition cursor-pointer text-center"
-                        :class="form.isBriefing
-                          ? 'border-blue-500 bg-blue-50 shadow-sm'
-                          : 'border-slate-200 bg-slate-50 hover:border-slate-300 hover:bg-white'"
-                        @click="form.isBriefing = true; form.expectPhoto = false"
-                      >
-                        <span class="text-2xl leading-none">📋</span>
-                        <span class="text-sm font-bold" :class="form.isBriefing ? 'text-blue-700' : 'text-slate-800'">Briefing</span>
-                        <span class="text-xs text-slate-500 leading-snug">Instructions + photo, then READY</span>
-                      </button>
+              <!-- Sub-tabs -->
+              <div class="flex gap-1 border-b border-slate-200 px-4 pt-1 shrink-0">
+                <button
+                  v-for="tab in tabs"
+                  :key="tab.value"
+                  type="button"
+                  class="px-4 py-2 text-sm font-semibold rounded-t-lg border border-b-0 -mb-px transition cursor-pointer"
+                  :class="activeTab === tab.value
+                    ? 'bg-white border-slate-200 text-blue-600 shadow-sm'
+                    : 'bg-slate-50 border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-100'"
+                  @click="activeTab = tab.value"
+                >{{ tab.label }}</button>
+              </div>
+
+              <!-- Tab content -->
+              <div class="flex-1 overflow-y-auto" style="scrollbar-gutter: stable">
+                <form @submit.prevent="submit" class="p-6 space-y-5">
+
+                  <!-- ── Tab: Question (Multiple Choice / Photo) ── -->
+                  <template v-if="activeTab === 'question'">
+
+                    <!-- Question Blocks -->
+                    <div class="space-y-1.5">
+                      <label class="block text-sm font-semibold text-slate-700">
+                        Question Content <span class="text-red-500">*</span>
+                      </label>
+                      <VueDraggable v-model="form.questionBlocks" :animation="150" handle=".drag-handle" class="space-y-2">
+                        <div v-for="block in form.questionBlocks" :key="block._id" class="rounded-lg border border-slate-200 bg-white overflow-hidden">
+                          <div class="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-50 border-b border-slate-100">
+                            <div class="drag-handle cursor-grab text-slate-300 hover:text-slate-500 select-none text-base leading-none px-0.5" title="Drag to reorder">⠿</div>
+                            <span class="text-xs font-semibold" :class="block.type === 'text' ? 'text-blue-600' : 'text-amber-600'">{{ block.type === 'text' ? 'Text' : 'Image' }}</span>
+                            <div class="flex-1"></div>
+                            <button type="button" class="text-slate-300 hover:text-red-500 transition text-xs leading-none cursor-pointer px-1" @click="removeBlock(form.questionBlocks, block._id)" title="Remove">✕</button>
+                          </div>
+                          <div v-if="block.type === 'text'" class="p-3 space-y-1.5">
+                            <div class="flex items-center gap-0.5 px-1.5 py-1 bg-slate-50 border border-slate-200 rounded-lg w-fit">
+                              <button type="button" class="px-1.5 py-0.5 text-xs font-bold text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" @click="applyBlockFormat(questionTextareas[block._id] ?? null, form.questionBlocks, block._id, '<b>', '</b>')">B</button>
+                              <button type="button" class="px-1.5 py-0.5 text-xs italic text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" @click="applyBlockFormat(questionTextareas[block._id] ?? null, form.questionBlocks, block._id, '<i>', '</i>')">I</button>
+                              <button type="button" class="px-1.5 py-0.5 text-xs underline text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" @click="applyBlockFormat(questionTextareas[block._id] ?? null, form.questionBlocks, block._id, '<u>', '</u>')">U</button>
+                              <button type="button" class="px-1.5 py-0.5 text-xs line-through text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" @click="applyBlockFormat(questionTextareas[block._id] ?? null, form.questionBlocks, block._id, '<s>', '</s>')">S</button>
+                              <div class="w-px h-3 bg-slate-200 mx-0.5"></div>
+                              <button type="button" class="px-1.5 py-0.5 text-xs font-mono text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" @click="applyBlockFormat(questionTextareas[block._id] ?? null, form.questionBlocks, block._id, '<code>', '</code>')">&lt;/&gt;</button>
+                              <div class="w-px h-3 bg-slate-200 mx-0.5"></div>
+                              <button v-for="c in COLORS" :key="c.hex" type="button" :title="c.label" :style="{ backgroundColor: c.hex }" class="w-3.5 h-3.5 rounded-full cursor-pointer hover:scale-110 transition-transform flex-shrink-0" @click="applyBlockFormat(questionTextareas[block._id] ?? null, form.questionBlocks, block._id, colorTag(c.hex), '</span>')"></button>
+                            </div>
+                            <textarea
+                              :ref="(el) => { questionTextareas[block._id] = el as HTMLTextAreaElement }"
+                              v-model="block.content"
+                              rows="2"
+                              class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 resize-none transition bg-white text-slate-900 placeholder-slate-400 font-[inherit]"
+                              placeholder="Type here…"
+                            ></textarea>
+                          </div>
+                          <div v-else class="p-3">
+                            <div v-if="block.content" class="relative rounded-lg overflow-hidden">
+                              <img :src="`/api/files/${block.content}`" class="max-h-48 w-full object-contain block rounded-lg bg-slate-100" alt="" />
+                              <button type="button" class="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-black/55 text-white border-none text-[0.7rem] cursor-pointer flex items-center justify-center leading-none hover:bg-red-600/90 transition-colors" @click="block.content = ''" title="Remove">✕</button>
+                            </div>
+                            <div v-else class="border-2 border-dashed rounded-xl p-5 flex items-center justify-center cursor-pointer transition select-none border-slate-200 bg-slate-50 hover:border-amber-400 hover:bg-amber-50" @click="uploadImageBlock(block)">
+                              <div class="flex flex-col items-center gap-1 pointer-events-none">
+                                <div class="text-3xl leading-none">🖼️</div>
+                                <div class="text-sm font-semibold text-slate-600">Click to upload</div>
+                                <div class="text-xs text-slate-400">or drag &amp; drop a file</div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </VueDraggable>
+                      <div class="flex gap-2">
+                        <button type="button" class="flex-1 py-2 border border-dashed border-slate-300 rounded-lg text-xs text-slate-400 hover:border-blue-400 hover:text-blue-500 transition cursor-pointer" @click="addTextBlock(form.questionBlocks)">+ Add text</button>
+                        <button type="button" class="flex-1 py-2 border border-dashed border-amber-200 rounded-lg text-xs text-amber-400 hover:border-amber-400 hover:text-amber-500 transition cursor-pointer" @click="addImageBlock(form.questionBlocks)">+ Add image</button>
+                      </div>
                     </div>
-                  </div>
 
-                  <!-- Intro -->
-                  <div class="space-y-1.5">
-                    <label class="block text-sm font-semibold text-slate-700">Intro</label>
-                    <div class="flex items-center gap-0.5 px-1.5 py-1 bg-slate-50 border border-slate-200 rounded-lg w-fit">
-                      <button type="button" title="Bold" class="w-6 h-6 rounded flex items-center justify-center text-xs font-bold text-slate-700 hover:bg-white hover:shadow-sm transition cursor-pointer" @click="applyFormat(introTextarea, 'intro', '<b>', '</b>')">B</button>
-                      <button type="button" title="Italic" class="w-6 h-6 rounded flex items-center justify-center text-xs italic text-slate-700 hover:bg-white hover:shadow-sm transition cursor-pointer" @click="applyFormat(introTextarea, 'intro', '<i>', '</i>')">I</button>
-                      <button type="button" title="Underline" class="w-6 h-6 rounded flex items-center justify-center text-xs underline text-slate-700 hover:bg-white hover:shadow-sm transition cursor-pointer" @click="applyFormat(introTextarea, 'intro', '<u>', '</u>')">U</button>
-                      <button type="button" title="Strikethrough" class="w-6 h-6 rounded flex items-center justify-center text-xs line-through text-slate-700 hover:bg-white hover:shadow-sm transition cursor-pointer" @click="applyFormat(introTextarea, 'intro', '<s>', '</s>')">S</button>
-                      <div class="w-px h-3 bg-slate-200 mx-0.5"></div>
-                      <button type="button" title="Monospace" class="w-7 h-6 rounded flex items-center justify-center font-mono text-[0.6rem] text-slate-700 hover:bg-white hover:shadow-sm transition cursor-pointer" @click="applyFormat(introTextarea, 'intro', '<code>', '</code>')">&lt;/&gt;</button>
-                      <div class="w-px h-3 bg-slate-200 mx-0.5"></div>
-                      <button v-for="c in COLORS" :key="c.hex" type="button" :title="c.label" :style="{ backgroundColor: c.hex }" class="w-3.5 h-3.5 rounded-full cursor-pointer hover:scale-110 transition-transform flex-shrink-0" @click="applyFormat(introTextarea, 'intro', colorTag(c.hex), '</span>')"></button>
-                    </div>
-                    <textarea
-                      ref="introTextarea"
-                      v-model="form.intro"
-                      rows="2"
-                      class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 resize-none transition bg-white text-slate-900 placeholder-slate-400 font-[inherit]"
-                      placeholder="Poem, clue, or context shown before the question…"
-                    ></textarea>
-                  </div>
+                  </template>
 
-                  <!-- Question Text -->
-                  <div class="space-y-1.5">
-                    <label class="block text-sm font-semibold text-slate-700">
-                      Question Text <span class="text-red-500">*</span>
-                    </label>
-                    <div class="flex items-center gap-0.5 px-1.5 py-1 bg-slate-50 border border-slate-200 rounded-lg w-fit">
-                      <button type="button" title="Bold" class="w-6 h-6 rounded flex items-center justify-center text-xs font-bold text-slate-700 hover:bg-white hover:shadow-sm transition cursor-pointer" @click="applyFormat(questionTextarea, 'questionText', '<b>', '</b>')">B</button>
-                      <button type="button" title="Italic" class="w-6 h-6 rounded flex items-center justify-center text-xs italic text-slate-700 hover:bg-white hover:shadow-sm transition cursor-pointer" @click="applyFormat(questionTextarea, 'questionText', '<i>', '</i>')">I</button>
-                      <button type="button" title="Underline" class="w-6 h-6 rounded flex items-center justify-center text-xs underline text-slate-700 hover:bg-white hover:shadow-sm transition cursor-pointer" @click="applyFormat(questionTextarea, 'questionText', '<u>', '</u>')">U</button>
-                      <button type="button" title="Strikethrough" class="w-6 h-6 rounded flex items-center justify-center text-xs line-through text-slate-700 hover:bg-white hover:shadow-sm transition cursor-pointer" @click="applyFormat(questionTextarea, 'questionText', '<s>', '</s>')">S</button>
-                      <div class="w-px h-3 bg-slate-200 mx-0.5"></div>
-                      <button type="button" title="Monospace" class="w-7 h-6 rounded flex items-center justify-center font-mono text-[0.6rem] text-slate-700 hover:bg-white hover:shadow-sm transition cursor-pointer" @click="applyFormat(questionTextarea, 'questionText', '<code>', '</code>')">&lt;/&gt;</button>
-                      <div class="w-px h-3 bg-slate-200 mx-0.5"></div>
-                      <button v-for="c in COLORS" :key="c.hex" type="button" :title="c.label" :style="{ backgroundColor: c.hex }" class="w-3.5 h-3.5 rounded-full cursor-pointer hover:scale-110 transition-transform flex-shrink-0" @click="applyFormat(questionTextarea, 'questionText', colorTag(c.hex), '</span>')"></button>
-                    </div>
-                    <textarea
-                      ref="questionTextarea"
-                      v-model="form.questionText"
-                      rows="2"
-                      required
-                      class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 resize-none transition bg-white text-slate-900 placeholder-slate-400 font-[inherit]"
-                      placeholder="Enter the question…"
-                    ></textarea>
-                  </div>
+                  <!-- ── Tab: Answer (Multiple Choice only) ── -->
+                  <template v-if="activeTab === 'answer'">
 
-                  <!-- Question Images -->
-                  <div class="space-y-1.5">
-                    <label class="block text-sm font-semibold text-slate-700">
-                      Question Images <span class="font-normal text-slate-400 text-xs">· up to 4</span>
-                    </label>
-                    <MultiImageUploadField
-                      v-model="form.questionImagePaths"
-                      :max="4"
-                      @upload="uploadImages('questionImagePaths', $event)"
-                    />
-                  </div>
-
-                <!-- ── Options & Answer (Quick Reply only) ── -->
-                  <template v-if="!form.expectPhoto && !form.isBriefing">
                     <div class="space-y-1.5">
                       <label class="block text-sm font-semibold text-slate-700">Answer Options</label>
                       <div class="space-y-2">
@@ -206,92 +208,216 @@
                         </option>
                       </select>
                     </div>
+
                   </template>
 
-                  <!-- Hint section (not shown for Briefing) -->
-                  <div v-if="!form.isBriefing" class="pt-4 border-t border-slate-100 space-y-4">
-                    <div class="space-y-1.5">
-                      <label class="block text-sm font-semibold text-slate-700">Hint Text</label>
-                      <div class="flex items-center gap-0.5 px-1.5 py-1 bg-slate-50 border border-slate-200 rounded-lg w-fit">
-                        <button type="button" title="Bold" class="w-6 h-6 rounded flex items-center justify-center text-xs font-bold text-slate-700 hover:bg-white hover:shadow-sm transition cursor-pointer" @click="applyFormat(hintTextarea, 'hintText', '<b>', '</b>')">B</button>
-                        <button type="button" title="Italic" class="w-6 h-6 rounded flex items-center justify-center text-xs italic text-slate-700 hover:bg-white hover:shadow-sm transition cursor-pointer" @click="applyFormat(hintTextarea, 'hintText', '<i>', '</i>')">I</button>
-                        <button type="button" title="Underline" class="w-6 h-6 rounded flex items-center justify-center text-xs underline text-slate-700 hover:bg-white hover:shadow-sm transition cursor-pointer" @click="applyFormat(hintTextarea, 'hintText', '<u>', '</u>')">U</button>
-                        <button type="button" title="Strikethrough" class="w-6 h-6 rounded flex items-center justify-center text-xs line-through text-slate-700 hover:bg-white hover:shadow-sm transition cursor-pointer" @click="applyFormat(hintTextarea, 'hintText', '<s>', '</s>')">S</button>
-                        <div class="w-px h-3 bg-slate-200 mx-0.5"></div>
-                        <button type="button" title="Monospace" class="w-7 h-6 rounded flex items-center justify-center font-mono text-[0.6rem] text-slate-700 hover:bg-white hover:shadow-sm transition cursor-pointer" @click="applyFormat(hintTextarea, 'hintText', '<code>', '</code>')">&lt;/&gt;</button>
-                        <div class="w-px h-3 bg-slate-200 mx-0.5"></div>
-                        <button v-for="c in COLORS" :key="c.hex" type="button" :title="c.label" :style="{ backgroundColor: c.hex }" class="w-3.5 h-3.5 rounded-full cursor-pointer hover:scale-110 transition-transform flex-shrink-0" @click="applyFormat(hintTextarea, 'hintText', colorTag(c.hex), '</span>')"></button>
-                      </div>
-                      <textarea
-                        ref="hintTextarea"
-                        v-model="form.hintText"
-                        rows="2"
-                        class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 resize-none transition bg-white text-slate-900 placeholder-slate-400 font-[inherit]"
-                        placeholder="Hint shown on request…"
-                      ></textarea>
-                    </div>
-                    <div class="space-y-1.5">
-                      <label class="block text-sm font-medium text-slate-600">Hint Image <span class="text-slate-400 font-normal text-xs">· up to 4</span></label>
-                      <MultiImageUploadField
-                        v-model="form.hintImagePaths"
-                        :max="4"
-                        @upload="uploadImages('hintImagePaths', $event)"
-                      />
-                    </div>
-                  </div>
+                  <!-- ── Tab: Mark ── -->
+                  <template v-if="activeTab === 'mark'">
 
-                </template>
-
-                <!-- ── Tab: Explanation ── -->
-                <template v-if="activeTab === 'explanation'">
-
-                  <div class="space-y-1.5">
-                    <label class="block text-sm font-semibold text-slate-700">Explanation Texts</label>
-                    <div class="space-y-2">
-                      <div v-for="(_, i) in form.explanationTexts" :key="i" class="space-y-1">
-                        <div class="flex items-center justify-between">
-                          <div class="flex items-center gap-0.5 px-1.5 py-1 bg-slate-50 border border-slate-200 rounded-lg w-fit">
-                            <button type="button" class="px-1.5 py-0.5 text-xs font-bold text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" @click="applyExplanationFormat(explanationTextareas[i] ?? null, i, '<b>', '</b>')">B</button>
-                            <button type="button" class="px-1.5 py-0.5 text-xs italic text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" @click="applyExplanationFormat(explanationTextareas[i] ?? null, i, '<i>', '</i>')">I</button>
-                            <button type="button" class="px-1.5 py-0.5 text-xs underline text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" @click="applyExplanationFormat(explanationTextareas[i] ?? null, i, '<u>', '</u>')">U</button>
-                            <button type="button" class="px-1.5 py-0.5 text-xs line-through text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" @click="applyExplanationFormat(explanationTextareas[i] ?? null, i, '<s>', '</s>')">S</button>
-                            <div class="w-px h-3 bg-slate-200 mx-0.5"></div>
-                            <button type="button" class="px-1.5 py-0.5 text-xs font-mono text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" @click="applyExplanationFormat(explanationTextareas[i] ?? null, i, '<code>', '</code>')">&lt;/&gt;</button>
-                            <div class="w-px h-3 bg-slate-200 mx-0.5"></div>
-                            <button v-for="c in COLORS" :key="c.hex" type="button" :title="c.label" :style="{ backgroundColor: c.hex }" class="w-3.5 h-3.5 rounded-full cursor-pointer hover:scale-110 transition-transform flex-shrink-0" @click="applyExplanationFormat(explanationTextareas[i] ?? null, i, colorTag(c.hex), '</span>')"></button>
-                          </div>
-                          <button type="button" class="text-slate-300 hover:text-red-500 transition text-xs px-1 cursor-pointer leading-none" @click="removeExplanation(i)" title="Remove">✕</button>
+                    <div class="space-y-4">
+                      <div class="space-y-1.5">
+                        <label class="block text-sm font-semibold text-slate-700">Points / Mark</label>
+                        <p class="text-xs text-slate-400">How many points this question is worth. Leave blank for unscored.</p>
+                        <div class="flex items-center gap-3">
+                          <input
+                            v-model.number="form.mark"
+                            type="number"
+                            min="0"
+                            step="1"
+                            class="w-32 px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition bg-white text-slate-900 placeholder-slate-400"
+                            placeholder="e.g. 1"
+                          />
+                          <button
+                            v-if="form.mark !== null"
+                            type="button"
+                            class="text-xs text-slate-400 hover:text-red-500 transition cursor-pointer"
+                            @click="form.mark = null"
+                          >Clear</button>
                         </div>
-                        <textarea
-                          :ref="(el) => { explanationTextareas[i] = el as HTMLTextAreaElement }"
-                          v-model="form.explanationTexts[i]"
-                          rows="3"
-                          class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 resize-none transition bg-white text-slate-900 placeholder-slate-400 font-[inherit]"
-                          :placeholder="`Explanation ${i + 1}…`"
-                        ></textarea>
                       </div>
-                      <button
-                        type="button"
-                        class="w-full py-2 border border-dashed border-slate-300 rounded-lg text-xs text-slate-400 hover:border-blue-400 hover:text-blue-500 transition cursor-pointer"
-                        @click="addExplanation"
-                      >+ Add explanation</button>
+                      <div class="flex flex-wrap gap-2">
+                        <span class="text-xs text-slate-500 self-center">Quick set:</span>
+                        <button v-for="n in [1, 2, 3, 5, 10]" :key="n" type="button"
+                          class="px-3 py-1 rounded-full text-xs font-semibold border transition cursor-pointer"
+                          :class="form.mark === n
+                            ? 'bg-blue-600 text-white border-blue-600'
+                            : 'bg-white text-slate-600 border-slate-200 hover:border-blue-400 hover:text-blue-600'"
+                          @click="form.mark = n"
+                        >{{ n }}</button>
+                      </div>
                     </div>
-                  </div>
 
-                  <div class="space-y-1.5">
-                    <label class="block text-sm font-semibold text-slate-700">
-                      Explanation Images <span class="font-normal text-slate-400 text-xs">· up to 4</span>
-                    </label>
-                    <MultiImageUploadField
-                      v-model="form.explanationImagePaths"
-                      :max="4"
-                      @upload="uploadExplanationImages($event)"
-                    />
-                  </div>
+                  </template>
 
-                </template>
+                  <!-- ── Tab: Hint ── -->
+                  <template v-if="activeTab === 'hint'">
 
-              </form>
+                    <div class="space-y-1.5">
+                      <label class="block text-sm font-semibold text-slate-700">Hint Content</label>
+                      <VueDraggable v-model="form.hintBlocks" :animation="150" handle=".drag-handle" class="space-y-2">
+                        <div v-for="block in form.hintBlocks" :key="block._id" class="rounded-lg border border-slate-200 bg-white overflow-hidden">
+                          <div class="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-50 border-b border-slate-100">
+                            <div class="drag-handle cursor-grab text-slate-300 hover:text-slate-500 select-none text-base leading-none px-0.5" title="Drag to reorder">⠿</div>
+                            <span class="text-xs font-semibold" :class="block.type === 'text' ? 'text-blue-600' : 'text-amber-600'">{{ block.type === 'text' ? 'Text' : 'Image' }}</span>
+                            <div class="flex-1"></div>
+                            <button type="button" class="text-slate-300 hover:text-red-500 transition text-xs leading-none cursor-pointer px-1" @click="removeBlock(form.hintBlocks, block._id)" title="Remove">✕</button>
+                          </div>
+                          <div v-if="block.type === 'text'" class="p-3 space-y-1.5">
+                            <div class="flex items-center gap-0.5 px-1.5 py-1 bg-slate-50 border border-slate-200 rounded-lg w-fit">
+                              <button type="button" class="px-1.5 py-0.5 text-xs font-bold text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" @click="applyBlockFormat(hintTextareas[block._id] ?? null, form.hintBlocks, block._id, '<b>', '</b>')">B</button>
+                              <button type="button" class="px-1.5 py-0.5 text-xs italic text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" @click="applyBlockFormat(hintTextareas[block._id] ?? null, form.hintBlocks, block._id, '<i>', '</i>')">I</button>
+                              <button type="button" class="px-1.5 py-0.5 text-xs underline text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" @click="applyBlockFormat(hintTextareas[block._id] ?? null, form.hintBlocks, block._id, '<u>', '</u>')">U</button>
+                              <button type="button" class="px-1.5 py-0.5 text-xs line-through text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" @click="applyBlockFormat(hintTextareas[block._id] ?? null, form.hintBlocks, block._id, '<s>', '</s>')">S</button>
+                              <div class="w-px h-3 bg-slate-200 mx-0.5"></div>
+                              <button type="button" class="px-1.5 py-0.5 text-xs font-mono text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" @click="applyBlockFormat(hintTextareas[block._id] ?? null, form.hintBlocks, block._id, '<code>', '</code>')">&lt;/&gt;</button>
+                              <div class="w-px h-3 bg-slate-200 mx-0.5"></div>
+                              <button v-for="c in COLORS" :key="c.hex" type="button" :title="c.label" :style="{ backgroundColor: c.hex }" class="w-3.5 h-3.5 rounded-full cursor-pointer hover:scale-110 transition-transform flex-shrink-0" @click="applyBlockFormat(hintTextareas[block._id] ?? null, form.hintBlocks, block._id, colorTag(c.hex), '</span>')"></button>
+                            </div>
+                            <textarea
+                              :ref="(el) => { hintTextareas[block._id] = el as HTMLTextAreaElement }"
+                              v-model="block.content"
+                              rows="2"
+                              class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 resize-none transition bg-white text-slate-900 placeholder-slate-400 font-[inherit]"
+                              placeholder="Hint text…"
+                            ></textarea>
+                          </div>
+                          <div v-else class="p-3">
+                            <div v-if="block.content" class="relative rounded-lg overflow-hidden">
+                              <img :src="`/api/files/${block.content}`" class="max-h-48 w-full object-contain block rounded-lg bg-slate-100" alt="" />
+                              <button type="button" class="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-black/55 text-white border-none text-[0.7rem] cursor-pointer flex items-center justify-center leading-none hover:bg-red-600/90 transition-colors" @click="block.content = ''" title="Remove">✕</button>
+                            </div>
+                            <div v-else class="border-2 border-dashed rounded-xl p-5 flex items-center justify-center cursor-pointer transition select-none border-slate-200 bg-slate-50 hover:border-amber-400 hover:bg-amber-50" @click="uploadImageBlock(block)">
+                              <div class="flex flex-col items-center gap-1 pointer-events-none">
+                                <div class="text-3xl leading-none">🖼️</div>
+                                <div class="text-sm font-semibold text-slate-600">Click to upload</div>
+                                <div class="text-xs text-slate-400">or drag &amp; drop a file</div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </VueDraggable>
+                      <div class="flex gap-2">
+                        <button type="button" class="flex-1 py-2 border border-dashed border-slate-300 rounded-lg text-xs text-slate-400 hover:border-blue-400 hover:text-blue-500 transition cursor-pointer" @click="addTextBlock(form.hintBlocks)">+ Add text</button>
+                        <button type="button" class="flex-1 py-2 border border-dashed border-amber-200 rounded-lg text-xs text-amber-400 hover:border-amber-400 hover:text-amber-500 transition cursor-pointer" @click="addImageBlock(form.hintBlocks)">+ Add image</button>
+                      </div>
+                    </div>
+
+                  </template>
+
+                  <!-- ── Tab: After Answer ── -->
+                  <template v-if="activeTab === 'explanation'">
+
+                    <div class="space-y-1.5">
+                      <label class="block text-sm font-semibold text-slate-700">After Answer Content</label>
+                      <VueDraggable v-model="form.explanationBlocks" :animation="150" handle=".drag-handle" class="space-y-2">
+                        <div v-for="block in form.explanationBlocks" :key="block._id" class="rounded-lg border border-slate-200 bg-white overflow-hidden">
+                          <div class="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-50 border-b border-slate-100">
+                            <div class="drag-handle cursor-grab text-slate-300 hover:text-slate-500 select-none text-base leading-none px-0.5" title="Drag to reorder">⠿</div>
+                            <span class="text-xs font-semibold" :class="block.type === 'text' ? 'text-blue-600' : 'text-amber-600'">{{ block.type === 'text' ? 'Text' : 'Image' }}</span>
+                            <div class="flex-1"></div>
+                            <button type="button" class="text-slate-300 hover:text-red-500 transition text-xs leading-none cursor-pointer px-1" @click="removeBlock(form.explanationBlocks, block._id)" title="Remove">✕</button>
+                          </div>
+                          <div v-if="block.type === 'text'" class="p-3 space-y-1.5">
+                            <div class="flex items-center gap-0.5 px-1.5 py-1 bg-slate-50 border border-slate-200 rounded-lg w-fit">
+                              <button type="button" class="px-1.5 py-0.5 text-xs font-bold text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" @click="applyBlockFormat(explanationTextareas[block._id] ?? null, form.explanationBlocks, block._id, '<b>', '</b>')">B</button>
+                              <button type="button" class="px-1.5 py-0.5 text-xs italic text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" @click="applyBlockFormat(explanationTextareas[block._id] ?? null, form.explanationBlocks, block._id, '<i>', '</i>')">I</button>
+                              <button type="button" class="px-1.5 py-0.5 text-xs underline text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" @click="applyBlockFormat(explanationTextareas[block._id] ?? null, form.explanationBlocks, block._id, '<u>', '</u>')">U</button>
+                              <button type="button" class="px-1.5 py-0.5 text-xs line-through text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" @click="applyBlockFormat(explanationTextareas[block._id] ?? null, form.explanationBlocks, block._id, '<s>', '</s>')">S</button>
+                              <div class="w-px h-3 bg-slate-200 mx-0.5"></div>
+                              <button type="button" class="px-1.5 py-0.5 text-xs font-mono text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" @click="applyBlockFormat(explanationTextareas[block._id] ?? null, form.explanationBlocks, block._id, '<code>', '</code>')">&lt;/&gt;</button>
+                              <div class="w-px h-3 bg-slate-200 mx-0.5"></div>
+                              <button v-for="c in COLORS" :key="c.hex" type="button" :title="c.label" :style="{ backgroundColor: c.hex }" class="w-3.5 h-3.5 rounded-full cursor-pointer hover:scale-110 transition-transform flex-shrink-0" @click="applyBlockFormat(explanationTextareas[block._id] ?? null, form.explanationBlocks, block._id, colorTag(c.hex), '</span>')"></button>
+                            </div>
+                            <textarea
+                              :ref="(el) => { explanationTextareas[block._id] = el as HTMLTextAreaElement }"
+                              v-model="block.content"
+                              rows="3"
+                              class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 resize-none transition bg-white text-slate-900 placeholder-slate-400 font-[inherit]"
+                              placeholder="After answer text…"
+                            ></textarea>
+                          </div>
+                          <div v-else class="p-3">
+                            <div v-if="block.content" class="relative rounded-lg overflow-hidden">
+                              <img :src="`/api/files/${block.content}`" class="max-h-48 w-full object-contain block rounded-lg bg-slate-100" alt="" />
+                              <button type="button" class="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-black/55 text-white border-none text-[0.7rem] cursor-pointer flex items-center justify-center leading-none hover:bg-red-600/90 transition-colors" @click="block.content = ''" title="Remove">✕</button>
+                            </div>
+                            <div v-else class="border-2 border-dashed rounded-xl p-5 flex items-center justify-center cursor-pointer transition select-none border-slate-200 bg-slate-50 hover:border-amber-400 hover:bg-amber-50" @click="uploadImageBlock(block)">
+                              <div class="flex flex-col items-center gap-1 pointer-events-none">
+                                <div class="text-3xl leading-none">🖼️</div>
+                                <div class="text-sm font-semibold text-slate-600">Click to upload</div>
+                                <div class="text-xs text-slate-400">or drag &amp; drop a file</div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </VueDraggable>
+                      <div class="flex gap-2">
+                        <button type="button" class="flex-1 py-2 border border-dashed border-slate-300 rounded-lg text-xs text-slate-400 hover:border-blue-400 hover:text-blue-500 transition cursor-pointer" @click="addTextBlock(form.explanationBlocks)">+ Add text</button>
+                        <button type="button" class="flex-1 py-2 border border-dashed border-amber-200 rounded-lg text-xs text-amber-400 hover:border-amber-400 hover:text-amber-500 transition cursor-pointer" @click="addImageBlock(form.explanationBlocks)">+ Add image</button>
+                      </div>
+                    </div>
+
+                  </template>
+
+                  <!-- ── Tab: Briefing ── -->
+                  <template v-if="activeTab === 'briefing'">
+
+                    <div class="space-y-1.5">
+                      <label class="block text-sm font-semibold text-slate-700">
+                        Briefing Content <span class="text-red-500">*</span>
+                      </label>
+                      <VueDraggable v-model="form.questionBlocks" :animation="150" handle=".drag-handle" class="space-y-2">
+                        <div v-for="block in form.questionBlocks" :key="block._id" class="rounded-lg border border-slate-200 bg-white overflow-hidden">
+                          <div class="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-50 border-b border-slate-100">
+                            <div class="drag-handle cursor-grab text-slate-300 hover:text-slate-500 select-none text-base leading-none px-0.5" title="Drag to reorder">⠿</div>
+                            <span class="text-xs font-semibold" :class="block.type === 'text' ? 'text-blue-600' : 'text-amber-600'">{{ block.type === 'text' ? 'Text' : 'Image' }}</span>
+                            <div class="flex-1"></div>
+                            <button type="button" class="text-slate-300 hover:text-red-500 transition text-xs leading-none cursor-pointer px-1" @click="removeBlock(form.questionBlocks, block._id)" title="Remove">✕</button>
+                          </div>
+                          <div v-if="block.type === 'text'" class="p-3 space-y-1.5">
+                            <div class="flex items-center gap-0.5 px-1.5 py-1 bg-slate-50 border border-slate-200 rounded-lg w-fit">
+                              <button type="button" class="px-1.5 py-0.5 text-xs font-bold text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" @click="applyBlockFormat(questionTextareas[block._id] ?? null, form.questionBlocks, block._id, '<b>', '</b>')">B</button>
+                              <button type="button" class="px-1.5 py-0.5 text-xs italic text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" @click="applyBlockFormat(questionTextareas[block._id] ?? null, form.questionBlocks, block._id, '<i>', '</i>')">I</button>
+                              <button type="button" class="px-1.5 py-0.5 text-xs underline text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" @click="applyBlockFormat(questionTextareas[block._id] ?? null, form.questionBlocks, block._id, '<u>', '</u>')">U</button>
+                              <button type="button" class="px-1.5 py-0.5 text-xs line-through text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" @click="applyBlockFormat(questionTextareas[block._id] ?? null, form.questionBlocks, block._id, '<s>', '</s>')">S</button>
+                              <div class="w-px h-3 bg-slate-200 mx-0.5"></div>
+                              <button type="button" class="px-1.5 py-0.5 text-xs font-mono text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" @click="applyBlockFormat(questionTextareas[block._id] ?? null, form.questionBlocks, block._id, '<code>', '</code>')">&lt;/&gt;</button>
+                              <div class="w-px h-3 bg-slate-200 mx-0.5"></div>
+                              <button v-for="c in COLORS" :key="c.hex" type="button" :title="c.label" :style="{ backgroundColor: c.hex }" class="w-3.5 h-3.5 rounded-full cursor-pointer hover:scale-110 transition-transform flex-shrink-0" @click="applyBlockFormat(questionTextareas[block._id] ?? null, form.questionBlocks, block._id, colorTag(c.hex), '</span>')"></button>
+                            </div>
+                            <textarea
+                              :ref="(el) => { questionTextareas[block._id] = el as HTMLTextAreaElement }"
+                              v-model="block.content"
+                              rows="2"
+                              class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 resize-none transition bg-white text-slate-900 placeholder-slate-400 font-[inherit]"
+                              placeholder="Type here…"
+                            ></textarea>
+                          </div>
+                          <div v-else class="p-3">
+                            <div v-if="block.content" class="relative rounded-lg overflow-hidden">
+                              <img :src="`/api/files/${block.content}`" class="max-h-48 w-full object-contain block rounded-lg bg-slate-100" alt="" />
+                              <button type="button" class="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-black/55 text-white border-none text-[0.7rem] cursor-pointer flex items-center justify-center leading-none hover:bg-red-600/90 transition-colors" @click="block.content = ''" title="Remove">✕</button>
+                            </div>
+                            <div v-else class="border-2 border-dashed rounded-xl p-5 flex items-center justify-center cursor-pointer transition select-none border-slate-200 bg-slate-50 hover:border-amber-400 hover:bg-amber-50" @click="uploadImageBlock(block)">
+                              <div class="flex flex-col items-center gap-1 pointer-events-none">
+                                <div class="text-3xl leading-none">🖼️</div>
+                                <div class="text-sm font-semibold text-slate-600">Click to upload</div>
+                                <div class="text-xs text-slate-400">or drag &amp; drop a file</div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </VueDraggable>
+                      <div class="flex gap-2">
+                        <button type="button" class="flex-1 py-2 border border-dashed border-slate-300 rounded-lg text-xs text-slate-400 hover:border-blue-400 hover:text-blue-500 transition cursor-pointer" @click="addTextBlock(form.questionBlocks)">+ Add text</button>
+                        <button type="button" class="flex-1 py-2 border border-dashed border-amber-200 rounded-lg text-xs text-amber-400 hover:border-amber-400 hover:text-amber-500 transition cursor-pointer" @click="addImageBlock(form.questionBlocks)">+ Add image</button>
+                      </div>
+                    </div>
+
+                  </template>
+
+                </form>
+              </div>
             </div>
 
             <!-- Preview panel -->
@@ -315,48 +441,54 @@
                   <span class="tg-date-chip">Today</span>
                 </div>
 
-                <!-- Intro -->
-                <div v-if="form.intro" class="tg-row">
-                  <div class="tg-avatar">🤖</div>
-                  <div class="tg-msg"><span v-html="tgToHtml(form.intro)"></span><span class="tg-ts">12:00</span></div>
-                </div>
-
-                <!-- Question images -->
-                <div v-for="(imgId, i) in form.questionImagePaths" :key="'qi'+i" class="tg-row">
-                  <div class="tg-avatar">🤖</div>
-                  <div class="tg-msg tg-img-msg">
-                    <img :src="`/api/files/${imgId}`" class="tg-qimg" alt="" />
-                  </div>
-                </div>
-
                 <!-- ── Briefing preview ── -->
                 <template v-if="form.isBriefing">
-                  <div class="tg-row">
-                    <div class="tg-avatar">🤖</div>
-                    <div class="tg-msg"><span v-html="tgToHtml(form.questionText || 'Your instructions…')"></span><span class="tg-ts">12:00</span></div>
-                  </div>
-                  <div v-for="(imgId, i) in form.questionImagePaths" :key="'bqi'+i" class="tg-row">
-                    <div class="tg-avatar">🤖</div>
-                    <div class="tg-msg tg-img-msg">
-                      <img :src="`/api/files/${imgId}`" class="tg-qimg" alt="" />
+                  <template v-for="block in form.questionBlocks" :key="'pb'+block._id">
+                    <div v-if="block.type === 'text' && block.content.trim()" class="tg-row">
+                      <div class="tg-avatar">🤖</div>
+                      <div class="tg-msg"><span v-html="tgToHtml(block.content)"></span><span class="tg-ts">12:00</span></div>
                     </div>
+                    <div v-else-if="block.type === 'image' && block.content" class="tg-row">
+                      <div class="tg-avatar">🤖</div>
+                      <div class="tg-msg tg-img-msg"><img :src="`/api/files/${block.content}`" class="tg-qimg" alt="" /></div>
+                    </div>
+                  </template>
+                  <div v-if="!form.questionBlocks.some(b => b.content.trim())" class="tg-row">
+                    <div class="tg-avatar">🤖</div>
+                    <div class="tg-msg"><span class="text-slate-400 italic">Your instructions…</span><span class="tg-ts">12:00</span></div>
                   </div>
                   <div class="tg-keyboard">
                     <div class="tg-kb-btn tg-kb-ready">▶️ Press READY to begin</div>
                   </div>
                 </template>
 
-                <!-- ── Question preview (Quick Reply / Photo) ── -->
+                <!-- ── Question preview (Multiple Choice / Photo) ── -->
                 <template v-else>
 
-                <!-- Poll card -->
-                <div class="tg-row">
-                  <div class="tg-avatar">🤖</div>
-                  <div class="tg-msg tg-poll">
-                    <div class="tg-poll-number">Question ?/?</div>
-                    <div class="tg-poll-q"><span v-html="tgToHtml(form.questionText || 'Your question…')"></span><span class="tg-ts">12:00</span></div>
+                <!-- Question blocks in order -->
+                <template v-if="form.questionBlocks.some(b => b.content.trim())">
+                  <template v-for="block in form.questionBlocks" :key="'pq'+block._id">
+                    <div v-if="block.type === 'text' && block.content.trim()" class="tg-row">
+                      <div class="tg-avatar">🤖</div>
+                      <div v-if="block._id === lastFilledQTextId" class="tg-msg tg-poll">
+                        <div class="tg-poll-q"><span v-html="tgToHtml(block.content)"></span><span class="tg-ts">12:00</span></div>
+                      </div>
+                      <div v-else class="tg-msg"><span v-html="tgToHtml(block.content)"></span><span class="tg-ts">12:00</span></div>
+                    </div>
+                    <div v-else-if="block.type === 'image' && block.content" class="tg-row">
+                      <div class="tg-avatar">🤖</div>
+                      <div class="tg-msg tg-img-msg"><img :src="`/api/files/${block.content}`" class="tg-qimg" alt="" /></div>
+                    </div>
+                  </template>
+                </template>
+                <template v-else>
+                  <div class="tg-row">
+                    <div class="tg-avatar">🤖</div>
+                    <div class="tg-msg tg-poll">
+                      <div class="tg-poll-q"><span class="text-slate-400 italic">Your question…</span><span class="tg-ts">12:00</span></div>
+                    </div>
                   </div>
-                </div>
+                </template>
 
                 <!-- Inline keyboard quick replies -->
                 <template v-if="!form.expectPhoto && filledOptions.length">
@@ -364,26 +496,26 @@
                     <div v-for="(opt, i) in filledOptions" :key="'kb'+i" class="tg-kb-btn">
                       {{ String.fromCharCode(65 + i) }} · {{ opt }}
                     </div>
-                    <div v-if="form.hintText" class="tg-kb-btn tg-kb-hint">💡 Hint</div>
+                    <div v-if="hasFilledHintBlocks" class="tg-kb-btn tg-kb-hint">💡 Hint</div>
                   </div>
                 </template>
 
-                <!-- After-hint-click service message -->
-                <div v-if="form.hintText" class="flex justify-center my-1.5">
-                  <span class="tg-service-msg">after hint button click</span>
-                </div>
-
-                <!-- Hint -->
-                <div v-if="form.hintText" class="tg-row">
-                  <div class="tg-avatar">🤖</div>
-                  <div class="tg-msg tg-hint-msg">💡 <span v-html="tgToHtml(form.hintText)"></span><span class="tg-ts">12:01</span></div>
-                </div>
-                <div v-for="(imgId, i) in form.hintImagePaths" :key="'hi'+i" class="tg-row">
-                  <div class="tg-avatar">🤖</div>
-                  <div class="tg-msg tg-img-msg">
-                    <img :src="`/api/files/${imgId}`" class="tg-qimg" alt="" />
+                <!-- After-hint service + hint blocks -->
+                <template v-if="hasFilledHintBlocks">
+                  <div class="flex justify-center my-1.5">
+                    <span class="tg-service-msg">after hint button click</span>
                   </div>
-                </div>
+                  <template v-for="block in form.hintBlocks" :key="'ph'+block._id">
+                    <div v-if="block.type === 'text' && block.content.trim()" class="tg-row">
+                      <div class="tg-avatar">🤖</div>
+                      <div class="tg-msg tg-hint-msg">💡 <span v-html="tgToHtml(block.content)"></span><span class="tg-ts">12:01</span></div>
+                    </div>
+                    <div v-else-if="block.type === 'image' && block.content" class="tg-row">
+                      <div class="tg-avatar">🤖</div>
+                      <div class="tg-msg tg-img-msg"><img :src="`/api/files/${block.content}`" class="tg-qimg" alt="" /></div>
+                    </div>
+                  </template>
+                </template>
 
                 <!-- After-answer service message -->
                 <div class="flex justify-center my-1.5">
@@ -392,20 +524,20 @@
 
                 </template> <!-- end v-else question preview -->
 
-                <!-- Explanation (not shown for briefing) -->
-                <template v-if="!form.isBriefing && (filledExplanationTexts.length || filledExplanationImages.length)">
-                  <div v-for="(text, i) in filledExplanationTexts" :key="'et'+i" class="tg-row">
-                    <div class="tg-avatar">🤖</div>
-                    <div class="tg-msg tg-explanation-msg"><span v-html="tgToHtml(text)"></span><span class="tg-ts">12:02</span></div>
-                  </div>
-                  <div v-for="(img, i) in filledExplanationImages" :key="'ei'+i" class="tg-row">
-                    <div class="tg-avatar">🤖</div>
-                    <div class="tg-msg tg-img-msg">
-                      <img :src="`/api/files/${img}`" class="tg-qimg" alt="" />
+                <!-- After Answer blocks (not shown for briefing) -->
+                <template v-if="!form.isBriefing && hasFilledExplanationBlocks">
+                  <template v-for="block in form.explanationBlocks" :key="'pe'+block._id">
+                    <div v-if="block.type === 'text' && block.content.trim()" class="tg-row">
+                      <div class="tg-avatar">🤖</div>
+                      <div class="tg-msg tg-explanation-msg"><span v-html="tgToHtml(block.content)"></span><span class="tg-ts">12:02</span></div>
                     </div>
-                  </div>
+                    <div v-else-if="block.type === 'image' && block.content" class="tg-row">
+                      <div class="tg-avatar">🤖</div>
+                      <div class="tg-msg tg-img-msg"><img :src="`/api/files/${block.content}`" class="tg-qimg" alt="" /></div>
+                    </div>
+                  </template>
                 </template>
-                <div v-else-if="!form.isBriefing" class="tg-empty-explanation">No explanation added yet…</div>
+                <div v-else-if="!form.isBriefing" class="tg-empty-explanation">No after answer content added yet…</div>
 
               </div>
             </div>
@@ -437,156 +569,25 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, computed, defineComponent, h, nextTick, type PropType } from 'vue'
-import type { Question, QuestionRequest } from '@/types/question'
+import { ref, watch, computed, nextTick } from 'vue'
+import { VueDraggable } from 'vue-draggable-plus'
+import type { Question, QuestionRequest, ContentBlock } from '@/types/question'
 import { questionsService } from '@/services/questionsService'
 
-// ── ImageUploadField (single image) ────────────────────────────────────────
-const ImageUploadField = defineComponent({
-  name: 'ImageUploadField',
-  props: { modelValue: { type: String, default: '' } },
-  emits: ['update:modelValue', 'upload'],
-  setup(props, { emit }) {
-    const fileInput = ref<HTMLInputElement | null>(null)
-    const isDragOver = ref(false)
-    const uploading = ref(false)
+// ── FormBlock (internal form type with stable drag key) ──────────────────
+interface FormBlock {
+  _id: string
+  type: 'text' | 'image'
+  content: string
+}
 
-    async function handleFile(file: File) {
-      if (!file.type.startsWith('image/')) return
-      uploading.value = true
-      try {
-        emit('upload', file)
-      } finally { uploading.value = false }
-    }
+function makeId(): string {
+  return Math.random().toString(36).slice(2) + Date.now().toString(36)
+}
 
-    async function onFileChange(e: Event) {
-      const file = (e.target as HTMLInputElement).files?.[0]
-      if (!file) return
-      await handleFile(file)
-      if (fileInput.value) fileInput.value.value = ''
-    }
-
-    return () => {
-      if (props.modelValue) {
-        return h('div', { class: 'relative rounded-xl overflow-hidden' }, [
-          h('img', { src: `/api/files/${props.modelValue}`, class: 'w-full max-h-40 object-cover block rounded-xl', alt: 'preview' }),
-          h('button', {
-            type: 'button',
-            class: 'absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-black/55 text-white border-none text-[0.7rem] cursor-pointer flex items-center justify-center leading-none hover:bg-red-600/90 transition-colors',
-            onClick: () => emit('update:modelValue', ''), title: 'Remove'
-          }, '✕')
-        ])
-      }
-      return h('div', {
-        class: [
-          'border-2 border-dashed rounded-xl p-5 flex items-center justify-center cursor-pointer transition select-none',
-          isDragOver.value ? 'border-blue-400 bg-blue-50' : 'border-slate-200 bg-slate-50 hover:border-blue-400 hover:bg-blue-50',
-          uploading.value ? 'opacity-60 cursor-wait' : ''
-        ],
-        onClick: () => !uploading.value && fileInput.value?.click(),
-        onDragover: (e: DragEvent) => { e.preventDefault(); isDragOver.value = true },
-        onDragleave: () => { isDragOver.value = false },
-        onDrop: (e: DragEvent) => {
-          e.preventDefault(); isDragOver.value = false
-          const f = e.dataTransfer?.files[0]; if (f) handleFile(f)
-        }
-      }, [
-        uploading.value
-          ? h('div', { class: 'flex flex-col items-center gap-1 pointer-events-none' }, [
-              h('div', { class: 'text-xs text-slate-400' }, 'Uploading…')
-            ])
-          : h('div', { class: 'flex flex-col items-center gap-1 pointer-events-none' }, [
-              h('div', { class: 'text-3xl leading-none' }, '🖼️'),
-              h('div', { class: 'text-sm font-semibold text-slate-600' }, 'Drop image here'),
-              h('div', { class: 'text-xs text-slate-400' }, 'or click to browse'),
-            ]),
-        h('input', { ref: fileInput, type: 'file', accept: 'image/*', style: 'display:none', onChange: onFileChange })
-      ])
-    }
-  }
-})
-
-// ── MultiImageUploadField (up to N images) ─────────────────────────────────
-const MultiImageUploadField = defineComponent({
-  name: 'MultiImageUploadField',
-  props: {
-    modelValue: { type: Array as PropType<string[]>, default: () => [] },
-    max: { type: Number, default: 4 }
-  },
-  emits: ['update:modelValue', 'upload'],
-  setup(props, { emit }) {
-    const fileInput = ref<HTMLInputElement | null>(null)
-    const isDragOver = ref(false)
-    const uploading = ref(false)
-
-    async function handleFiles(rawFiles: FileList | File[]) {
-      const valid = Array.from(rawFiles).filter(f => f.type.startsWith('image/'))
-      const slots = props.max - props.modelValue.length
-      const toProcess = valid.slice(0, slots)
-      if (!toProcess.length) return
-      uploading.value = true
-      try {
-        emit('upload', toProcess)
-      } finally { uploading.value = false }
-    }
-
-    function removeImage(i: number) {
-      const updated = [...props.modelValue]
-      updated.splice(i, 1)
-      emit('update:modelValue', updated)
-    }
-
-    return () => {
-      const canAdd = props.modelValue.length < props.max
-      const thumbnails = props.modelValue.map((path, i) =>
-        h('div', { key: i, class: 'aspect-square rounded-lg overflow-hidden relative border border-slate-200' }, [
-          h('img', { src: `/api/files/${path}`, class: 'w-full h-full object-cover block', alt: '' }),
-          h('button', {
-            type: 'button',
-            class: 'absolute top-1 right-1 w-5 h-5 rounded-full bg-black/55 text-white border-none text-[0.65rem] cursor-pointer flex items-center justify-center leading-none hover:bg-red-600/90 transition-colors',
-            onClick: () => removeImage(i), title: 'Remove'
-          }, '✕')
-        ])
-      )
-      const addCell = canAdd
-        ? h('div', {
-            key: 'add',
-            class: [
-              'aspect-square rounded-lg border-2 border-dashed flex flex-col items-center justify-center gap-1 cursor-pointer transition select-none',
-              isDragOver.value ? 'border-blue-400 bg-blue-50' : 'border-slate-300 bg-slate-50 hover:border-blue-400 hover:bg-blue-50'
-            ],
-            onClick: () => !uploading.value && fileInput.value?.click(),
-            onDragover: (e: DragEvent) => { e.preventDefault(); isDragOver.value = true },
-            onDragleave: () => { isDragOver.value = false },
-            onDrop: (e: DragEvent) => {
-              e.preventDefault(); isDragOver.value = false
-              if (e.dataTransfer?.files) handleFiles(e.dataTransfer.files)
-            }
-          }, uploading.value
-            ? [h('div', { class: 'text-[0.7rem] text-slate-400' }, 'Uploading…')]
-            : [
-                h('div', { class: 'text-xl text-slate-400 leading-none' }, props.modelValue.length === 0 ? '🖼️' : '+'),
-                h('div', { class: 'text-[0.7rem] text-slate-400 text-center leading-tight' },
-                  props.modelValue.length === 0 ? 'Drop or click to add' : `${props.modelValue.length} / ${props.max}`),
-              ]
-          )
-        : null
-      return h('div', { class: 'grid grid-cols-4 gap-2' }, [
-        ...thumbnails,
-        addCell,
-        h('input', {
-          ref: fileInput, type: 'file', accept: 'image/*', multiple: true,
-          style: 'display:none',
-          onChange: (e: Event) => {
-            const files = (e.target as HTMLInputElement).files
-            if (files) handleFiles(files)
-            if (fileInput.value) fileInput.value.value = ''
-          }
-        })
-      ])
-    }
-  }
-})
+function makeBlock(type: 'text' | 'image', content = ''): FormBlock {
+  return { _id: makeId(), type, content }
+}
 
 // ── Props / emits ──────────────────────────────────────────────────────────
 const props = defineProps<{
@@ -599,21 +600,19 @@ const emit = defineEmits<{
   (e: 'saved', q: Question): void
 }>()
 
+
+
 // ── Form state ─────────────────────────────────────────────────────────────
 function blankForm() {
   return {
-    questionText: '',
+    questionBlocks: [makeBlock('text')] as FormBlock[],
     options: [] as string[],
     answer: '',
+    mark: null as number | null,
     expectPhoto: false,
     isBriefing: false,
-    intro: '',
-    introBlue: true,
-    questionImagePaths: [] as string[],
-    hintText: '',
-    hintImagePaths: [] as string[],
-    explanationTexts: [] as string[],
-    explanationImagePaths: [] as string[],
+    hintBlocks: [] as FormBlock[],
+    explanationBlocks: [] as FormBlock[],
   }
 }
 
@@ -621,20 +620,39 @@ const form = ref(blankForm())
 const saving = ref(false)
 const error = ref('')
 const isEdit = ref(false)
-const activeTab = ref<'question' | 'explanation'>('question')
-const tabs = [
-  { value: 'question' as const, label: 'Question' },
-  { value: 'explanation' as const, label: 'Explanation' },
-]
+const activeTab = ref<'question' | 'answer' | 'mark' | 'hint' | 'explanation' | 'briefing'>('question')
+const tabs = computed(() => {
+  if (form.value.isBriefing) {
+    return [{ value: 'briefing' as const, label: 'Briefing' }]
+  }
+  if (form.value.expectPhoto) {
+    return [
+      { value: 'question' as const, label: 'Question' },
+      { value: 'mark' as const, label: 'Mark' },
+      { value: 'hint' as const, label: 'Hint' },
+      { value: 'explanation' as const, label: 'After Answer' },
+    ]
+  }
+  return [
+    { value: 'question' as const, label: 'Question' },
+    { value: 'answer' as const, label: 'Answer' },
+    { value: 'mark' as const, label: 'Mark' },
+    { value: 'hint' as const, label: 'Hint' },
+    { value: 'explanation' as const, label: 'After Answer' },
+  ]
+})
 const filledOptions = computed(() => form.value.options.filter(o => o.trim()))
-const filledExplanationTexts = computed(() => form.value.explanationTexts.filter(t => t.trim()))
-const filledExplanationImages = computed(() => form.value.explanationImagePaths.filter(p => p.trim()))
+const hasFilledHintBlocks = computed(() => form.value.hintBlocks.some(b => b.content.trim()))
+const hasFilledExplanationBlocks = computed(() => form.value.explanationBlocks.some(b => b.content.trim()))
+const lastFilledQTextId = computed(() => {
+  const filled = form.value.questionBlocks.filter(b => b.type === 'text' && b.content.trim())
+  return filled.length ? filled[filled.length - 1]._id : null
+})
 
 // ── Rich text formatting ───────────────────────────────────────────────────
-const introTextarea = ref<HTMLTextAreaElement | null>(null)
-const questionTextarea = ref<HTMLTextAreaElement | null>(null)
-const hintTextarea = ref<HTMLTextAreaElement | null>(null)
-const explanationTextareas = ref<(HTMLTextAreaElement | null)[]>([])
+const questionTextareas = ref<Record<string, HTMLTextAreaElement | null>>({})
+const hintTextareas = ref<Record<string, HTMLTextAreaElement | null>>({})
+const explanationTextareas = ref<Record<string, HTMLTextAreaElement | null>>({})
 
 const COLORS = [
   { label: 'Red',    hex: '#e53935' },
@@ -654,7 +672,6 @@ function colorTag(hex: string): string {
 function toggleFormat(text: string, start: number, end: number, open: string, close: string): { text: string, selStart: number, selEnd: number } {
   const isColor = open.startsWith('<span style="color:')
   if (isColor) {
-    // Check if selection is immediately inside any color span
     if (text.slice(end, end + close.length) === close) {
       const before = text.slice(0, start)
       const match = before.match(/<span style="color: [^"]+">$/)
@@ -662,22 +679,17 @@ function toggleFormat(text: string, start: number, end: number, open: string, cl
         const existingOpen = match[0]
         const preLen = existingOpen.length
         if (existingOpen === open) {
-          // Same colour — strip
           const newText = text.slice(0, start - preLen) + text.slice(start, end) + text.slice(end + close.length)
           return { text: newText, selStart: start - preLen, selEnd: end - preLen }
         } else {
-          // Different colour — replace
           const newText = text.slice(0, start - preLen) + open + text.slice(start, end) + close + text.slice(end + close.length)
           return { text: newText, selStart: start - preLen + open.length, selEnd: end - preLen + open.length }
         }
       }
     }
-    // No existing colour — wrap
     const newText = text.slice(0, start) + open + text.slice(start, end) + close + text.slice(end)
     return { text: newText, selStart: start + open.length, selEnd: end + open.length }
   }
-
-  // Plain tag toggle
   if (start >= open.length && text.slice(start - open.length, start) === open && text.slice(end, end + close.length) === close) {
     const newText = text.slice(0, start - open.length) + text.slice(start, end) + text.slice(end + close.length)
     return { text: newText, selStart: start - open.length, selEnd: end - open.length }
@@ -686,21 +698,20 @@ function toggleFormat(text: string, start: number, end: number, open: string, cl
   return { text: newText, selStart: start + open.length, selEnd: end + open.length }
 }
 
-function applyFormat(el: HTMLTextAreaElement | HTMLInputElement | null, field: 'intro' | 'questionText' | 'hintText', open: string, close: string) {
+function applyBlockFormat(
+  el: HTMLTextAreaElement | null,
+  blocks: FormBlock[],
+  blockId: string,
+  open: string,
+  close: string
+) {
   if (!el) return
+  const block = blocks.find(b => b._id === blockId)
+  if (!block) return
   const start = el.selectionStart ?? 0
   const end = el.selectionEnd ?? 0
-  const result = toggleFormat(form.value[field], start, end, open, close)
-  form.value[field] = result.text
-  nextTick(() => { el.focus(); el.setSelectionRange(result.selStart, result.selEnd) })
-}
-
-function applyExplanationFormat(el: HTMLTextAreaElement | null, index: number, open: string, close: string) {
-  if (!el) return
-  const start = el.selectionStart ?? 0
-  const end = el.selectionEnd ?? 0
-  const result = toggleFormat(form.value.explanationTexts[index], start, end, open, close)
-  form.value.explanationTexts[index] = result.text
+  const result = toggleFormat(block.content, start, end, open, close)
+  block.content = result.text
   nextTick(() => { el.focus(); el.setSelectionRange(result.selStart, result.selEnd) })
 }
 
@@ -709,86 +720,99 @@ function tgToHtml(text: string): string {
   return text.replace(/\n/g, '<br>')
 }
 
+function setQuestionType(expectPhoto: boolean, isBriefing: boolean) {
+  form.value.expectPhoto = expectPhoto
+  form.value.isBriefing = isBriefing
+  activeTab.value = isBriefing ? 'briefing' : 'question'
+  if (activeTab.value === 'answer' && (expectPhoto || isBriefing)) {
+    activeTab.value = 'question'
+  }
+}
+
 watch(() => props.visible, (v) => {
   if (!v) return
   error.value = ''
-  activeTab.value = 'question'
   if (props.question) {
     const q = props.question
+    activeTab.value = q.isBriefing ? 'briefing' : 'question'
     isEdit.value = true
     form.value = {
-      questionText: q.questionText,
+      questionBlocks: q.questionBlocks.length
+        ? q.questionBlocks.map(b => ({ ...b, _id: makeId() }))
+        : [makeBlock('text')],
       options: [...q.options],
       answer: q.answer ?? '',
+      mark: q.mark ?? null,
       expectPhoto: q.expectPhoto,
       isBriefing: q.isBriefing,
-      intro: q.intro ?? '',
-      introBlue: q.introBlue,
-      questionImagePaths: [...q.questionImagePaths],
-      hintText: q.hintText ?? '',
-      hintImagePaths: [...q.hintImagePaths],
-      explanationTexts: [...q.explanationTexts],
-      explanationImagePaths: [...q.explanationImagePaths],
+      hintBlocks: q.hintBlocks.map(b => ({ ...b, _id: makeId() })),
+      explanationBlocks: q.explanationBlocks.map(b => ({ ...b, _id: makeId() })),
     }
   } else {
     isEdit.value = false
+    activeTab.value = 'question'
     form.value = blankForm()
   }
 })
 
-// ── Helpers ────────────────────────────────────────────────────────────────
+// ── Block helpers ──────────────────────────────────────────────────────────
+function addTextBlock(list: FormBlock[]) { list.push(makeBlock('text')) }
+function addImageBlock(list: FormBlock[]) { list.push(makeBlock('image')) }
+function removeBlock(list: FormBlock[], id: string) {
+  const idx = list.findIndex(b => b._id === id)
+  if (idx !== -1) list.splice(idx, 1)
+}
+
+async function uploadImageBlock(block: FormBlock) {
+  await new Promise<void>((resolve) => {
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.accept = 'image/*'
+    input.onchange = async () => {
+      const file = input.files?.[0]
+      if (file) {
+        try {
+          block.content = await questionsService.uploadFile(file)
+        } catch {
+          error.value = 'Image upload failed.'
+        }
+      }
+      resolve()
+    }
+    input.click()
+  })
+}
+
+// ── Options helpers ────────────────────────────────────────────────────────
 function addOption() { form.value.options.push('') }
 function removeOption(i: number) {
   const removed = form.value.options.splice(i, 1)[0]
   if (form.value.answer === removed) form.value.answer = ''
 }
 
-function addExplanation() { form.value.explanationTexts.push('') }
-function removeExplanation(i: number) { form.value.explanationTexts.splice(i, 1) }
-
-async function uploadImages(field: 'questionImagePaths' | 'hintImagePaths', files: File[]) {
-  for (const file of files) {
-    try {
-      const path = await questionsService.uploadFile(file)
-      form.value[field].push(path)
-    } catch {
-      error.value = 'Image upload failed.'
-    }
-  }
-}
-
-async function uploadExplanationImages(files: File[]) {
-  for (const file of files) {
-    try {
-      const path = await questionsService.uploadFile(file)
-      form.value.explanationImagePaths.push(path)
-    } catch {
-      error.value = 'Image upload failed.'
-    }
-  }
-}
-
 async function submit() {
-  if (!form.value.questionText.trim()) {
-    error.value = 'Question text is required.'
+  if (!form.value.questionBlocks.some(b => b.type === 'text' && b.content.trim())) {
+    error.value = 'At least one text block is required.'
     return
   }
   error.value = ''
   saving.value = true
 
+  function toContentBlocks(list: FormBlock[]): ContentBlock[] {
+    return list
+      .filter(b => b.type === 'image' ? b.content.trim() : b.content.trim())
+      .map(({ type, content }) => ({ type, content }))
+  }
+
   const payload: QuestionRequest = {
-    questionText: form.value.questionText.trim(),
+    questionBlocks: toContentBlocks(form.value.questionBlocks),
     options: (form.value.expectPhoto || form.value.isBriefing) ? [] : form.value.options.filter(o => o.trim()),
     answer: form.value.isBriefing ? null : (form.value.answer || null),
+    mark: form.value.isBriefing ? null : (form.value.mark ?? null),
     expectPhoto: form.value.expectPhoto,
     isBriefing: form.value.isBriefing,
-    intro: form.value.intro || null,
-    introBlue: form.value.introBlue,
-    questionImagePaths: form.value.questionImagePaths.filter(p => p),
-    hintText: form.value.hintText || null,
-    hintImagePaths: form.value.hintImagePaths.filter(p => p),
-    explanationTexts: form.value.explanationTexts.filter(t => t.trim()),
-    explanationImagePaths: form.value.explanationImagePaths.filter(p => p),
+    hintBlocks: toContentBlocks(form.value.hintBlocks),
+    explanationBlocks: toContentBlocks(form.value.explanationBlocks),
   }
 
   try {
@@ -802,6 +826,7 @@ async function submit() {
     saving.value = false
   }
 }
+
 </script>
 
 <style scoped>

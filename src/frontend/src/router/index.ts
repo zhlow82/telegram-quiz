@@ -3,6 +3,13 @@ import { useAuthStore } from '@/stores/auth'
 import LoginView from '@/views/LoginView.vue'
 import HomeView from '@/views/HomeView.vue'
 import QuestionBankView from '@/views/QuestionBankView.vue'
+import QuizListView from '@/views/QuizListView.vue'
+import QuizWizardView from '@/views/QuizWizardView.vue'
+import AdminUsersView from '@/views/AdminUsersView.vue'
+import AdminInvitationCodesView from '@/views/AdminInvitationCodesView.vue'
+import AdminSettingsView from '@/views/AdminSettingsView.vue'
+import OAuth2CallbackView from '@/views/OAuth2CallbackView.vue'
+import OAuth2RegisterView from '@/views/OAuth2RegisterView.vue'
 
 const router = createRouter({
   history: createWebHistory('/tg-quiz/'),
@@ -28,6 +35,46 @@ const router = createRouter({
       name: 'questions',
       component: QuestionBankView,
       meta: { requiresAuth: true }
+    },
+    {
+      path: '/quizzes',
+      name: 'quizzes',
+      component: QuizListView,
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/quizzes/new',
+      name: 'quiz-new',
+      component: QuizWizardView,
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/admin/users',
+      name: 'admin-users',
+      component: AdminUsersView,
+      meta: { requiresAuth: true, requiresAdmin: true }
+    },
+    {
+      path: '/admin/invitation-codes',
+      name: 'admin-codes',
+      component: AdminInvitationCodesView,
+      meta: { requiresAuth: true, requiresAdmin: true }
+    },
+    {
+      path: '/admin/settings',
+      name: 'admin-settings',
+      component: AdminSettingsView,
+      meta: { requiresAuth: true, requiresAdmin: true }
+    },
+    {
+      path: '/oauth2/callback',
+      name: 'oauth2-callback',
+      component: OAuth2CallbackView
+    },
+    {
+      path: '/oauth2/register',
+      name: 'oauth2-register',
+      component: OAuth2RegisterView
     }
   ]
 })
@@ -40,6 +87,10 @@ router.beforeEach((to) => {
   }
 
   if (to.meta.requiresGuest && authStore.isAuthenticated) {
+    return '/home'
+  }
+
+  if (to.meta.requiresAdmin && !authStore.isAdmin) {
     return '/home'
   }
 })

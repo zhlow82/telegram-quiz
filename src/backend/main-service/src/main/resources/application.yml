@@ -33,3 +33,7 @@ spring:
 jwt:
   # Must match the secret in auth-service exactly
   secret: dGVsZWdyYW1xdWl6LWp3dC1zZWNyZXQta2V5LWZvci1kZXZlbG9wbWVudC11c2Utb25seS0yMDI2
+
+app:
+  # AES-256 key (Base64-encoded 32 bytes). Override via BOT_TOKEN_ENCRYPTION_KEY env var in production.
+  bot-token-encryption-key: ${BOT_TOKEN_ENCRYPTION_KEY:ZGV2S2V5Rm9yVGVsZWdyYW1RdWl6QXBwMTIzNDU2Nzg=}

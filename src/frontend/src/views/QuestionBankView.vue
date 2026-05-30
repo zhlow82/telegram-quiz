@@ -78,7 +78,7 @@
               class="flex items-center gap-3 px-5 py-3.5 border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors"
             >
               <button
-                class="bg-transparent border-0 cursor-grab p-1 rounded flex shrink-0 text-slate-300 hover:text-slate-400 active:cursor-grabbing transition-colors"
+                class="drag-handle bg-transparent border-0 cursor-grab p-1 rounded flex shrink-0 text-slate-300 hover:text-slate-400 active:cursor-grabbing transition-colors"
                 title="Drag to reorder" aria-label="Drag"
               >
                 <GripVertical class="w-4 h-4" />
@@ -87,11 +87,24 @@
               <span class="text-[0.8125rem] font-bold text-slate-300 w-[22px] shrink-0 text-right">{{ i + 1 }}</span>
 
               <div class="flex-1 min-w-0">
-                <span class="block text-sm font-medium text-slate-900 truncate sm:whitespace-normal">{{ q.questionText }}</span>
+                <span class="block text-sm font-medium text-slate-900 truncate sm:whitespace-normal">{{ q.questionBlocks.find(b => b.type === 'text')?.content || '(no text)' }}</span>
                 <div class="flex gap-1.5 mt-1 flex-wrap">
-                  <span v-if="q.expectPhoto" class="inline-flex items-center text-[0.6875rem] font-medium px-2 py-0.5 rounded-md bg-amber-100 text-amber-800">📷 photo</span>
-                  <span v-if="q.options.length" class="inline-flex items-center text-[0.6875rem] font-medium px-2 py-0.5 rounded-md bg-blue-100 text-blue-800">{{ q.options.length }} options</span>
-                  <span v-if="q.questionImagePaths?.length" class="inline-flex items-center text-[0.6875rem] font-medium px-2 py-0.5 rounded-md bg-green-100 text-green-800">🖼 image</span>
+                  <!-- Type badge -->
+                  <span v-if="q.isBriefing" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-violet-100 text-violet-700">
+                    <FileText class="w-3 h-3" />Briefing
+                  </span>
+                  <span v-else-if="q.options.length" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-blue-100 text-blue-700">
+                    <ListChecks class="w-3 h-3" />Multiple Choice
+                  </span>
+                  <span v-else-if="q.expectPhoto" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-amber-100 text-amber-700">
+                    <Camera class="w-3 h-3" />Photo Answer
+                  </span>
+                  <span v-else class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-slate-100 text-slate-600">
+                    <AlignLeft class="w-3 h-3" />Open Answer
+                  </span>
+                  <!-- Secondary badges -->
+                  <span v-if="!q.isBriefing && q.options.length" class="inline-flex items-center text-[0.6875rem] font-medium px-2 py-0.5 rounded-md bg-slate-100 text-slate-500">{{ q.options.length }} options</span>
+                  <span v-if="q.questionImagePaths?.length" class="inline-flex items-center text-[0.6875rem] font-medium px-2 py-0.5 rounded-md bg-green-100 text-green-700">🖼 image</span>
                 </div>
               </div>
 
@@ -124,15 +137,26 @@
       @close="modalVisible = false"
       @saved="onSaved"
     />
+
+    <!-- App dialog (confirm / alert) -->
+    <AppDialog
+      :visible="dialogVisible"
+      :type="dialogType"
+      :title="dialogTitle"
+      :message="dialogMessage"
+      @confirm="onDialogConfirm"
+      @cancel="onDialogCancel"
+    />
   </AppLayout>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { VueDraggable } from 'vue-draggable-plus'
-import { Plus, AlertCircle, BookOpen, GripVertical, Pencil, Trash2 } from '@lucide/vue'
+import { Plus, AlertCircle, BookOpen, GripVertical, Pencil, Trash2, FileText, ListChecks, Camera, AlignLeft } from '@lucide/vue'
 import AppLayout from '@/components/AppLayout.vue'
 import QuestionFormModal from '@/components/QuestionFormModal.vue'
+import AppDialog from '@/components/AppDialog.vue'
 import { questionsService } from '@/services/questionsService'
 import type { Question } from '@/types/question'
 
@@ -142,6 +166,40 @@ const loadError = ref(false)
 
 const modalVisible = ref(false)
 const editingQuestion = ref<Question | null>(null)
+
+// AppDialog state
+const dialogVisible = ref(false)
+const dialogType = ref<'confirm' | 'alert'>('alert')
+const dialogTitle = ref('')
+const dialogMessage = ref('')
+let dialogResolve: ((ok: boolean) => void) | null = null
+
+function showConfirm(title: string, message?: string): Promise<boolean> {
+  dialogType.value = 'confirm'
+  dialogTitle.value = title
+  dialogMessage.value = message ?? ''
+  dialogVisible.value = true
+  return new Promise(resolve => { dialogResolve = resolve })
+}
+
+function showAlert(title: string, message?: string) {
+  dialogType.value = 'alert'
+  dialogTitle.value = title
+  dialogMessage.value = message ?? ''
+  dialogVisible.value = true
+}
+
+function onDialogConfirm() {
+  dialogVisible.value = false
+  dialogResolve?.(true)
+  dialogResolve = null
+}
+
+function onDialogCancel() {
+  dialogVisible.value = false
+  dialogResolve?.(false)
+  dialogResolve = null
+}
 
 onMounted(loadQuestions)
 
@@ -178,12 +236,14 @@ function onSaved(q: Question) {
 }
 
 async function confirmDelete(q: Question) {
-  if (!confirm(`Delete "${q.questionText}"?`)) return
+  const label = q.questionBlocks.find(b => b.type === 'text')?.content || 'this question'
+  const ok = await showConfirm('Delete question?', `"${label}" will be permanently removed.`)
+  if (!ok) return
   try {
     await questionsService.delete(q.id)
     questions.value = questions.value.filter(x => x.id !== q.id)
   } catch {
-    alert('Failed to delete question.')
+    showAlert('Delete failed', 'Could not delete the question. Please try again.')
   }
 }
 

@@ -156,8 +156,10 @@ npm run dev
 Navigate to http://localhost:5173/tg-quiz/
 
 Login with:
-- **Username**: `zhlow`
+- **Username**: `localadmin`
 - **Password**: `password88`
+
+> `localadmin` is the default admin account seeded by `DataInitializer` on first startup.
 
 ---
 
@@ -184,6 +186,24 @@ All requests go through the API Gateway at `http://localhost:8080`.
 |---|---|---|---|
 | `POST` | `/auth/login` | No | Login, returns `accessToken` + `refreshToken` |
 | `POST` | `/auth/logout` | Bearer token | Logout, invalidates refresh token in Redis |
+| `GET` | `/auth/me` | Bearer token | Get current user profile |
+| `PATCH` | `/auth/profile` | Bearer token | Update first name / last name |
+| `POST` | `/auth/change-password` | Bearer token | Change password (local accounts only) |
+| `GET` | `/auth/oauth2/configured` | No | Whether Google OAuth2 credentials are configured |
+
+### Admin (ROLE_ADMIN only)
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| `GET` | `/auth/admin/users` | ROLE_ADMIN | List all users |
+| `POST` | `/auth/admin/users` | ROLE_ADMIN | Create local user |
+| `PATCH` | `/auth/admin/users/{id}/role` | ROLE_ADMIN | Set role (`ROLE_ADMIN` or `ROLE_MEMBER`) |
+| `PATCH` | `/auth/admin/users/{id}/activate` | ROLE_ADMIN | Activate user |
+| `PATCH` | `/auth/admin/users/{id}/deactivate` | ROLE_ADMIN | Deactivate user |
+| `GET` | `/auth/admin/invitation-codes` | ROLE_ADMIN | List invitation codes |
+| `POST` | `/auth/admin/invitation-codes` | ROLE_ADMIN | Generate invitation code |
+| `DELETE` | `/auth/admin/invitation-codes/{id}` | ROLE_ADMIN | Delete invitation code |
+| `GET` | `/auth/admin/settings/google` | ROLE_ADMIN | Get Google OAuth2 settings |
+| `PUT` | `/auth/admin/settings/google` | ROLE_ADMIN | Save Google OAuth2 credentials |
 
 ### Questions
 | Method | Path | Auth | Description |
@@ -211,7 +231,7 @@ All requests go through the API Gateway at `http://localhost:8080`.
 ```bash
 curl -X POST http://localhost:8080/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"username": "zhlow", "password": "password88"}'
+  -d '{"username": "localadmin", "password": "password88"}'
 ```
 
 Response:

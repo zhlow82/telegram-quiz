@@ -2,20 +2,18 @@ package com.telegramquiz.main.dto;
 
 import java.util.List;
 
-import jakarta.validation.constraints.NotBlank;
+import com.telegramquiz.main.model.ContentBlock;
+
+import jakarta.validation.constraints.NotNull;
 
 public record QuestionRequestDto(
-        @NotBlank String questionText,
+        @NotNull List<ContentBlock> questionBlocks,
         Integer orderIndex,
-        String intro,
-        Boolean introBlue,
-        List<String> questionImagePaths,
         List<String> options,
         String answer,
         Boolean expectPhoto,
         Boolean isBriefing,
-        String hintText,
-        List<String> hintImagePaths,
-        List<String> explanationTexts,
-        List<String> explanationImagePaths
+        List<ContentBlock> hintBlocks,
+        List<ContentBlock> explanationBlocks,
+        Integer mark
 ) {}

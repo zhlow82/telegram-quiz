@@ -7,6 +7,8 @@ import java.util.List;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
+import com.telegramquiz.main.model.ContentBlock;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -37,19 +39,10 @@ public class Question {
     @Column(name = "order_index", nullable = false)
     private int orderIndex;
 
-    @Column(name = "question_text", columnDefinition = "TEXT")
-    private String questionText;
-
-    @Column(columnDefinition = "TEXT")
-    private String intro;
-
-    @Column(name = "intro_blue", nullable = false)
-    private boolean introBlue;
-
     @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "question_image_paths", columnDefinition = "jsonb", nullable = false)
+    @Column(name = "question_blocks", columnDefinition = "jsonb", nullable = false)
     @Builder.Default
-    private List<String> questionImagePaths = new ArrayList<>();
+    private List<ContentBlock> questionBlocks = new ArrayList<>();
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb", nullable = false)
@@ -64,23 +57,17 @@ public class Question {
     @Column(name = "is_briefing", nullable = false)
     private boolean isBriefing;
 
-    @Column(name = "hint_text", columnDefinition = "TEXT")
-    private String hintText;
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "hint_blocks", columnDefinition = "jsonb", nullable = false)
+    @Builder.Default
+    private List<ContentBlock> hintBlocks = new ArrayList<>();
 
     @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "hint_image_paths", columnDefinition = "jsonb", nullable = false)
+    @Column(name = "explanation_blocks", columnDefinition = "jsonb", nullable = false)
     @Builder.Default
-    private List<String> hintImagePaths = new ArrayList<>();
+    private List<ContentBlock> explanationBlocks = new ArrayList<>();
 
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "explanation_texts", columnDefinition = "jsonb", nullable = false)
-    @Builder.Default
-    private List<String> explanationTexts = new ArrayList<>();
-
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "explanation_image_paths", columnDefinition = "jsonb", nullable = false)
-    @Builder.Default
-    private List<String> explanationImagePaths = new ArrayList<>();
+    private Integer mark;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

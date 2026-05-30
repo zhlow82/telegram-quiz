@@ -79,7 +79,12 @@ telegram-quiz/
 - Design tokens: `bg-slate-900` sidebar · `bg-blue-600 hover:bg-blue-700` primary buttons · `bg-white rounded-xl border border-slate-200` cards · `text-slate-500` muted text
 - Page header pattern: `<div class="flex items-center gap-4 pb-6 mb-6 border-b border-slate-200">` with a `w-10 h-10 rounded-xl bg-blue-600` icon badge (white Lucide icon inside) + `<h1 class="text-2xl font-black text-slate-900 leading-tight">` title; pages with actions add `justify-between flex-wrap` and place buttons on the right
 - Layout shell: `AppLayout.vue` — Tailwind-based sidebar (`bg-slate-900`) + top bar + `<main>`; main content is constrained to `max-w-6xl mx-auto`; wrap all authenticated views with `<AppLayout>`
-- Modals: use `<teleport to="body">` + `v-if` overlay pattern (see `QuestionFormModal.vue`)
+- Modals: use `<teleport to="body">` + `v-if` overlay pattern (see `QuestionFormModal.vue`); always include an X close button in the top-right corner of the modal panel — `<button class="absolute top-4 right-4 w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition cursor-pointer" @click="close"><X class="w-4 h-4" /></button>` with `position: relative` on the panel (`relative` class)
+- **Dialogs/Alerts: NEVER use `alert()`, `confirm()`, or `prompt()`** — these are native browser JS popups. Always use the `AppDialog.vue` component (`src/components/AppDialog.vue`) instead:
+  - `type="alert"` — dismissible error/info message (single OK button)
+  - `type="confirm"` — destructive action confirmation (Cancel + Delete buttons)
+  - Mount `<AppDialog>` with `<teleport to="body">` and wire `@confirm` / `@cancel` to close the dialog
+  - For async confirmation flows, use a `Promise<boolean>` with a `resolve` ref (see `QuestionBankView.vue`)
 - Drag-and-drop: **`vue-draggable-plus`** (`VueDraggable` component) — do NOT use `vuedraggable` (Vue 2 only, broken on Vue 3.5)
 - Responsive breakpoints: use Tailwind's `sm:` / `md:` / `lg:` prefixes
 
@@ -112,6 +117,30 @@ All requests go through the API Gateway at `http://localhost:8080`.
 |---|---|---|---|
 | POST | `/auth/login` | No | Returns `accessToken` + `refreshToken` |
 | POST | `/auth/logout` | Bearer token | Deletes refresh token from Redis |
+| GET | `/auth/me` | Bearer token | Returns current user's profile (username, firstName, lastName, email, provider) |
+| PATCH | `/auth/profile` | Bearer token | Update firstName / lastName |
+| POST | `/auth/change-password` | Bearer token | Change password (local accounts only) |
+| GET | `/auth/oauth2/configured` | No | Returns `{ configured: bool }` — whether Google OAuth2 credentials exist |
+| GET | `/auth/oauth2/complete` | No | Complete Google OAuth2 registration with invitation code |
+
+### Admin endpoints (`/auth/admin/**` — ROLE_ADMIN only)
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| GET | `/auth/admin/users` | ROLE_ADMIN | List all users |
+| POST | `/auth/admin/users` | ROLE_ADMIN | Create local user (username, password, optional firstName/lastName) |
+| PATCH | `/auth/admin/users/{id}/role` | ROLE_ADMIN | Set role — body `{ "role": "ROLE_ADMIN" \| "ROLE_MEMBER" }` |
+| PATCH | `/auth/admin/users/{id}/profile` | ROLE_ADMIN | Update firstName / lastName for any user |
+| PATCH | `/auth/admin/users/{id}/password` | ROLE_ADMIN | Reset password for local accounts (min 6 chars) |
+| PATCH | `/auth/admin/users/{id}/activate` | ROLE_ADMIN | Activate user account |
+| PATCH | `/auth/admin/users/{id}/deactivate` | ROLE_ADMIN | Deactivate user account |
+| DELETE | `/auth/admin/users/{id}` | ROLE_ADMIN | Permanently delete user + revokes Redis refresh token; cannot delete yourself |
+| GET | `/auth/admin/invitation-codes` | ROLE_ADMIN | List invitation codes |
+| POST | `/auth/admin/invitation-codes` | ROLE_ADMIN | Generate new invitation code |
+| DELETE | `/auth/admin/invitation-codes/{id}` | ROLE_ADMIN | Deactivate invitation code (soft) |
+| DELETE | `/auth/admin/invitation-codes/{id}/permanent` | ROLE_ADMIN | Permanently delete invitation code |
+| PATCH | `/auth/admin/invitation-codes/{id}/activate` | ROLE_ADMIN | Re-activate invitation code |
+| GET | `/auth/admin/settings/google` | ROLE_ADMIN | Get Google OAuth2 client ID + whether secret is set |
+| PUT | `/auth/admin/settings/google` | ROLE_ADMIN | Save Google OAuth2 credentials (stored in `app_settings` table) |
 
 ### Main Service (`/api/**`)
 | Method | Path | Auth | Description |
@@ -167,6 +196,38 @@ All requests go through the API Gateway at `http://localhost:8080`.
 
 ## Data Models
 
+### User (`users` table — auth-service)
+| Field | Type | Notes |
+|---|---|---|
+| `id` | `Long` | PK, auto-generated |
+| `username` | `String` | Unique, not null |
+| `password` | `String` | BCrypt-hashed; unusable random value for Google users |
+| `googleSub` | `String` | Google subject ID — non-null means Google account |
+| `email` | `String` | Unique; set from Google profile |
+| `firstName` | `String` | Optional display name (first) |
+| `lastName` | `String` | Optional display name (last) |
+| `roles` | `Set<String>` | `@ElementCollection` → `user_roles` table; values: `ROLE_ADMIN`, `ROLE_MEMBER` |
+| `active` | `boolean` | `@Builder.Default = true` — disabled users cannot log in |
+
+> **Lombok + @Builder.Default**: `boolean active = true` requires `@Builder.Default` — without it, Lombok's `@Builder` ignores the initializer and `active` defaults to `false`.
+
+> **Mutable collections only**: `roles` must always be a mutable `Set` (e.g. `new HashSet<>`). **Never use `Set.of()`** — Hibernate calls `.clear()` on it during merge, throwing `UnsupportedOperationException`.
+
+### AppSetting (`app_settings` table — auth-service)
+Key/value store for runtime configuration. Currently used keys: `google_client_id`, `google_client_secret`.
+Dynamic Google OAuth2 registration reads from this table on every OAuth2 flow.
+
+### InvitationCode (`invitation_codes` table — auth-service)
+| Field | Type | Notes |
+|---|---|---|
+| `id` | `Long` | PK |
+| `code` | `String` | UUID-based unique code |
+| `createdBy` | `String` | Admin username who generated it |
+| `createdAt` | `LocalDateTime` | Generation time |
+| `active` | `boolean` | Whether the code can still be used |
+
+Google OAuth2 new users must supply a valid active invitation code during registration.
+
 ### Question (`questions` table — main-service)
 | Field | Type | Notes |
 |---|---|---|
@@ -196,7 +257,7 @@ Frontend stores image IDs as strings in `questionImagePaths` / `hintImagePaths` 
 ---
 
 ## Default Dev Credentials
-- **App login**: `zhlow` / `password88` (seeded on startup by `DataInitializer`)
+- **Admin login**: `localadmin` / `password88` (seeded on startup by `DataInitializer` with `ROLE_ADMIN`)
 - **pgAdmin**: `admin@telegramquiz.com` / `admin`
 - **PostgreSQL**: host `localhost:5432`, db/user/pass `postgres`
 - **Redis**: `localhost:6379` (no auth in dev)
@@ -228,3 +289,40 @@ cd src/frontend && npm run dev
 ```
 
 Open `http://localhost:5173/tg-quiz/`
+
+---
+
+## Known Gotchas
+
+### JwtAuthFilter double-registration
+`JwtAuthFilter` is a `@Component`, so Spring Boot auto-registers it as a **servlet filter** (outside the security chain) AND `addFilterBefore(...)` registers it **inside** the chain. `OncePerRequestFilter` detects it already ran and skips the second execution — leaving `SecurityContextHolder` empty and causing 403.
+
+**Fix**: disable the auto-registration in `SecurityConfig`:
+```java
+@Bean
+public FilterRegistrationBean<JwtAuthFilter> jwtFilterRegistration(JwtAuthFilter filter) {
+    FilterRegistrationBean<JwtAuthFilter> registration = new FilterRegistrationBean<>(filter);
+    registration.setEnabled(false);
+    return registration;
+}
+```
+
+### Set.of() breaks Hibernate merge
+Hibernate's merge event calls `.clear()` on element collections. `Set.of()` returns an immutable set → `UnsupportedOperationException`. Always initialise mutable collections:
+```java
+// WRONG
+user.setRoles(Set.of("ROLE_MEMBER"));
+
+// RIGHT — mutate the managed collection
+user.getRoles().clear();
+user.getRoles().add("ROLE_MEMBER");
+
+// RIGHT — when creating via @Builder
+.roles(new HashSet<>(Set.of("ROLE_MEMBER")))
+```
+
+### CORS preflight (OPTIONS) and Spring Security
+The API Gateway handles CORS and responds 200 to all OPTIONS preflights — Spring Security in auth-service never sees them. No special OPTIONS handling is needed in the auth-service security config.
+
+### Google OAuth2 button only appears when configured
+`GET /auth/oauth2/configured` returns `false` when the `app_settings` table has no Google credentials → the login page hides the Google button. After a DB wipe, re-enter credentials via **Admin → Settings**.
