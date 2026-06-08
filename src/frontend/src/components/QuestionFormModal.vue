@@ -86,6 +86,18 @@
                 </div>
               </div>
 
+              <!-- Folder picker -->
+              <div v-if="props.folders.length > 0" class="flex items-center gap-3 px-5 py-2 border-b border-slate-100 bg-slate-50/40 shrink-0">
+                <span class="text-[0.7rem] font-semibold text-slate-400 uppercase tracking-wide flex-shrink-0">Folder</span>
+                <select
+                  v-model="form.folderId"
+                  class="flex-1 text-xs border border-slate-200 rounded-lg px-2 py-1.5 bg-white text-slate-700 outline-none focus:border-blue-400 cursor-pointer transition"
+                >
+                  <option :value="null">— No folder —</option>
+                  <option v-for="f in props.folders" :key="f.id" :value="f.id">{{ f.name }}</option>
+                </select>
+              </div>
+
               <!-- Sub-tabs -->
               <div class="flex gap-1 border-b border-slate-200 px-4 pt-1 shrink-0">
                 <button
@@ -572,6 +584,7 @@
 import { ref, watch, computed, nextTick } from 'vue'
 import { VueDraggable } from 'vue-draggable-plus'
 import type { Question, QuestionRequest, ContentBlock } from '@/types/question'
+import type { Folder } from '@/types/folder'
 import { questionsService } from '@/services/questionsService'
 
 // ── FormBlock (internal form type with stable drag key) ──────────────────
@@ -593,6 +606,8 @@ function makeBlock(type: 'text' | 'image', content = ''): FormBlock {
 const props = defineProps<{
   visible: boolean
   question: Question | null
+  folders: Folder[]
+  defaultFolderId?: number | null
 }>()
 
 const emit = defineEmits<{
@@ -613,6 +628,7 @@ function blankForm() {
     isBriefing: false,
     hintBlocks: [] as FormBlock[],
     explanationBlocks: [] as FormBlock[],
+    folderId: null as number | null,
   }
 }
 
@@ -747,11 +763,12 @@ watch(() => props.visible, (v) => {
       isBriefing: q.isBriefing,
       hintBlocks: q.hintBlocks.map(b => ({ ...b, _id: makeId() })),
       explanationBlocks: q.explanationBlocks.map(b => ({ ...b, _id: makeId() })),
+      folderId: q.folderId ?? null,
     }
   } else {
     isEdit.value = false
     activeTab.value = 'question'
-    form.value = blankForm()
+    form.value = { ...blankForm(), folderId: props.defaultFolderId ?? null }
   }
 })
 
@@ -813,6 +830,7 @@ async function submit() {
     isBriefing: form.value.isBriefing,
     hintBlocks: toContentBlocks(form.value.hintBlocks),
     explanationBlocks: toContentBlocks(form.value.explanationBlocks),
+    folderId: form.value.folderId ?? null,
   }
 
   try {

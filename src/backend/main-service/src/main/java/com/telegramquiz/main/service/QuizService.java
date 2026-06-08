@@ -34,20 +34,21 @@ public class QuizService {
     private final TelegramBotManager telegramBotManager;
 
     @Transactional(readOnly = true)
-    public List<QuizSummaryDto> findAll() {
-        return quizRepository.findAllByOrderByCreatedAtDesc().stream()
+    public List<QuizSummaryDto> findAll(String username) {
+        return quizRepository.findAllByCreatedByOrderByCreatedAtDesc(username).stream()
                 .map(this::toSummaryDto)
                 .toList();
     }
 
     @Transactional(readOnly = true)
-    public QuizResponseDto findById(Long id) {
-        return toResponseDto(getOrThrow(id));
+    public QuizResponseDto findById(Long id, String username) {
+        return toResponseDto(getOrThrow(id, username));
     }
 
     @Transactional
-    public QuizResponseDto create(QuizRequestDto dto) {
+    public QuizResponseDto create(QuizRequestDto dto, String username) {
         Quiz quiz = Quiz.builder()
+                .createdBy(username)
                 .name(dto.name())
                 .botToken(encryptionService.encrypt(dto.botToken()))
                 .botUsername(dto.botUsername())
@@ -56,13 +57,13 @@ public class QuizService {
                 .status(QuizStatus.DRAFT)
                 .build();
         quiz = quizRepository.save(quiz);
-        saveQuizQuestions(quiz, dto.questionIds());
+        saveQuizQuestions(quiz, dto.questionIds(), username);
         return toResponseDto(quizRepository.findById(quiz.getId()).orElseThrow());
     }
 
     @Transactional
-    public QuizResponseDto update(Long id, QuizRequestDto dto) {
-        Quiz quiz = getOrThrow(id);
+    public QuizResponseDto update(Long id, QuizRequestDto dto, String username) {
+        Quiz quiz = getOrThrow(id, username);
         quiz.setName(dto.name());
         // Only re-encrypt if a new (non-masked) token is provided
         if (!dto.botToken().startsWith("…")) {
@@ -75,13 +76,13 @@ public class QuizService {
         quiz.setPassScorePercent(dto.passScorePercent());
         quiz.getQuizQuestions().clear();
         quizRepository.save(quiz);
-        saveQuizQuestions(quiz, dto.questionIds());
+        saveQuizQuestions(quiz, dto.questionIds(), username);
         return toResponseDto(quizRepository.findById(id).orElseThrow());
     }
 
     @Transactional
-    public QuizResponseDto activate(Long id) {
-        Quiz quiz = getOrThrow(id);
+    public QuizResponseDto activate(Long id, String username) {
+        Quiz quiz = getOrThrow(id, username);
         quiz.setStatus(QuizStatus.ACTIVE);
         Quiz saved = quizRepository.save(quiz);
         telegramBotManager.startBot(buildBotData(saved));
@@ -89,8 +90,8 @@ public class QuizService {
     }
 
     @Transactional
-    public QuizResponseDto stop(Long id) {
-        Quiz quiz = getOrThrow(id);
+    public QuizResponseDto stop(Long id, String username) {
+        Quiz quiz = getOrThrow(id, username);
         quiz.setStatus(QuizStatus.STOPPED);
         Quiz saved = quizRepository.save(quiz);
         telegramBotManager.stopBot(id);
@@ -98,8 +99,8 @@ public class QuizService {
     }
 
     @Transactional
-    public void delete(Long id) {
-        if (!quizRepository.existsById(id)) {
+    public void delete(Long id, String username) {
+        if (!quizRepository.findByIdAndCreatedBy(id, username).isPresent()) {
             throw new EntityNotFoundException("Quiz not found: " + id);
         }
         quizRepository.deleteById(id);
@@ -107,11 +108,11 @@ public class QuizService {
 
     // ── helpers ────────────────────────────────────────────────────────────
 
-    private void saveQuizQuestions(Quiz quiz, List<Long> questionIds) {
+    private void saveQuizQuestions(Quiz quiz, List<Long> questionIds, String username) {
         List<QuizQuestion> items = new ArrayList<>();
         for (int i = 0; i < questionIds.size(); i++) {
             Long qId = questionIds.get(i);
-            var question = questionRepository.findById(qId)
+            var question = questionRepository.findByIdAndCreatedBy(qId, username)
                     .orElseThrow(() -> new EntityNotFoundException("Question not found: " + qId));
             items.add(QuizQuestion.builder()
                     .quiz(quiz)
@@ -122,8 +123,8 @@ public class QuizService {
         quizQuestionRepository.saveAll(items);
     }
 
-    private Quiz getOrThrow(Long id) {
-        return quizRepository.findById(id)
+    private Quiz getOrThrow(Long id, String username) {
+        return quizRepository.findByIdAndCreatedBy(id, username)
                 .orElseThrow(() -> new EntityNotFoundException("Quiz not found: " + id));
     }
 

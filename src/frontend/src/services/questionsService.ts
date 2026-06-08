@@ -20,6 +20,9 @@ export const questionsService = {
   reorder: (orderedIds: number[]): Promise<void> =>
     api.patch('/api/questions/reorder', { orderedIds }).then(() => undefined),
 
+  assignFolder: (id: number, folderId: number | null): Promise<Question> =>
+    api.patch<Question>(`/api/questions/${id}/folder`, { folderId }).then(r => r.data),
+
   uploadFile: (file: File): Promise<string> => {
     const formData = new FormData()
     formData.append('file', file)

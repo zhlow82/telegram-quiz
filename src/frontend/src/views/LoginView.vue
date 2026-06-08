@@ -73,12 +73,11 @@
           </div>
 
           <!-- Remember me / forgot -->
-          <div class="flex items-center justify-between mb-5">
+          <div class="flex items-center mb-5">
             <label class="flex items-center gap-2 text-sm text-slate-600 cursor-pointer select-none">
               <input v-model="remember" type="checkbox" class="rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
               Remember me
             </label>
-            <a href="#" class="text-sm text-blue-600 font-medium hover:underline">Forgot password?</a>
           </div>
 
           <!-- Error alert -->

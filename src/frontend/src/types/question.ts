@@ -5,6 +5,7 @@ export interface ContentBlock {
 
 export interface Question {
   id: number
+  createdBy: string
   orderIndex: number
   questionBlocks: ContentBlock[]
   options: string[]
@@ -16,6 +17,7 @@ export interface Question {
   mark: number | null
   createdAt: string
   updatedAt: string
+  folderId: number | null
 }
 
 export interface QuestionRequest {
@@ -28,5 +30,6 @@ export interface QuestionRequest {
   hintBlocks?: ContentBlock[]
   explanationBlocks?: ContentBlock[]
   mark?: number | null
+  folderId?: number | null
 }
 

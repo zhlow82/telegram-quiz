@@ -15,5 +15,6 @@ public record QuestionRequestDto(
         Boolean isBriefing,
         List<ContentBlock> hintBlocks,
         List<ContentBlock> explanationBlocks,
-        Integer mark
+        Integer mark,
+        Long folderId
 ) {}

@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,45 +33,60 @@ public class QuizController {
     private final QuizSessionService quizSessionService;
 
     @GetMapping
-    public ResponseEntity<List<QuizSummaryDto>> list() {
-        return ResponseEntity.ok(quizService.findAll());
+    public ResponseEntity<List<QuizSummaryDto>> list(@AuthenticationPrincipal String username) {
+        return ResponseEntity.ok(quizService.findAll(username));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<QuizResponseDto> get(@PathVariable Long id) {
-        return ResponseEntity.ok(quizService.findById(id));
+    public ResponseEntity<QuizResponseDto> get(
+            @PathVariable Long id,
+            @AuthenticationPrincipal String username) {
+        return ResponseEntity.ok(quizService.findById(id, username));
     }
 
     @PostMapping
-    public ResponseEntity<QuizResponseDto> create(@Valid @RequestBody QuizRequestDto dto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(quizService.create(dto));
+    public ResponseEntity<QuizResponseDto> create(
+            @Valid @RequestBody QuizRequestDto dto,
+            @AuthenticationPrincipal String username) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(quizService.create(dto, username));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<QuizResponseDto> update(
             @PathVariable Long id,
-            @Valid @RequestBody QuizRequestDto dto) {
-        return ResponseEntity.ok(quizService.update(id, dto));
+            @Valid @RequestBody QuizRequestDto dto,
+            @AuthenticationPrincipal String username) {
+        return ResponseEntity.ok(quizService.update(id, dto, username));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        quizService.delete(id);
+    public ResponseEntity<Void> delete(
+            @PathVariable Long id,
+            @AuthenticationPrincipal String username) {
+        quizService.delete(id, username);
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/{id}/activate")
-    public ResponseEntity<QuizResponseDto> activate(@PathVariable Long id) {
-        return ResponseEntity.ok(quizService.activate(id));
+    public ResponseEntity<QuizResponseDto> activate(
+            @PathVariable Long id,
+            @AuthenticationPrincipal String username) {
+        return ResponseEntity.ok(quizService.activate(id, username));
     }
 
     @PostMapping("/{id}/stop")
-    public ResponseEntity<QuizResponseDto> stop(@PathVariable Long id) {
-        return ResponseEntity.ok(quizService.stop(id));
+    public ResponseEntity<QuizResponseDto> stop(
+            @PathVariable Long id,
+            @AuthenticationPrincipal String username) {
+        return ResponseEntity.ok(quizService.stop(id, username));
     }
 
     @GetMapping("/{id}/sessions")
-    public ResponseEntity<List<QuizSessionDto>> getSessions(@PathVariable Long id) {
+    public ResponseEntity<List<QuizSessionDto>> getSessions(
+            @PathVariable Long id,
+            @AuthenticationPrincipal String username) {
+        // Verify ownership before returning sessions
+        quizService.findById(id, username);
         return ResponseEntity.ok(quizSessionService.findByQuizId(id));
     }
 }

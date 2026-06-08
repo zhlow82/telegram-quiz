@@ -36,6 +36,9 @@ public class Quiz {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "created_by", nullable = false)
+    private String createdBy;
+
     @Column(nullable = false)
     private String name;
 

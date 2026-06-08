@@ -7,6 +7,7 @@ import com.telegramquiz.main.model.ContentBlock;
 
 public record QuestionResponseDto(
         Long id,
+        String createdBy,
         int orderIndex,
         List<ContentBlock> questionBlocks,
         List<String> options,
@@ -17,5 +18,6 @@ public record QuestionResponseDto(
         List<ContentBlock> explanationBlocks,
         Integer mark,
         LocalDateTime createdAt,
-        LocalDateTime updatedAt
+        LocalDateTime updatedAt,
+        Long folderId
 ) {}

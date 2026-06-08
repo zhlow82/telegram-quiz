@@ -36,6 +36,9 @@ public class Question {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "created_by", nullable = false)
+    private String createdBy;
+
     @Column(name = "order_index", nullable = false)
     private int orderIndex;
 
@@ -68,6 +71,9 @@ public class Question {
     private List<ContentBlock> explanationBlocks = new ArrayList<>();
 
     private Integer mark;
+
+    @Column(name = "folder_id")
+    private Long folderId;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
