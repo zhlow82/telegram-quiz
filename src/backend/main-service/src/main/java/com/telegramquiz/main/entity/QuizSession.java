@@ -41,6 +41,9 @@ public class QuizSession {
     @Column(name = "telegram_first_name")
     private String telegramFirstName;
 
+    @Column(name = "team_name")
+    private String teamName;
+
     @Column(nullable = false)
     private int score;
 

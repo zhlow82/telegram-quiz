@@ -1,0 +1,5 @@
+ALTER TABLE questions
+    ADD COLUMN IF NOT EXISTS expects_text_input BOOLEAN NOT NULL DEFAULT FALSE;
+
+ALTER TABLE quiz_sessions
+    ADD COLUMN IF NOT EXISTS team_name VARCHAR(255);

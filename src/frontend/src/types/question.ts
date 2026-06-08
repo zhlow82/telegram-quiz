@@ -12,6 +12,13 @@ export interface Question {
   answer: string | null
   expectPhoto: boolean
   isBriefing: boolean
+  expectsTextInput: boolean
+  briefingPrimaryButtonText: string | null
+  showBriefingPrimaryButton: boolean
+  briefingSecondaryButtonText: string | null
+  showBriefingSecondaryButton: boolean
+  afterAnswerButtonText: string | null
+  showAfterAnswerButton: boolean
   hintBlocks: ContentBlock[]
   explanationBlocks: ContentBlock[]
   mark: number | null
@@ -27,6 +34,13 @@ export interface QuestionRequest {
   answer?: string | null
   expectPhoto?: boolean
   isBriefing?: boolean
+  expectsTextInput?: boolean
+  briefingPrimaryButtonText?: string | null
+  showBriefingPrimaryButton?: boolean
+  briefingSecondaryButtonText?: string | null
+  showBriefingSecondaryButton?: boolean
+  afterAnswerButtonText?: string | null
+  showAfterAnswerButton?: boolean
   hintBlocks?: ContentBlock[]
   explanationBlocks?: ContentBlock[]
   mark?: number | null

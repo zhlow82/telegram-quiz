@@ -7,6 +7,7 @@ public record QuizSessionDto(
         Long telegramUserId,
         String telegramUsername,
         String telegramFirstName,
+        String teamName,
         int score,
         int totalQuestions,
         boolean passed,

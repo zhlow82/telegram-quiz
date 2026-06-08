@@ -17,6 +17,7 @@ import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 import com.telegramquiz.main.entity.QuizStatus;
 import com.telegramquiz.main.repository.QuizRepository;
 import com.telegramquiz.main.service.BotTokenEncryptionService;
+import com.telegramquiz.main.service.ImageBlobService;
 import com.telegramquiz.main.service.QuizSessionService;
 
 import jakarta.annotation.PreDestroy;
@@ -31,6 +32,7 @@ public class TelegramBotManager {
     private final QuizRepository quizRepository;
     private final BotTokenEncryptionService encryptionService;
     private final QuizSessionService sessionService;
+    private final ImageBlobService imageBlobService;
 
     private TelegramBotsApi botsApi;
     private final Map<Long, BotSession> activeSessions = new ConcurrentHashMap<>();
@@ -58,6 +60,13 @@ public class TelegramBotManager {
                                     q.getOptions() != null ? q.getOptions() : List.of(),
                                     q.getAnswer(),
                                     q.isBriefing(),
+                                    q.isExpectsTextInput(),
+                                    q.getBriefingPrimaryButtonText(),
+                                    q.isShowBriefingPrimaryButton(),
+                                    q.getBriefingSecondaryButtonText(),
+                                    q.isShowBriefingSecondaryButton(),
+                                    q.getAfterAnswerButtonText(),
+                                    q.isShowAfterAnswerButton(),
                                     q.getHintBlocks() != null ? q.getHintBlocks() : List.of(),
                                     q.getExplanationBlocks() != null ? q.getExplanationBlocks() : List.of()
                             );
@@ -87,7 +96,7 @@ public class TelegramBotManager {
             return;
         }
         try {
-            QuizBotSession bot = new QuizBotSession(data, sessionService);
+            QuizBotSession bot = new QuizBotSession(data, sessionService, imageBlobService);
             BotSession session = botsApi.registerBot(bot);
             activeSessions.put(data.quizId(), session);
             activeBots.put(data.quizId(), bot);

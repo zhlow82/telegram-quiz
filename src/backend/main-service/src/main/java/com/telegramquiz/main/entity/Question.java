@@ -60,6 +60,27 @@ public class Question {
     @Column(name = "is_briefing", nullable = false)
     private boolean isBriefing;
 
+    @Column(name = "expects_text_input", nullable = false)
+    private boolean expectsTextInput;
+
+    @Column(name = "briefing_primary_button_text")
+    private String briefingPrimaryButtonText;
+
+    @Column(name = "show_briefing_primary_button", nullable = false)
+    private boolean showBriefingPrimaryButton;
+
+    @Column(name = "briefing_secondary_button_text")
+    private String briefingSecondaryButtonText;
+
+    @Column(name = "show_briefing_secondary_button", nullable = false)
+    private boolean showBriefingSecondaryButton;
+
+    @Column(name = "after_answer_button_text")
+    private String afterAnswerButtonText;
+
+    @Column(name = "show_after_answer_button", nullable = false)
+    private boolean showAfterAnswerButton;
+
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "hint_blocks", columnDefinition = "jsonb", nullable = false)
     @Builder.Default

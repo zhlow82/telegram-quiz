@@ -12,6 +12,7 @@ public class ChatQuizState {
     public volatile int questionIndex = 0;
     public volatile int score = 0;
     public volatile Integer lastMessageId = null;
+    public volatile boolean waitingForTextInput = false;
     private volatile ScheduledFuture<?> timeoutFuture = null;
 
     public ChatQuizState(long chatId, int totalQuestions,

@@ -61,6 +61,13 @@ public class QuestionService {
                 .answer(dto.answer())
                 .expectPhoto(Boolean.TRUE.equals(dto.expectPhoto()))
                 .isBriefing(Boolean.TRUE.equals(dto.isBriefing()))
+                .expectsTextInput(Boolean.TRUE.equals(dto.expectsTextInput()))
+                .briefingPrimaryButtonText(normalizeBriefingButtonText(dto.briefingPrimaryButtonText(), "READY"))
+                .showBriefingPrimaryButton(resolveBriefingButtonVisibility(dto.showBriefingPrimaryButton(), true))
+                .briefingSecondaryButtonText(normalizeBriefingButtonText(dto.briefingSecondaryButtonText(), "Start Timer"))
+                .showBriefingSecondaryButton(resolveBriefingButtonVisibility(dto.showBriefingSecondaryButton(), true))
+                .afterAnswerButtonText(normalizeOptionalButtonText(dto.afterAnswerButtonText(), "Next Question"))
+                .showAfterAnswerButton(resolveBriefingButtonVisibility(dto.showAfterAnswerButton(), true))
                 .hintBlocks(dto.hintBlocks() != null ? dto.hintBlocks() : new ArrayList<>())
                 .explanationBlocks(dto.explanationBlocks() != null ? dto.explanationBlocks() : new ArrayList<>())
                 .mark(dto.mark())
@@ -79,6 +86,13 @@ public class QuestionService {
         question.setAnswer(dto.answer());
         question.setExpectPhoto(Boolean.TRUE.equals(dto.expectPhoto()));
         question.setBriefing(Boolean.TRUE.equals(dto.isBriefing()));
+        question.setExpectsTextInput(Boolean.TRUE.equals(dto.expectsTextInput()));
+        question.setBriefingPrimaryButtonText(normalizeBriefingButtonText(dto.briefingPrimaryButtonText(), "READY"));
+        question.setShowBriefingPrimaryButton(resolveBriefingButtonVisibility(dto.showBriefingPrimaryButton(), true));
+        question.setBriefingSecondaryButtonText(normalizeBriefingButtonText(dto.briefingSecondaryButtonText(), "Start Timer"));
+        question.setShowBriefingSecondaryButton(resolveBriefingButtonVisibility(dto.showBriefingSecondaryButton(), true));
+        question.setAfterAnswerButtonText(normalizeOptionalButtonText(dto.afterAnswerButtonText(), "Next Question"));
+        question.setShowAfterAnswerButton(resolveBriefingButtonVisibility(dto.showAfterAnswerButton(), true));
         question.setHintBlocks(dto.hintBlocks() != null ? dto.hintBlocks() : new ArrayList<>());
         question.setExplanationBlocks(dto.explanationBlocks() != null ? dto.explanationBlocks() : new ArrayList<>());
         question.setMark(dto.mark());
@@ -146,7 +160,7 @@ public class QuestionService {
         return q;
     }
 
-    private boolean canAccess(Question q, String username) {
+    boolean canAccess(Question q, String username) {
         if (q.getCreatedBy().equals(username)) return true;
         if (q.getFolderId() == null) return false;
         return folderService.getAccessLevel(q.getFolderId(), username) != FolderAccessLevel.NONE;
@@ -162,6 +176,13 @@ public class QuestionService {
                 q.getAnswer(),
                 q.isExpectPhoto(),
                 q.isBriefing(),
+                q.isExpectsTextInput(),
+                q.getBriefingPrimaryButtonText(),
+                q.isShowBriefingPrimaryButton(),
+                q.getBriefingSecondaryButtonText(),
+                q.isShowBriefingSecondaryButton(),
+                q.getAfterAnswerButtonText(),
+                q.isShowAfterAnswerButton(),
                 q.getHintBlocks(),
                 q.getExplanationBlocks(),
                 q.getMark(),
@@ -169,5 +190,23 @@ public class QuestionService {
                 q.getUpdatedAt(),
                 q.getFolderId()
         );
+    }
+
+    private String normalizeBriefingButtonText(String value, String fallback) {
+        if (value == null || value.isBlank()) {
+            return fallback;
+        }
+        return value.trim();
+    }
+
+    private boolean resolveBriefingButtonVisibility(Boolean value, boolean fallback) {
+        return value != null ? value : fallback;
+    }
+
+    private String normalizeOptionalButtonText(String value, String fallback) {
+        if (value == null || value.isBlank()) {
+            return fallback;
+        }
+        return value.trim();
     }
 }

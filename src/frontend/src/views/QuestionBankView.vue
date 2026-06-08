@@ -280,14 +280,14 @@
                 <span v-if="q.isBriefing" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-violet-100 text-violet-700">
                   <FileText class="w-3 h-3" />Briefing
                 </span>
+                <span v-else-if="q.expectsTextInput" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-700">
+                  <AlignLeft class="w-3 h-3" />Text Input
+                </span>
                 <span v-else-if="q.options.length" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-blue-100 text-blue-700">
                   <ListChecks class="w-3 h-3" />Multiple Choice
                 </span>
                 <span v-else-if="q.expectPhoto" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-amber-100 text-amber-700">
-                  <Camera class="w-3 h-3" />Photo Answer
-                </span>
-                <span v-else class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-slate-100 text-slate-600">
-                  <AlignLeft class="w-3 h-3" />Open Answer
+                  <Camera class="w-3 h-3" />Photo
                 </span>
                 <span v-if="!q.isBriefing && q.options.length" class="inline-flex items-center text-[0.6875rem] font-medium px-2 py-0.5 rounded-md bg-slate-100 text-slate-500">{{ q.options.length }} options</span>
                 <span v-if="q.folderId != null" class="inline-flex items-center gap-1 text-[0.6875rem] font-medium px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700">
@@ -335,14 +335,14 @@
                   <span v-if="q.isBriefing" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-violet-100 text-violet-700">
                     <FileText class="w-3 h-3" />Briefing
                   </span>
+                  <span v-else-if="q.expectsTextInput" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-700">
+                    <AlignLeft class="w-3 h-3" />Text Input
+                  </span>
                   <span v-else-if="q.options.length" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-blue-100 text-blue-700">
                     <ListChecks class="w-3 h-3" />Multiple Choice
                   </span>
                   <span v-else-if="q.expectPhoto" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-amber-100 text-amber-700">
-                    <Camera class="w-3 h-3" />Photo Answer
-                  </span>
-                  <span v-else class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-slate-100 text-slate-600">
-                    <AlignLeft class="w-3 h-3" />Open Answer
+                    <Camera class="w-3 h-3" />Photo
                   </span>
                   <span v-if="!q.isBriefing && q.options.length" class="inline-flex items-center text-[0.6875rem] font-medium px-2 py-0.5 rounded-md bg-slate-100 text-slate-500">{{ q.options.length }} options</span>
                 </div>
@@ -388,14 +388,14 @@
                   <span v-if="q.isBriefing" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-violet-100 text-violet-700">
                     <FileText class="w-3 h-3" />Briefing
                   </span>
+                  <span v-else-if="q.expectsTextInput" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-700">
+                    <AlignLeft class="w-3 h-3" />Text Input
+                  </span>
                   <span v-else-if="q.options.length" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-blue-100 text-blue-700">
                     <ListChecks class="w-3 h-3" />Multiple Choice
                   </span>
                   <span v-else-if="q.expectPhoto" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-amber-100 text-amber-700">
-                    <Camera class="w-3 h-3" />Photo Answer
-                  </span>
-                  <span v-else class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-slate-100 text-slate-600">
-                    <AlignLeft class="w-3 h-3" />Open Answer
+                    <Camera class="w-3 h-3" />Photo
                   </span>
                   <span v-if="!q.isBriefing && q.options.length" class="inline-flex items-center text-[0.6875rem] font-medium px-2 py-0.5 rounded-md bg-slate-100 text-slate-500">{{ q.options.length }} options</span>
                 </div>

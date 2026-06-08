@@ -69,7 +69,7 @@
 <script setup lang="ts">
 import { AlertTriangle, AlertCircle, X } from '@lucide/vue'
 
-const props = withDefaults(defineProps<{
+withDefaults(defineProps<{
   visible: boolean
   type?: 'confirm' | 'alert'
   title: string

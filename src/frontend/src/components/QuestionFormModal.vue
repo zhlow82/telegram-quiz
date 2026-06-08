@@ -45,17 +45,17 @@
               <div class="px-6 pt-5 pb-4 border-b border-slate-100 shrink-0">
                 <div class="space-y-2">
                   <label class="block text-sm font-semibold text-slate-700">Question Type</label>
-                  <div class="grid grid-cols-3 gap-3">
+                  <div class="grid grid-cols-4 gap-3">
                     <button
                       type="button"
                       class="flex flex-col items-center gap-2 px-3 py-4 rounded-xl border-2 transition cursor-pointer text-center"
-                      :class="!form.expectPhoto && !form.isBriefing
+                      :class="!form.expectPhoto && !form.isBriefing && !form.expectsTextInput
                         ? 'border-blue-500 bg-blue-50 shadow-sm'
                         : 'border-slate-200 bg-slate-50 hover:border-slate-300 hover:bg-white'"
                       @click="setQuestionType(false, false)"
                     >
                       <span class="text-2xl leading-none">⌨️</span>
-                      <span class="text-sm font-bold" :class="!form.expectPhoto && !form.isBriefing ? 'text-blue-700' : 'text-slate-800'">Multiple Choice</span>
+                      <span class="text-sm font-bold" :class="!form.expectPhoto && !form.isBriefing && !form.expectsTextInput ? 'text-blue-700' : 'text-slate-800'">Multiple Choice</span>
                       <span class="text-xs text-slate-500 leading-snug">Players pick from A / B / C / D options</span>
                     </button>
                     <button
@@ -81,6 +81,18 @@
                       <span class="text-2xl leading-none">📋</span>
                       <span class="text-sm font-bold" :class="form.isBriefing ? 'text-blue-700' : 'text-slate-800'">Briefing</span>
                       <span class="text-xs text-slate-500 leading-snug">Instructions + photo, then READY</span>
+                    </button>
+                    <button
+                      type="button"
+                      class="flex flex-col items-center gap-2 px-3 py-4 rounded-xl border-2 transition cursor-pointer text-center"
+                      :class="form.expectsTextInput
+                        ? 'border-blue-500 bg-blue-50 shadow-sm'
+                        : 'border-slate-200 bg-slate-50 hover:border-slate-300 hover:bg-white'"
+                      @click="setQuestionType(false, false, true)"
+                    >
+                      <span class="text-2xl leading-none">✍️</span>
+                      <span class="text-sm font-bold" :class="form.expectsTextInput ? 'text-blue-700' : 'text-slate-800'">Text Input</span>
+                      <span class="text-xs text-slate-500 leading-snug">Players type a short answer like team name</span>
                     </button>
                   </div>
                 </div>
@@ -232,12 +244,13 @@
                         <p class="text-xs text-slate-400">How many points this question is worth. Leave blank for unscored.</p>
                         <div class="flex items-center gap-3">
                           <input
-                            v-model.number="form.mark"
+                            :value="form.mark ?? ''"
                             type="number"
                             min="0"
                             step="1"
                             class="w-32 px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition bg-white text-slate-900 placeholder-slate-400"
                             placeholder="e.g. 1"
+                            @input="onMarkInput"
                           />
                           <button
                             v-if="form.mark !== null"
@@ -249,7 +262,7 @@
                       </div>
                       <div class="flex flex-wrap gap-2">
                         <span class="text-xs text-slate-500 self-center">Quick set:</span>
-                        <button v-for="n in [1, 2, 3, 5, 10]" :key="n" type="button"
+                        <button v-for="n in [0, 1, 2, 3, 5, 10]" :key="n" type="button"
                           class="px-3 py-1 rounded-full text-xs font-semibold border transition cursor-pointer"
                           :class="form.mark === n
                             ? 'bg-blue-600 text-white border-blue-600'
@@ -369,6 +382,29 @@
                       </div>
                     </div>
 
+                    <div v-if="!form.isBriefing" class="rounded-2xl border border-emerald-200 bg-emerald-50/60 p-5 space-y-4">
+                      <div class="flex items-start justify-between gap-4 flex-wrap">
+                        <div>
+                          <h3 class="text-lg font-bold text-slate-900">After Answer Action</h3>
+                          <p class="mt-1 text-xs text-slate-500">Show a confirmation button after the reply so teams can acknowledge and continue.</p>
+                        </div>
+                        <label class="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 cursor-pointer select-none">
+                          <input v-model="form.showAfterAnswerButton" type="checkbox" class="w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" />
+                          Show
+                        </label>
+                      </div>
+                      <div class="space-y-1.5">
+                        <label class="block text-xs font-semibold tracking-wide text-slate-500 uppercase">Button Label</label>
+                        <input
+                          v-model="form.afterAnswerButtonText"
+                          type="text"
+                          maxlength="40"
+                          class="w-full px-4 py-3 rounded-2xl border border-slate-200 bg-white text-slate-900 outline-none focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100 transition"
+                          placeholder="READY"
+                        />
+                      </div>
+                    </div>
+
                   </template>
 
                   <!-- ── Tab: Briefing ── -->
@@ -426,6 +462,63 @@
                       </div>
                     </div>
 
+                    <div class="rounded-2xl border border-slate-200 bg-slate-50/70 p-4 space-y-4">
+                      <div>
+                        <h3 class="text-sm font-bold text-slate-900">Briefing Actions</h3>
+                        <p class="mt-1 text-xs text-slate-500">Use separate actions for starting the countdown and marking the team as ready.</p>
+                      </div>
+
+                      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="rounded-xl border border-emerald-200 bg-white p-4 space-y-3">
+                          <div class="flex items-start justify-between gap-3">
+                            <div>
+                              <div class="text-sm font-semibold text-slate-900">Ready Action</div>
+                              <div class="text-xs text-slate-500 mt-1">Skips the rest of the briefing and moves on immediately.</div>
+                            </div>
+                            <label class="inline-flex items-center gap-2 text-sm font-medium text-slate-600 whitespace-nowrap">
+                              <input v-model="form.showBriefingPrimaryButton" type="checkbox" class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" />
+                              Show
+                            </label>
+                          </div>
+                          <div class="space-y-1.5">
+                            <label class="block text-xs font-semibold uppercase tracking-wide text-slate-500">Button Label</label>
+                            <input
+                              v-model="form.briefingPrimaryButtonText"
+                              type="text"
+                              maxlength="255"
+                              :disabled="!form.showBriefingPrimaryButton"
+                              class="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-xl outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition bg-white text-slate-900 placeholder-slate-400 disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed"
+                              placeholder="READY"
+                            />
+                          </div>
+                        </div>
+
+                        <div class="rounded-xl border border-amber-200 bg-white p-4 space-y-3">
+                          <div class="flex items-start justify-between gap-3">
+                            <div>
+                              <div class="text-sm font-semibold text-slate-900">Start Timer Action</div>
+                              <div class="text-xs text-slate-500 mt-1">Starts the countdown while keeping the briefing on screen.</div>
+                            </div>
+                            <label class="inline-flex items-center gap-2 text-sm font-medium text-slate-600 whitespace-nowrap">
+                              <input v-model="form.showBriefingSecondaryButton" type="checkbox" class="rounded border-slate-300 text-amber-600 focus:ring-amber-500" />
+                              Show
+                            </label>
+                          </div>
+                          <div class="space-y-1.5">
+                            <label class="block text-xs font-semibold uppercase tracking-wide text-slate-500">Button Label</label>
+                            <input
+                              v-model="form.briefingSecondaryButtonText"
+                              type="text"
+                              maxlength="255"
+                              :disabled="!form.showBriefingSecondaryButton"
+                              class="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-xl outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition bg-white text-slate-900 placeholder-slate-400 disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed"
+                              placeholder="Start Timer"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
                   </template>
 
                 </form>
@@ -469,12 +562,37 @@
                     <div class="tg-avatar">🤖</div>
                     <div class="tg-msg"><span class="text-slate-400 italic">Your instructions…</span><span class="tg-ts">12:00</span></div>
                   </div>
-                  <div class="tg-keyboard">
-                    <div class="tg-kb-btn tg-kb-ready">▶️ Press READY to begin</div>
+                  <div v-if="showAnyBriefingButton" class="tg-keyboard">
+                    <div v-if="form.showBriefingSecondaryButton" class="tg-kb-btn">⏱ {{ briefingSecondaryButtonLabel }}</div>
+                    <div v-if="form.showBriefingPrimaryButton" class="tg-kb-btn tg-kb-ready">✅ {{ briefingPrimaryButtonLabel }}</div>
                   </div>
                 </template>
 
-                <!-- ── Question preview (Multiple Choice / Photo) ── -->
+                <!-- ── Question preview (Multiple Choice / Photo / Text Input) ── -->
+                <template v-else>
+
+                <template v-if="form.expectsTextInput">
+                  <template v-if="form.questionBlocks.some(b => b.content.trim())">
+                    <template v-for="block in form.questionBlocks" :key="'pt'+block._id">
+                      <div v-if="block.type === 'text' && block.content.trim()" class="tg-row">
+                        <div class="tg-avatar">🤖</div>
+                        <div class="tg-msg"><span v-html="tgToHtml(block.content)"></span><span class="tg-ts">12:00</span></div>
+                      </div>
+                      <div v-else-if="block.type === 'image' && block.content" class="tg-row">
+                        <div class="tg-avatar">🤖</div>
+                        <div class="tg-msg tg-img-msg"><img :src="`/api/files/${block.content}`" class="tg-qimg" alt="" /></div>
+                      </div>
+                    </template>
+                  </template>
+                  <div v-else class="tg-row">
+                    <div class="tg-avatar">🤖</div>
+                    <div class="tg-msg"><span class="text-slate-400 italic">Ask the player to type something…</span><span class="tg-ts">12:00</span></div>
+                  </div>
+                  <div class="tg-row tg-row-user">
+                    <div class="tg-msg tg-msg-user"><span class="text-slate-500 italic">&#123;&#123;Player types a reply here&#125;&#125;</span><span class="tg-ts">12:01</span></div>
+                  </div>
+                </template>
+
                 <template v-else>
 
                 <!-- Question blocks in order -->
@@ -534,6 +652,8 @@
                   <span class="tg-service-msg">after answer</span>
                 </div>
 
+                </template>
+
                 </template> <!-- end v-else question preview -->
 
                 <!-- After Answer blocks (not shown for briefing) -->
@@ -548,6 +668,9 @@
                       <div class="tg-msg tg-img-msg"><img :src="`/api/files/${block.content}`" class="tg-qimg" alt="" /></div>
                     </div>
                   </template>
+                  <div v-if="form.showAfterAnswerButton" class="tg-keyboard">
+                    <div class="tg-kb-btn tg-kb-ready">✅ {{ afterAnswerButtonLabel }}</div>
+                  </div>
                 </template>
                 <div v-else-if="!form.isBriefing" class="tg-empty-explanation">No after answer content added yet…</div>
 
@@ -626,6 +749,13 @@ function blankForm() {
     mark: null as number | null,
     expectPhoto: false,
     isBriefing: false,
+    expectsTextInput: false,
+    briefingPrimaryButtonText: 'READY',
+    showBriefingPrimaryButton: true,
+    briefingSecondaryButtonText: 'Start Timer',
+    showBriefingSecondaryButton: true,
+    afterAnswerButtonText: 'Next Question',
+    showAfterAnswerButton: true,
     hintBlocks: [] as FormBlock[],
     explanationBlocks: [] as FormBlock[],
     folderId: null as number | null,
@@ -640,6 +770,13 @@ const activeTab = ref<'question' | 'answer' | 'mark' | 'hint' | 'explanation' | 
 const tabs = computed(() => {
   if (form.value.isBriefing) {
     return [{ value: 'briefing' as const, label: 'Briefing' }]
+  }
+  if (form.value.expectsTextInput) {
+    return [
+      { value: 'question' as const, label: 'Prompt' },
+      { value: 'mark' as const, label: 'Mark' },
+      { value: 'explanation' as const, label: 'After Answer' },
+    ]
   }
   if (form.value.expectPhoto) {
     return [
@@ -660,10 +797,21 @@ const tabs = computed(() => {
 const filledOptions = computed(() => form.value.options.filter(o => o.trim()))
 const hasFilledHintBlocks = computed(() => form.value.hintBlocks.some(b => b.content.trim()))
 const hasFilledExplanationBlocks = computed(() => form.value.explanationBlocks.some(b => b.content.trim()))
+const briefingPrimaryButtonLabel = computed(() => normalizeBriefingButtonText(form.value.briefingPrimaryButtonText, 'READY'))
+const briefingSecondaryButtonLabel = computed(() => normalizeBriefingButtonText(form.value.briefingSecondaryButtonText, 'Start Timer'))
+const showAnyBriefingButton = computed(() => form.value.showBriefingPrimaryButton || form.value.showBriefingSecondaryButton)
+const afterAnswerButtonLabel = computed(() => normalizeBriefingButtonText(form.value.afterAnswerButtonText, 'Next Question'))
 const lastFilledQTextId = computed(() => {
   const filled = form.value.questionBlocks.filter(b => b.type === 'text' && b.content.trim())
   return filled.length ? filled[filled.length - 1]._id : null
 })
+
+function normalizeBriefingButtonText(value: string | null | undefined, fallback: string): string {
+  if (!value || !value.trim()) {
+    return fallback
+  }
+  return value.trim()
+}
 
 // ── Rich text formatting ───────────────────────────────────────────────────
 const questionTextareas = ref<Record<string, HTMLTextAreaElement | null>>({})
@@ -733,16 +881,36 @@ function applyBlockFormat(
 
 function tgToHtml(text: string): string {
   if (!text) return ''
-  return text.replace(/\n/g, '<br>')
+
+  const escaped = text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+
+  return escaped
+    .replace(/&lt;br\s*\/??&gt;/gi, '<br>')
+    .replace(/&lt;b&gt;(.*?)&lt;\/b&gt;/gis, '<strong>$1</strong>')
+    .replace(/&lt;i&gt;(.*?)&lt;\/i&gt;/gis, '<em>$1</em>')
+    .replace(/&lt;u&gt;(.*?)&lt;\/u&gt;/gis, '<u>$1</u>')
+    .replace(/&lt;s&gt;(.*?)&lt;\/s&gt;/gis, '<s>$1</s>')
+    .replace(/&lt;code&gt;(.*?)&lt;\/code&gt;/gis, '<code>$1</code>')
+    .replace(
+      /&lt;span style=&quot;color:\s*([^&]+?)&quot;&gt;(.*?)&lt;\/span&gt;/gis,
+      '<span style="color: $1">$2</span>'
+    )
+    .replace(/\n/g, '<br>')
 }
 
-function setQuestionType(expectPhoto: boolean, isBriefing: boolean) {
+function setQuestionType(expectPhoto: boolean, isBriefing: boolean, expectsTextInput = false) {
   form.value.expectPhoto = expectPhoto
   form.value.isBriefing = isBriefing
+  form.value.expectsTextInput = expectsTextInput
   activeTab.value = isBriefing ? 'briefing' : 'question'
-  if (activeTab.value === 'answer' && (expectPhoto || isBriefing)) {
-    activeTab.value = 'question'
-  }
+}
+
+function onMarkInput(event: Event) {
+  const value = (event.target as HTMLInputElement).value
+  form.value.mark = value === '' ? null : Number(value)
 }
 
 watch(() => props.visible, (v) => {
@@ -761,9 +929,21 @@ watch(() => props.visible, (v) => {
       mark: q.mark ?? null,
       expectPhoto: q.expectPhoto,
       isBriefing: q.isBriefing,
+      expectsTextInput: q.expectsTextInput ?? false,
+      briefingPrimaryButtonText: q.briefingPrimaryButtonText ?? 'READY',
+      showBriefingPrimaryButton: q.showBriefingPrimaryButton ?? true,
+      briefingSecondaryButtonText: q.briefingSecondaryButtonText ?? 'Start Timer',
+      showBriefingSecondaryButton: q.showBriefingSecondaryButton ?? true,
+      afterAnswerButtonText: q.afterAnswerButtonText ?? 'Next Question',
+      showAfterAnswerButton: q.showAfterAnswerButton ?? true,
       hintBlocks: q.hintBlocks.map(b => ({ ...b, _id: makeId() })),
       explanationBlocks: q.explanationBlocks.map(b => ({ ...b, _id: makeId() })),
       folderId: q.folderId ?? null,
+    }
+    if (q.isBriefing) {
+      activeTab.value = 'briefing'
+    } else {
+      activeTab.value = 'question'
     }
   } else {
     isEdit.value = false
@@ -823,11 +1003,18 @@ async function submit() {
 
   const payload: QuestionRequest = {
     questionBlocks: toContentBlocks(form.value.questionBlocks),
-    options: (form.value.expectPhoto || form.value.isBriefing) ? [] : form.value.options.filter(o => o.trim()),
-    answer: form.value.isBriefing ? null : (form.value.answer || null),
+    options: (form.value.expectPhoto || form.value.isBriefing || form.value.expectsTextInput) ? [] : form.value.options.filter(o => o.trim()),
+    answer: (form.value.isBriefing || form.value.expectsTextInput) ? null : (form.value.answer || null),
     mark: form.value.isBriefing ? null : (form.value.mark ?? null),
     expectPhoto: form.value.expectPhoto,
     isBriefing: form.value.isBriefing,
+    expectsTextInput: form.value.expectsTextInput,
+    briefingPrimaryButtonText: form.value.isBriefing ? briefingPrimaryButtonLabel.value : undefined,
+    showBriefingPrimaryButton: form.value.isBriefing ? form.value.showBriefingPrimaryButton : undefined,
+    briefingSecondaryButtonText: form.value.isBriefing ? briefingSecondaryButtonLabel.value : undefined,
+    showBriefingSecondaryButton: form.value.isBriefing ? form.value.showBriefingSecondaryButton : undefined,
+    afterAnswerButtonText: !form.value.isBriefing ? afterAnswerButtonLabel.value : undefined,
+    showAfterAnswerButton: !form.value.isBriefing ? form.value.showAfterAnswerButton : undefined,
     hintBlocks: toContentBlocks(form.value.hintBlocks),
     explanationBlocks: toContentBlocks(form.value.explanationBlocks),
     folderId: form.value.folderId ?? null,
@@ -883,6 +1070,8 @@ async function submit() {
   border-radius: 2px 12px 12px 12px;
   padding: 0.4rem 0.55rem 0.3rem;
   font-size: 0.8rem;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-weight: 400;
   color: #111;
   box-shadow: 0 1px 2px rgba(0,0,0,0.08);
   word-break: break-word;
@@ -891,6 +1080,50 @@ async function submit() {
   max-width: 82%;
   min-width: 0;
   overflow: hidden;
+}
+
+.tg-row-user {
+  justify-content: flex-end;
+}
+
+.tg-msg-user {
+  background: #e7ffdb;
+  border-radius: 12px 2px 12px 12px;
+}
+
+.tg-msg :deep(b),
+.tg-msg :deep(strong),
+.tg-poll-q :deep(b),
+.tg-poll-q :deep(strong) {
+  font-weight: 700;
+}
+
+.tg-msg :deep(i),
+.tg-msg :deep(em),
+.tg-poll-q :deep(i),
+.tg-poll-q :deep(em) {
+  font-style: italic;
+}
+
+.tg-msg :deep(u),
+.tg-poll-q :deep(u) {
+  text-decoration: underline;
+}
+
+.tg-msg :deep(s),
+.tg-msg :deep(del),
+.tg-poll-q :deep(s),
+.tg-poll-q :deep(del) {
+  text-decoration: line-through;
+}
+
+.tg-msg :deep(code),
+.tg-poll-q :deep(code) {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+  font-size: 0.92em;
+  background: rgba(15, 23, 42, 0.06);
+  border-radius: 4px;
+  padding: 0.05em 0.28em;
 }
 
 /* Timestamp ── floated to bottom-right inside bubble */
@@ -941,6 +1174,7 @@ async function submit() {
 
 .tg-poll-q {
   font-size: 0.875rem;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   font-weight: normal;
   color: #111;
   margin-bottom: 0.45rem;
@@ -1013,6 +1247,7 @@ async function submit() {
   border-radius: 8px;
   padding: 0.35rem 0.6rem;
   font-size: 0.78rem;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   color: #2196f3;
   font-weight: 500;
   text-align: center;

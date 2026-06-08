@@ -168,6 +168,10 @@
           <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Available ({{ unselectedQuestions.length }})</p>
           <div class="bg-white border border-slate-200 rounded-xl overflow-hidden max-h-96 overflow-y-auto">
             <div v-if="questionsLoading" class="px-4 py-6 text-center text-sm text-slate-400">Loading…</div>
+            <div v-else-if="allQuestions.length === 0" class="px-4 py-6 text-center text-sm text-slate-400 space-y-1">
+              <p>No accessible questions found.</p>
+              <p class="text-xs text-slate-400">This account can only use questions you created or questions shared with you.</p>
+            </div>
             <div v-else-if="unselectedQuestions.length === 0" class="px-4 py-6 text-center text-sm text-slate-400">
               All questions selected
             </div>
@@ -179,7 +183,7 @@
               @click="selectQuestion(q)"
             >
               <Plus class="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />
-              <span class="text-sm text-slate-700 line-clamp-2">{{ q.questionTexts[0] || '(no text)' }}</span>
+              <span class="text-sm text-slate-700 line-clamp-2">{{ q.questionBlocks.find(b => b.type === 'text')?.content || '(no text)' }}</span>
             </button>
           </div>
         </div>
@@ -206,7 +210,7 @@
                   <GripVertical class="w-4 h-4" />
                 </button>
                 <span class="text-xs font-bold text-slate-300 w-5 flex-shrink-0 mt-0.5">{{ i + 1 }}</span>
-                <span class="flex-1 text-sm text-slate-700 line-clamp-2 min-w-0">{{ q.questionTexts[0] || '(no text)' }}</span>
+                <span class="flex-1 text-sm text-slate-700 line-clamp-2 min-w-0">{{ q.questionBlocks.find(b => b.type === 'text')?.content || '(no text)' }}</span>
                 <button type="button" class="text-slate-300 hover:text-red-500 transition flex-shrink-0 mt-0.5 cursor-pointer" @click="deselectQuestion(q)">
                   <X class="w-3.5 h-3.5" />
                 </button>
@@ -246,7 +250,7 @@
           <div class="text-sm font-semibold text-slate-900 text-right">
             {{ selectedQuestions.length }} question{{ selectedQuestions.length !== 1 ? 's' : '' }}
             <ol class="mt-1 space-y-0.5 font-normal text-slate-500 text-xs text-left">
-              <li v-for="(q, i) in selectedQuestions" :key="q.id">{{ i + 1 }}. {{ q.questionTexts[0] || '(no text)' }}</li>
+              <li v-for="(q, i) in selectedQuestions" :key="q.id">{{ i + 1 }}. {{ q.questionBlocks.find(b => b.type === 'text')?.content || '(no text)' }}</li>
             </ol>
           </div>
         </div>
@@ -265,15 +269,26 @@
       >
         ← Back
       </button>
-      <button
+      <div
         v-if="step < TOTAL_STEPS"
-        type="button"
-        class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
-        :disabled="!canProceed"
+        class="inline-flex"
+        :class="canProceed ? 'cursor-pointer' : 'cursor-not-allowed'"
+        role="button"
+        :tabindex="canProceed ? 0 : -1"
+        :aria-disabled="!canProceed"
         @click="nextStep"
+        @keydown.enter.prevent="nextStep"
+        @keydown.space.prevent="nextStep"
       >
-        Continue →
-      </button>
+        <button
+          type="button"
+          class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition disabled:opacity-60 disabled:cursor-not-allowed"
+          :class="canProceed ? 'cursor-pointer' : 'pointer-events-none'"
+          :disabled="!canProceed"
+        >
+          Continue →
+        </button>
+      </div>
       <button
         v-if="step === TOTAL_STEPS"
         type="button"
@@ -333,10 +348,22 @@ const unselectedQuestions = computed(() => {
   return allQuestions.value.filter(q => !selectedIds.has(q.id))
 })
 
+const isQuizConfigValid = computed(() => {
+  const hasName = quizName.value.trim().length > 0
+  const hasValidTime = Number.isFinite(timePerQuestion.value)
+    && timePerQuestion.value >= 5
+    && timePerQuestion.value <= 300
+  const hasValidPassScore = Number.isFinite(passScorePercent.value)
+    && passScorePercent.value >= 0
+    && passScorePercent.value <= 100
+
+  return hasName && hasValidTime && hasValidPassScore
+})
+
 const canProceed = computed(() => {
   if (step.value === 1) return true
   if (step.value === 2) return botValidated.value
-  if (step.value === 3) return quizName.value.trim().length > 0
+  if (step.value === 3) return isQuizConfigValid.value
   if (step.value === 4) return selectedQuestions.value.length > 0
   return true
 })

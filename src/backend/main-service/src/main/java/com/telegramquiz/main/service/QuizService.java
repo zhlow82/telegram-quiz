@@ -12,6 +12,7 @@ import com.telegramquiz.main.bot.TelegramBotManager;
 import com.telegramquiz.main.dto.QuizRequestDto;
 import com.telegramquiz.main.dto.QuizResponseDto;
 import com.telegramquiz.main.dto.QuizSummaryDto;
+import com.telegramquiz.main.entity.Question;
 import com.telegramquiz.main.entity.Quiz;
 import com.telegramquiz.main.entity.QuizQuestion;
 import com.telegramquiz.main.entity.QuizStatus;
@@ -43,6 +44,11 @@ public class QuizService {
     @Transactional(readOnly = true)
     public QuizResponseDto findById(Long id, String username) {
         return toResponseDto(getOrThrow(id, username));
+    }
+
+    @Transactional(readOnly = true)
+    public QuizBotData debugBotData(Long id, String username) {
+        return buildBotData(getOrThrow(id, username));
     }
 
     @Transactional
@@ -112,8 +118,9 @@ public class QuizService {
         List<QuizQuestion> items = new ArrayList<>();
         for (int i = 0; i < questionIds.size(); i++) {
             Long qId = questionIds.get(i);
-            var question = questionRepository.findByIdAndCreatedBy(qId, username)
-                    .orElseThrow(() -> new EntityNotFoundException("Question not found: " + qId));
+            Question question = questionRepository.findById(qId)
+                .filter(q -> questionService.canAccess(q, username))
+                .orElseThrow(() -> new EntityNotFoundException("Question not found: " + qId));
             items.add(QuizQuestion.builder()
                     .quiz(quiz)
                     .question(question)
@@ -176,6 +183,13 @@ public class QuizService {
                             q.getOptions() != null ? q.getOptions() : List.of(),
                             q.getAnswer(),
                             q.isBriefing(),
+                            q.isExpectsTextInput(),
+                            q.getBriefingPrimaryButtonText(),
+                            q.isShowBriefingPrimaryButton(),
+                            q.getBriefingSecondaryButtonText(),
+                            q.isShowBriefingSecondaryButton(),
+                            q.getAfterAnswerButtonText(),
+                            q.isShowAfterAnswerButton(),
                             q.getHintBlocks() != null ? q.getHintBlocks() : List.of(),
                             q.getExplanationBlocks() != null ? q.getExplanationBlocks() : List.of()
                     );

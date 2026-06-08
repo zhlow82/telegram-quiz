@@ -33,6 +33,7 @@ public class QuizSessionService {
                 .telegramUserId(telegramUserId)
                 .telegramUsername(username)
                 .telegramFirstName(firstName)
+                .teamName(null)
                 .score(0)
                 .totalQuestions(totalQuestions)
                 .passed(false)
@@ -55,6 +56,15 @@ public class QuizSessionService {
                 });
     }
 
+        @Transactional
+        public void recordTeamName(Long quizId, long telegramUserId, String teamName) {
+                repository.findByQuizIdAndTelegramUserIdAndStatus(quizId, telegramUserId, QuizSessionStatus.IN_PROGRESS)
+                                .ifPresent(session -> {
+                                        session.setTeamName(teamName);
+                                        repository.save(session);
+                                });
+        }
+
     @Transactional(readOnly = true)
     public List<QuizSessionDto> findByQuizId(Long quizId) {
         return repository.findAllByQuizIdOrderByStartedAtDesc(quizId).stream()
@@ -63,6 +73,7 @@ public class QuizSessionService {
                         s.getTelegramUserId(),
                         s.getTelegramUsername(),
                         s.getTelegramFirstName(),
+                        s.getTeamName(),
                         s.getScore(),
                         s.getTotalQuestions(),
                         s.isPassed(),

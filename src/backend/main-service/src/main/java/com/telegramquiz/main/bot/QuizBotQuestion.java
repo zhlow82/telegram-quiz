@@ -9,6 +9,13 @@ public record QuizBotQuestion(
         List<String> options,
         String answer,
         boolean isBriefing,
+        boolean expectsTextInput,
+        String briefingPrimaryButtonText,
+        boolean showBriefingPrimaryButton,
+        String briefingSecondaryButtonText,
+        boolean showBriefingSecondaryButton,
+        String afterAnswerButtonText,
+        boolean showAfterAnswerButton,
         List<ContentBlock> hintBlocks,
         List<ContentBlock> explanationBlocks
 ) {}

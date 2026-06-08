@@ -571,26 +571,6 @@ async function saveEdit() {
   }
 }
 
-// Avatar helpers
-const AVATAR_COLORS = [
-  'bg-blue-100 text-blue-700',
-  'bg-emerald-100 text-emerald-700',
-  'bg-violet-100 text-violet-700',
-  'bg-amber-100 text-amber-700',
-  'bg-rose-100 text-rose-700',
-  'bg-cyan-100 text-cyan-700',
-]
-function initials(user: UserResponse): string {
-  const f = (user.firstName || '').charAt(0).toUpperCase()
-  const l = (user.lastName || '').charAt(0).toUpperCase()
-  if (f && l) return f + l
-  return f || l || (user.username || user.email || '?').charAt(0).toUpperCase()
-}
-function avatarColor(user: UserResponse): string {
-  const seed = (user.username || user.email || '').charCodeAt(0) || 0
-  return AVATAR_COLORS[seed % AVATAR_COLORS.length]
-}
-
 onMounted(loadUsers)
 
 // Delete user
