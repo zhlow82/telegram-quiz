@@ -26,3 +26,9 @@ logs/
 
 # OS
 Thumbs.db
+
+# opencode — ignore runtime data, keep config/instructions/skills
+.opencode/*
+!.opencode/opencode.json
+!.opencode/opencode-instructions.md
+!.opencode/skills/
