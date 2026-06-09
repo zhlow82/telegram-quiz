@@ -10,6 +10,7 @@ import AdminInvitationCodesView from '@/views/AdminInvitationCodesView.vue'
 import AdminSettingsView from '@/views/AdminSettingsView.vue'
 import OAuth2CallbackView from '@/views/OAuth2CallbackView.vue'
 import OAuth2RegisterView from '@/views/OAuth2RegisterView.vue'
+import NotFoundView from '@/views/NotFoundView.vue'
 
 const router = createRouter({
   history: createWebHistory('/tg-quiz/'),
@@ -49,6 +50,12 @@ const router = createRouter({
       meta: { requiresAuth: true }
     },
     {
+      path: '/quizzes/:id/edit',
+      name: 'quiz-edit',
+      component: QuizWizardView,
+      meta: { requiresAuth: true }
+    },
+    {
       path: '/admin/users',
       name: 'admin-users',
       component: AdminUsersView,
@@ -75,6 +82,11 @@ const router = createRouter({
       path: '/oauth2/register',
       name: 'oauth2-register',
       component: OAuth2RegisterView
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'not-found',
+      component: NotFoundView
     }
   ]
 })

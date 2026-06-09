@@ -19,6 +19,7 @@
         <div>
           <label class="block text-xs font-semibold text-slate-600 mb-1">Invitation Code</label>
           <input
+            ref="codeInput"
             v-model="code"
             type="text"
             class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-mono uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -45,7 +46,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { Zap } from '@lucide/vue'
 import { useAuthStore } from '@/stores/auth'
@@ -59,10 +60,12 @@ const code = ref('')
 const loading = ref(false)
 const error = ref('')
 const state = ref('')
+const codeInput = ref<HTMLInputElement | null>(null)
 
 onMounted(() => {
   state.value = route.query.state as string ?? ''
   if (!state.value) router.replace('/login')
+  nextTick(() => codeInput.value?.focus())
 })
 
 async function submit() {

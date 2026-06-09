@@ -67,9 +67,10 @@
 </template>
 
 <script setup lang="ts">
+import { watch, onUnmounted } from 'vue'
 import { AlertTriangle, AlertCircle, X } from '@lucide/vue'
 
-withDefaults(defineProps<{
+const props = withDefaults(defineProps<{
   visible: boolean
   type?: 'confirm' | 'alert'
   title: string
@@ -93,4 +94,22 @@ function confirm() {
 function cancel() {
   emit('cancel')
 }
+
+function onKeydown(e: KeyboardEvent) {
+  if (e.key === 'Escape' && props.visible) {
+    cancel()
+  }
+}
+
+watch(() => props.visible, (val) => {
+  if (val) {
+    document.addEventListener('keydown', onKeydown)
+  } else {
+    document.removeEventListener('keydown', onKeydown)
+  }
+})
+
+onUnmounted(() => {
+  document.removeEventListener('keydown', onKeydown)
+})
 </script>

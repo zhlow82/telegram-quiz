@@ -28,8 +28,18 @@
     </div>
 
     <!-- User table -->
-    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
-      <div v-if="loading" class="p-8 text-center text-slate-400">Loading...</div>
+    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden overflow-x-auto">
+      <div v-if="loading" class="divide-y divide-slate-100">
+        <div v-for="i in 5" :key="i" class="flex items-center gap-4 px-5 py-4">
+          <div class="h-4 bg-slate-100 rounded animate-pulse w-24"></div>
+          <div class="h-4 bg-slate-100 rounded animate-pulse w-24"></div>
+          <div class="h-4 bg-slate-100 rounded animate-pulse w-32"></div>
+          <div class="h-4 bg-slate-100 rounded animate-pulse w-16"></div>
+          <div class="h-4 bg-slate-100 rounded animate-pulse w-16"></div>
+          <div class="h-5 bg-slate-100 rounded-full animate-pulse w-10 ml-auto"></div>
+          <div class="h-6 bg-slate-100 rounded animate-pulse w-12"></div>
+        </div>
+      </div>
       <div v-else-if="sortedFilteredUsers.length === 0" class="p-8 text-center text-slate-400">{{ search ? 'No users match your search.' : 'No users found.' }}</div>
       <table v-else class="w-full text-sm">
         <thead>
@@ -203,6 +213,7 @@
         v-if="showEdit"
         class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
         @click.self="closeEdit"
+        @keydown.escape="closeEdit"
       >
         <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-sm p-6">
           <button
@@ -238,24 +249,44 @@
             <template v-if="editingUser?.provider !== 'google'">
               <div class="pt-1 border-t border-slate-100">
                 <label class="block text-xs font-semibold text-slate-600 mb-1">New Password <span class="font-normal text-slate-400">(leave blank to keep)</span></label>
-                <input
-                  v-model="editForm.newPassword"
-                  type="password"
-                  class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="New password"
-                  autocomplete="new-password"
-                />
+                <div class="relative">
+                  <input
+                    v-model="editForm.newPassword"
+                    :type="editShowPassword ? 'text' : 'password'"
+                    class="w-full px-3 py-2 pr-10 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="New password"
+                    autocomplete="new-password"
+                  />
+                  <button
+                    type="button"
+                    class="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 transition cursor-pointer"
+                    @click="editShowPassword = !editShowPassword"
+                  >
+                    <EyeOff v-if="editShowPassword" class="w-4 h-4" />
+                    <Eye v-else class="w-4 h-4" />
+                  </button>
+                </div>
               </div>
               <div>
                 <label class="block text-xs font-semibold text-slate-600 mb-1">Confirm Password</label>
-                <input
-                  v-model="editForm.confirmPassword"
-                  type="password"
-                  class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  :class="editForm.confirmPassword && editForm.newPassword !== editForm.confirmPassword ? 'border-red-400 focus:ring-red-400' : ''"
-                  placeholder="Repeat password"
-                  autocomplete="new-password"
-                />
+                <div class="relative">
+                  <input
+                    v-model="editForm.confirmPassword"
+                    :type="editShowConfirmPassword ? 'text' : 'password'"
+                    class="w-full px-3 py-2 pr-10 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    :class="editForm.confirmPassword && editForm.newPassword !== editForm.confirmPassword ? 'border-red-400 focus:ring-red-400' : ''"
+                    placeholder="Repeat password"
+                    autocomplete="new-password"
+                  />
+                  <button
+                    type="button"
+                    class="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 transition cursor-pointer"
+                    @click="editShowConfirmPassword = !editShowConfirmPassword"
+                  >
+                    <EyeOff v-if="editShowConfirmPassword" class="w-4 h-4" />
+                    <Eye v-else class="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             </template>
             <p v-if="editError" class="text-xs text-red-500">{{ editError }}</p>
@@ -282,6 +313,7 @@
         v-if="showCreate"
         class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
         @click.self="showCreate = false"
+        @keydown.escape="showCreate = false"
       >
         <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-sm p-6">
           <button
@@ -323,22 +355,48 @@
             </div>
             <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1">Password</label>
-              <input
-                v-model="form.password"
-                type="password"
-                class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Temporary password"
-              />
+              <div class="relative">
+                <input
+                  v-model="form.password"
+                  :type="createShowPassword ? 'text' : 'password'"
+                  class="w-full px-3 py-2 pr-10 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Temporary password"
+                />
+                <button
+                  type="button"
+                  class="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 transition cursor-pointer"
+                  @click="createShowPassword = !createShowPassword"
+                >
+                  <EyeOff v-if="createShowPassword" class="w-4 h-4" />
+                  <Eye v-else class="w-4 h-4" />
+                </button>
+              </div>
+              <div v-if="form.password" class="mt-1.5 flex items-center gap-2">
+                <div class="flex-1 flex gap-1">
+                  <div v-for="i in 4" :key="i" class="h-1 rounded-full flex-1 transition-colors" :class="i <= passwordStrength.level ? passwordStrength.color : 'bg-slate-200'"></div>
+                </div>
+                <span class="text-[0.65rem] font-semibold" :class="passwordStrength.level <= 1 ? 'text-red-500' : passwordStrength.level <= 2 ? 'text-amber-500' : passwordStrength.level <= 3 ? 'text-blue-500' : 'text-green-500'">{{ passwordStrength.label }}</span>
+              </div>
             </div>
             <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1">Confirm Password</label>
-              <input
-                v-model="form.confirmPassword"
-                type="password"
-                class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                :class="form.confirmPassword && form.password !== form.confirmPassword ? 'border-red-400 focus:ring-red-400' : ''"
-                placeholder="Repeat password"
-              />
+              <div class="relative">
+                <input
+                  v-model="form.confirmPassword"
+                  :type="createShowConfirmPassword ? 'text' : 'password'"
+                  class="w-full px-3 py-2 pr-10 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  :class="form.confirmPassword && form.password !== form.confirmPassword ? 'border-red-400 focus:ring-red-400' : ''"
+                  placeholder="Repeat password"
+                />
+                <button
+                  type="button"
+                  class="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 transition cursor-pointer"
+                  @click="createShowConfirmPassword = !createShowConfirmPassword"
+                >
+                  <EyeOff v-if="createShowConfirmPassword" class="w-4 h-4" />
+                  <Eye v-else class="w-4 h-4" />
+                </button>
+              </div>
             </div>
             <p v-if="createError" class="text-xs text-red-500">{{ createError }}</p>
           </div>
@@ -376,19 +434,32 @@
       @confirm="doDeleteUser"
       @cancel="deleteUserDialogVisible = false"
     />
+
+    <!-- Deactivate user confirmation -->
+    <AppDialog
+      :visible="deactivateDialogVisible"
+      type="confirm"
+      title="Deactivate User"
+      :message="`Deactivate ${deactivatingUser?.firstName || deactivatingUser?.username}? They will no longer be able to sign in.`"
+      confirm-label="Deactivate"
+      @confirm="doDeactivateUser"
+      @cancel="deactivateDialogVisible = false"
+    />
   </AppLayout>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
-import { Users, Plus, Pencil, Search, Trash2, ArrowUp, ArrowDown, ArrowUpDown, X } from '@lucide/vue'
+import { Users, Plus, Pencil, Search, Trash2, ArrowUp, ArrowDown, ArrowUpDown, X, Eye, EyeOff } from '@lucide/vue'
 import AppLayout from '@/components/AppLayout.vue'
 import AppDialog from '@/components/AppDialog.vue'
 import { adminService } from '@/services/adminService'
 import { useAuthStore } from '@/stores/auth'
+import { useToast } from '@/composables/useToast'
 import type { UserResponse } from '@/types/admin'
 
 const authStore = useAuthStore()
+const toast = useToast()
 const users = ref<UserResponse[]>([])
 const loading = ref(false)
 const search = ref('')
@@ -456,6 +527,23 @@ const showCreate = ref(false)
 const creating = ref(false)
 const createError = ref('')
 const form = ref({ firstName: '', lastName: '', username: '', password: '', confirmPassword: '' })
+const createShowPassword = ref(false)
+const createShowConfirmPassword = ref(false)
+
+const passwordStrength = computed(() => {
+  const pwd = form.value.password
+  if (!pwd) return { level: 0, label: '', color: '' }
+  let score = 0
+  if (pwd.length >= 6) score++
+  if (pwd.length >= 10) score++
+  if (/[A-Z]/.test(pwd)) score++
+  if (/[0-9]/.test(pwd)) score++
+  if (/[^A-Za-z0-9]/.test(pwd)) score++
+  if (score <= 1) return { level: 1, label: 'Weak', color: 'bg-red-500' }
+  if (score <= 2) return { level: 2, label: 'Fair', color: 'bg-amber-500' }
+  if (score <= 3) return { level: 3, label: 'Good', color: 'bg-blue-500' }
+  return { level: 4, label: 'Strong', color: 'bg-green-500' }
+})
 
 // AppDialog state
 const dialogVisible = ref(false)
@@ -484,18 +572,42 @@ async function toggleRole(user: UserResponse) {
     const res = await adminService.updateRole(user.id, newRole)
     const idx = users.value.findIndex(u => u.id === user.id)
     if (idx !== -1) users.value[idx] = res.data
+    toast.success(`Role updated to ${newRole === 'ROLE_ADMIN' ? 'Admin' : 'Member'}`)
   } catch (e: any) {
     showAlert('Role update failed', e.response?.data?.message ?? `Failed to update role: ${e.message}`)
   }
 }
 
+// Deactivate confirmation
+const deactivateDialogVisible = ref(false)
+const deactivatingUser = ref<UserResponse | null>(null)
+
 async function toggleUserActive(user: UserResponse) {
   if (user.active) {
-    await adminService.deactivateUser(user.id)
-    user.active = false
+    deactivatingUser.value = user
+    deactivateDialogVisible.value = true
   } else {
-    await adminService.activateUser(user.id)
-    user.active = true
+    try {
+      await adminService.activateUser(user.id)
+      user.active = true
+      toast.success(`${user.firstName || user.username} activated`)
+    } catch {
+      toast.error('Failed to activate user')
+    }
+  }
+}
+
+async function doDeactivateUser() {
+  if (!deactivatingUser.value) return
+  deactivateDialogVisible.value = false
+  try {
+    await adminService.deactivateUser(deactivatingUser.value.id)
+    deactivatingUser.value.active = false
+    toast.success(`${deactivatingUser.value.firstName || deactivatingUser.value.username} deactivated`)
+  } catch {
+    toast.error('Failed to deactivate user')
+  } finally {
+    deactivatingUser.value = null
   }
 }
 
@@ -515,6 +627,7 @@ async function createUser() {
     users.value.push(res.data)
     showCreate.value = false
     form.value = { firstName: '', lastName: '', username: '', password: '', confirmPassword: '' }
+    toast.success(`User ${res.data.username} created`)
   } catch (e: any) {
     createError.value = e.response?.data?.message ?? 'Failed to create user.'
   } finally {
@@ -529,12 +642,16 @@ const editForm = ref({ firstName: '', lastName: '', newPassword: '', confirmPass
 const editError = ref('')
 const editSuccess = ref('')
 const saving = ref(false)
+const editShowPassword = ref(false)
+const editShowConfirmPassword = ref(false)
 
 function openEdit(user: UserResponse) {
   editingUser.value = user
   editForm.value = { firstName: user.firstName || '', lastName: user.lastName || '', newPassword: '', confirmPassword: '' }
   editError.value = ''
   editSuccess.value = ''
+  editShowPassword.value = false
+  editShowConfirmPassword.value = false
   showEdit.value = true
 }
 
@@ -563,6 +680,7 @@ async function saveEdit() {
       editForm.value.newPassword = ''
     }
     editSuccess.value = 'Saved successfully.'
+    toast.success('Profile updated')
     setTimeout(() => { editSuccess.value = '' }, 2000)
   } catch (e: any) {
     editError.value = e.response?.data?.message ?? 'Failed to save changes.'
@@ -588,6 +706,7 @@ async function doDeleteUser() {
   try {
     await adminService.deleteUser(deletingUser.value.id)
     users.value = users.value.filter(u => u.id !== deletingUser.value!.id)
+    toast.success('User deleted')
   } catch (e: any) {
     showAlert('Delete failed', e.response?.data?.message ?? 'Failed to delete user.')
   } finally {

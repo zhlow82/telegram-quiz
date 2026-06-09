@@ -13,13 +13,24 @@
           </p>
         </div>
       </div>
-      <router-link
-        to="/quizzes/new"
-        class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2 rounded-xl transition no-underline"
-      >
-        <Plus class="w-4 h-4" />
-        Create Quiz
-      </router-link>
+      <div class="flex items-center gap-3">
+        <div class="flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 rounded-lg w-56">
+          <Search class="w-4 h-4 text-slate-400 flex-shrink-0" />
+          <input
+            v-model="search"
+            type="text"
+            placeholder="Search quizzes…"
+            class="flex-1 text-sm text-slate-700 placeholder-slate-400 bg-transparent outline-none"
+          />
+        </div>
+        <router-link
+          to="/quizzes/new"
+          class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2 rounded-xl transition no-underline"
+        >
+          <Plus class="w-4 h-4" />
+          Create Quiz
+        </router-link>
+      </div>
     </div>
 
     <!-- Error -->
@@ -61,8 +72,11 @@
 
     <!-- Quiz list -->
     <div v-else class="space-y-3">
+      <div v-if="filteredQuizzes.length === 0" class="bg-white rounded-xl border border-slate-200 p-8 text-center text-slate-400">
+        No quizzes match your search.
+      </div>
       <div
-        v-for="quiz in quizzes"
+        v-for="quiz in filteredQuizzes"
         :key="quiz.id"
         class="bg-white rounded-xl border border-slate-200 px-5 py-4 flex items-center gap-4 hover:border-slate-300 transition-colors"
       >
@@ -144,6 +158,13 @@
           </template>
 
           <button
+            class="w-8 h-8 rounded-lg bg-blue-50 hover:bg-blue-100 flex items-center justify-center text-blue-600 transition cursor-pointer"
+            title="Edit"
+            @click="router.push(`/quizzes/${quiz.id}/edit`)"
+          >
+            <Pencil class="w-3.5 h-3.5" />
+          </button>
+          <button
             class="w-8 h-8 rounded-lg bg-red-50 hover:bg-red-100 flex items-center justify-center text-red-500 transition cursor-pointer"
             title="Delete"
             @click="confirmDelete(quiz)"
@@ -156,7 +177,7 @@
 
     <!-- Delete confirmation dialog -->
     <teleport to="body">
-      <div v-if="deleteTarget" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div v-if="deleteTarget" class="fixed inset-0 z-50 flex items-center justify-center p-4" @keydown.escape="deleteTarget = null">
         <div class="absolute inset-0 bg-black/50" @click="deleteTarget = null" />
         <div class="relative bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm">
           <h3 class="text-base font-bold text-slate-900 mb-2">Delete quiz?</h3>
@@ -180,7 +201,7 @@
 
     <!-- QR Code modal -->
     <teleport to="body">
-      <div v-if="qrQuiz" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div v-if="qrQuiz" class="fixed inset-0 z-50 flex items-center justify-center p-4" @keydown.escape="qrQuiz = null">
         <div class="absolute inset-0 bg-black/50" @click="qrQuiz = null" />
         <div class="relative bg-white rounded-2xl shadow-2xl p-6 w-full max-w-xs text-center">
           <div class="flex items-center justify-between mb-4">
@@ -214,7 +235,7 @@
     </teleport>
     <!-- Participant details modal -->
     <teleport to="body">
-      <div v-if="detailsQuiz" class="fixed inset-0 z-50 flex items-start justify-center p-4 pt-12">
+      <div v-if="detailsQuiz" class="fixed inset-0 z-50 flex items-start justify-center p-4 pt-12" @keydown.escape="detailsQuiz = null">
         <div class="absolute inset-0 bg-black/50" @click="detailsQuiz = null" />
         <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-xl flex flex-col max-h-[80vh]">
           <!-- Modal header -->
@@ -328,18 +349,32 @@
 
 <script setup lang="ts">
 import { ref, onMounted, nextTick, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import QRCode from 'qrcode'
-import { Plus, AlertCircle, Zap, BookOpen, Clock, CheckCircle, Trash2, Play, Square, QrCode, X, Users, XCircle, RefreshCw } from '@lucide/vue'
+import { Plus, AlertCircle, Zap, BookOpen, Clock, CheckCircle, Trash2, Play, Square, QrCode, X, Users, XCircle, RefreshCw, Search, Pencil } from '@lucide/vue'
 import AppLayout from '@/components/AppLayout.vue'
 import { quizService } from '@/services/quizService'
+import { useToast } from '@/composables/useToast'
 import type { QuizSummary, QuizSessionSummary } from '@/types/quiz'
 
+const toast = useToast()
+const router = useRouter()
 const quizzes = ref<QuizSummary[]>([])
 const loading = ref(true)
 const loadError = ref(false)
 const deleteTarget = ref<QuizSummary | null>(null)
 const deleting = ref(false)
 const togglingId = ref<number | null>(null)
+const search = ref('')
+
+const filteredQuizzes = computed(() => {
+  const q = search.value.trim().toLowerCase()
+  if (!q) return quizzes.value
+  return quizzes.value.filter(quiz =>
+    quiz.name.toLowerCase().includes(q) ||
+    (quiz.botUsername && quiz.botUsername.toLowerCase().includes(q))
+  )
+})
 
 // QR code
 const qrQuiz = ref<QuizSummary | null>(null)
@@ -384,6 +419,7 @@ async function doDelete() {
     await quizService.delete(deleteTarget.value.id)
     quizzes.value = quizzes.value.filter(q => q.id !== deleteTarget.value!.id)
     deleteTarget.value = null
+    toast.success('Quiz deleted')
   } finally {
     deleting.value = false
   }
@@ -395,7 +431,7 @@ async function startQuiz(quiz: QuizSummary) {
     const updated = await quizService.activate(quiz.id)
     const idx = quizzes.value.findIndex(q => q.id === quiz.id)
     if (idx !== -1) quizzes.value[idx] = { ...quizzes.value[idx], status: updated.status }
-    // Auto-open QR if there's a botUsername
+    toast.success(`${quiz.name} started`)
     if (updated.botUsername) {
       await openQr({ ...quizzes.value[idx] })
     }
@@ -410,6 +446,7 @@ async function stopQuiz(quiz: QuizSummary) {
     const updated = await quizService.stop(quiz.id)
     const idx = quizzes.value.findIndex(q => q.id === quiz.id)
     if (idx !== -1) quizzes.value[idx] = { ...quizzes.value[idx], status: updated.status }
+    toast.success(`${quiz.name} stopped`)
   } finally {
     togglingId.value = null
   }

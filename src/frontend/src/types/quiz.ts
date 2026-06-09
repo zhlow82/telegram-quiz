@@ -27,7 +27,7 @@ export interface Quiz {
 
 export interface QuizRequest {
   name: string
-  botToken: string
+  botToken?: string
   botUsername?: string
   timePerQuestionSeconds: number
   passScorePercent: number

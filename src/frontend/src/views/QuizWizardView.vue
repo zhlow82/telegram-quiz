@@ -9,7 +9,7 @@
         <ChevronLeft class="w-4 h-4" />
       </router-link>
       <div>
-        <h1 class="text-2xl font-black text-slate-900 leading-tight">Create Quiz</h1>
+        <h1 class="text-2xl font-black text-slate-900 leading-tight">{{ isEditMode ? 'Edit Quiz' : 'Create Quiz' }}</h1>
         <p class="text-sm text-slate-500 mt-0.5">Step {{ step }} of {{ TOTAL_STEPS }}</p>
       </div>
     </div>
@@ -25,7 +25,8 @@
     </div>
 
     <!-- ── Step 1: BotFather instructions ─────────────────────────────── -->
-    <div v-if="step === 1" class="max-w-2xl space-y-5">
+    <transition name="step" mode="out-in">
+    <div v-if="step === 1" key="step1" class="max-w-2xl space-y-5">
       <div class="bg-blue-50 border border-blue-200 rounded-2xl p-6">
         <div class="flex items-center gap-3 mb-4">
           <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center flex-shrink-0">
@@ -67,7 +68,7 @@
     </div>
 
     <!-- ── Step 2: Bot token input ─────────────────────────────────────── -->
-    <div v-else-if="step === 2" class="max-w-xl space-y-5">
+    <div v-else-if="step === 2" key="step2" class="max-w-xl space-y-5">
       <div>
         <h2 class="text-lg font-bold text-slate-900 mb-1">Enter your bot token</h2>
         <p class="text-sm text-slate-500">Paste the token you received from BotFather</p>
@@ -104,7 +105,7 @@
     </div>
 
     <!-- ── Step 3: Quiz config ─────────────────────────────────────────── -->
-    <div v-else-if="step === 3" class="max-w-xl space-y-5">
+    <div v-else-if="step === 3" key="step3" class="max-w-xl space-y-5">
       <div>
         <h2 class="text-lg font-bold text-slate-900 mb-1">Quiz settings</h2>
         <p class="text-sm text-slate-500">Configure how your quiz will run</p>
@@ -156,7 +157,7 @@
     </div>
 
     <!-- ── Step 4: Question selector ──────────────────────────────────── -->
-    <div v-else-if="step === 4" class="max-w-3xl space-y-5">
+    <div v-else-if="step === 4" key="step4" class="max-w-3xl space-y-5">
       <div>
         <h2 class="text-lg font-bold text-slate-900 mb-1">Select questions</h2>
         <p class="text-sm text-slate-500">Choose questions from your bank. Drag to reorder selected ones.</p>
@@ -166,6 +167,15 @@
         <!-- Available questions -->
         <div class="space-y-2">
           <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Available ({{ unselectedQuestions.length }})</p>
+          <div class="flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 rounded-lg">
+            <Search class="w-4 h-4 text-slate-400 flex-shrink-0" />
+            <input
+              v-model="questionSearch"
+              type="text"
+              placeholder="Search questions…"
+              class="flex-1 text-sm text-slate-700 placeholder-slate-400 bg-transparent outline-none"
+            />
+          </div>
           <div class="bg-white border border-slate-200 rounded-xl overflow-hidden max-h-96 overflow-y-auto">
             <div v-if="questionsLoading" class="px-4 py-6 text-center text-sm text-slate-400">Loading…</div>
             <div v-else-if="allQuestions.length === 0" class="px-4 py-6 text-center text-sm text-slate-400 space-y-1">
@@ -222,7 +232,7 @@
     </div>
 
     <!-- ── Step 5: Review ──────────────────────────────────────────────── -->
-    <div v-else-if="step === 5" class="max-w-xl space-y-5">
+    <div v-else-if="step === 5" key="step5" class="max-w-xl space-y-5">
       <div>
         <h2 class="text-lg font-bold text-slate-900 mb-1">Review & Create</h2>
         <p class="text-sm text-slate-500">Everything look good? Hit Create to launch your quiz.</p>
@@ -258,6 +268,7 @@
 
       <p v-if="submitError" class="text-sm text-red-600">{{ submitError }}</p>
     </div>
+    </transition>
 
     <!-- Navigation -->
     <div class="flex items-center gap-3 mt-8">
@@ -294,29 +305,35 @@
         type="button"
         class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center gap-2"
         :disabled="submitting"
-        @click="createQuiz"
+        @click="isEditMode ? updateQuiz() : createQuiz()"
       >
         <span v-if="submitting" class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin inline-block"></span>
-        {{ submitting ? 'Creating…' : 'Create Quiz' }}
+        {{ submitting ? (isEditMode ? 'Saving…' : 'Creating…') : (isEditMode ? 'Save Changes' : 'Create Quiz') }}
       </button>
     </div>
   </AppLayout>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { VueDraggable } from 'vue-draggable-plus'
 import {
   ChevronLeft, Plus, X, GripVertical, Bot, Zap, BookOpen, Clock,
-  CheckCircle, AlertTriangle
+  CheckCircle, AlertTriangle, Search
 } from '@lucide/vue'
 import AppLayout from '@/components/AppLayout.vue'
 import { quizService } from '@/services/quizService'
 import { questionsService } from '@/services/questionsService'
+import { useToast } from '@/composables/useToast'
 import type { Question } from '@/types/question'
 
 const router = useRouter()
+const route = useRoute()
+const toast = useToast()
+
+const isEditMode = computed(() => !!route.params.id)
+const editQuizId = computed(() => route.params.id ? Number(route.params.id) : null)
 
 const TOTAL_STEPS = 5
 const step = ref(1)
@@ -338,14 +355,66 @@ const passScorePercent = ref(60)
 const allQuestions = ref<Question[]>([])
 const selectedQuestions = ref<Question[]>([])
 const questionsLoading = ref(false)
+const questionSearch = ref('')
 
 // Step 5
 const submitting = ref(false)
 const submitError = ref('')
 
+const hasUnsavedChanges = computed(() => {
+  return botToken.value.trim().length > 0
+    || quizName.value.trim().length > 0
+    || selectedQuestions.value.length > 0
+    || step.value > 1
+})
+
+function onBeforeUnload(e: BeforeUnloadEvent) {
+  if (hasUnsavedChanges.value) {
+    e.preventDefault()
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('beforeunload', onBeforeUnload)
+  loadQuestions()
+  if (isEditMode.value && editQuizId.value) {
+    loadQuizForEdit()
+  }
+})
+
+async function loadQuizForEdit() {
+  if (!editQuizId.value) return
+  try {
+    const quiz = await quizService.get(editQuizId.value)
+    quizName.value = quiz.name
+    timePerQuestion.value = quiz.timePerQuestionSeconds
+    passScorePercent.value = quiz.passScorePercent
+    botName.value = quiz.botUsername || ''
+    botUsername.value = quiz.botUsername || ''
+    botValidated.value = true
+    if (quiz.questions) {
+      selectedQuestions.value = quiz.questions
+    }
+    step.value = 4
+  } catch {
+    toast.error('Failed to load quiz for editing')
+    router.push('/quizzes')
+  }
+}
+
+onBeforeUnmount(() => {
+  window.removeEventListener('beforeunload', onBeforeUnload)
+})
+
 const unselectedQuestions = computed(() => {
   const selectedIds = new Set(selectedQuestions.value.map(q => q.id))
-  return allQuestions.value.filter(q => !selectedIds.has(q.id))
+  const search = questionSearch.value.trim().toLowerCase()
+  return allQuestions.value.filter(q => {
+    if (selectedIds.has(q.id)) return false
+    if (!search) return true
+    const text = q.questionBlocks.find(b => b.type === 'text')?.content || ''
+    return text.toLowerCase().includes(search)
+  })
 })
 
 const isQuizConfigValid = computed(() => {
@@ -367,8 +436,6 @@ const canProceed = computed(() => {
   if (step.value === 4) return selectedQuestions.value.length > 0
   return true
 })
-
-onMounted(loadQuestions)
 
 async function loadQuestions() {
   questionsLoading.value = true
@@ -427,6 +494,7 @@ async function createQuiz() {
       passScorePercent: passScorePercent.value,
       questionIds: selectedQuestions.value.map(q => q.id),
     })
+    toast.success('Quiz created successfully')
     router.push('/quizzes')
   } catch {
     submitError.value = 'Failed to create quiz. Please try again.'
@@ -434,4 +502,41 @@ async function createQuiz() {
     submitting.value = false
   }
 }
+
+async function updateQuiz() {
+  if (!editQuizId.value) return
+  submitting.value = true
+  submitError.value = ''
+  try {
+    await quizService.update(editQuizId.value, {
+      name: quizName.value.trim(),
+      botToken: botToken.value.trim() || undefined,
+      botUsername: botUsername.value.trim() || undefined,
+      timePerQuestionSeconds: timePerQuestion.value,
+      passScorePercent: passScorePercent.value,
+      questionIds: selectedQuestions.value.map(q => q.id),
+    })
+    toast.success('Quiz updated successfully')
+    router.push('/quizzes')
+  } catch {
+    submitError.value = 'Failed to update quiz. Please try again.'
+  } finally {
+    submitting.value = false
+  }
+}
 </script>
+
+<style scoped>
+.step-enter-active,
+.step-leave-active {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.step-enter-from {
+  opacity: 0;
+  transform: translateX(20px);
+}
+.step-leave-to {
+  opacity: 0;
+  transform: translateX(-20px);
+}
+</style>

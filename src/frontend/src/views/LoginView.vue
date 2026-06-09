@@ -65,11 +65,19 @@
             <Lock class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
             <input
               v-model="form.password"
-              type="password"
+              :type="showPassword ? 'text' : 'password'"
               placeholder="Password"
               autocomplete="current-password"
-              class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+              class="w-full pl-10 pr-10 py-2.5 rounded-xl border border-slate-200 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
             />
+            <button
+              type="button"
+              class="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 text-slate-400 hover:text-slate-600 transition cursor-pointer"
+              @click="showPassword = !showPassword"
+            >
+              <EyeOff v-if="showPassword" class="w-4 h-4" />
+              <Eye v-else class="w-4 h-4" />
+            </button>
           </div>
 
           <!-- Remember me / forgot -->
@@ -134,7 +142,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { Zap, User, Lock, CheckCircle, AlertCircle } from '@lucide/vue'
+import { Zap, User, Lock, CheckCircle, AlertCircle, Eye, EyeOff } from '@lucide/vue'
 import { useAuthStore } from '@/stores/auth'
 import api from '@/services/api'
 
@@ -146,6 +154,7 @@ const error = ref('')
 const loading = ref(false)
 const remember = ref(false)
 const googleConfigured = ref(false)
+const showPassword = ref(false)
 
 const features = [
   'Create multi-round quiz games',

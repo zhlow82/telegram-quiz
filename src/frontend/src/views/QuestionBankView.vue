@@ -3,7 +3,7 @@
     <div class="flex gap-5 items-start">
 
       <!-- ── Folder sidebar ── -->
-      <aside class="w-52 flex-shrink-0">
+      <aside class="w-52 flex-shrink-0 hidden md:block">
         <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
 
           <!-- All Questions -->
@@ -218,13 +218,24 @@
               </p>
             </div>
           </div>
-          <button
-            class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2 rounded-xl transition cursor-pointer"
-            @click="openCreate"
-          >
-            <Plus class="w-4 h-4" />
-            Add Question
-          </button>
+          <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 rounded-lg w-56">
+              <Search class="w-4 h-4 text-slate-400 flex-shrink-0" />
+              <input
+                v-model="searchQuery"
+                type="text"
+                placeholder="Search questions…"
+                class="flex-1 text-sm text-slate-700 placeholder-slate-400 bg-transparent outline-none"
+              />
+            </div>
+            <button
+              class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2 rounded-xl transition cursor-pointer"
+              @click="openCreate"
+            >
+              <Plus class="w-4 h-4" />
+              Add Question
+            </button>
+          </div>
         </div>
 
         <!-- Error state -->
@@ -296,6 +307,9 @@
               </div>
             </div>
             <div class="flex items-center gap-1.5 flex-shrink-0">
+              <button class="w-8 h-8 rounded-lg bg-slate-50 hover:bg-slate-100 flex items-center justify-center text-slate-500 transition cursor-pointer" title="Duplicate" @click="duplicateQuestion(q)">
+                <Copy class="w-3.5 h-3.5" />
+              </button>
               <button class="w-8 h-8 rounded-lg bg-blue-50 hover:bg-blue-100 flex items-center justify-center text-blue-600 transition cursor-pointer" title="Edit" @click="openEdit(q)">
                 <Pencil class="w-3.5 h-3.5" />
               </button>
@@ -348,6 +362,9 @@
                 </div>
               </div>
               <div class="flex items-center gap-1.5 flex-shrink-0">
+                <button class="w-8 h-8 rounded-lg bg-slate-50 hover:bg-slate-100 flex items-center justify-center text-slate-500 transition cursor-pointer" title="Duplicate" @click="duplicateQuestion(q)">
+                  <Copy class="w-3.5 h-3.5" />
+                </button>
                 <button class="w-8 h-8 rounded-lg bg-blue-50 hover:bg-blue-100 flex items-center justify-center text-blue-600 transition cursor-pointer" title="Edit" @click="openEdit(q)">
                   <Pencil class="w-3.5 h-3.5" />
                 </button>
@@ -401,6 +418,9 @@
                 </div>
               </div>
               <div class="flex items-center gap-1.5 flex-shrink-0">
+                <button class="w-8 h-8 rounded-lg bg-slate-50 hover:bg-slate-100 flex items-center justify-center text-slate-500 transition cursor-pointer" title="Duplicate" @click="duplicateQuestion(q)">
+                  <Copy class="w-3.5 h-3.5" />
+                </button>
                 <button class="w-8 h-8 rounded-lg bg-blue-50 hover:bg-blue-100 flex items-center justify-center text-blue-600 transition cursor-pointer" title="Edit" @click="openEdit(q)">
                   <Pencil class="w-3.5 h-3.5" />
                 </button>
@@ -455,7 +475,7 @@ import {
   Plus, AlertCircle, BookOpen, GripVertical, Pencil, Trash2,
   FileText, ListChecks, Camera, AlignLeft,
   Library, Inbox, FolderPlus, FolderOpen, Share2, Bell, ChevronDown,
-  Folder as FolderIcon, FolderSymlink,
+  Folder as FolderIcon, FolderSymlink, Search, Copy,
 } from '@lucide/vue'
 import AppLayout from '@/components/AppLayout.vue'
 import QuestionFormModal from '@/components/QuestionFormModal.vue'
@@ -464,16 +484,19 @@ import FolderMembersModal from '@/components/FolderMembersModal.vue'
 import { questionsService } from '@/services/questionsService'
 import { foldersService } from '@/services/foldersService'
 import { useAuthStore } from '@/stores/auth'
+import { useToast } from '@/composables/useToast'
 import type { Question } from '@/types/question'
 import type { Folder, FolderMember } from '@/types/folder'
 
 const authStore = useAuthStore()
+const toast = useToast()
 const currentUsername = computed(() => authStore.username ?? '')
 
 // ── Questions ──────────────────────────────────────────────────────────────
 const questions = ref<Question[]>([])
 const loading = ref(true)
 const loadError = ref(false)
+const searchQuery = ref('')
 
 // ── Folders ────────────────────────────────────────────────────────────────
 const folders = ref<Folder[]>([])
@@ -554,15 +577,23 @@ const unfiledSorted = computed(() =>
 )
 
 const visibleQuestions = computed(() => {
+  let list: Question[]
   if (selectedFolderFilter.value === null) {
-    // Unfiled questions (oldest first) followed by each folder's questions (in sidebar order)
     const folderQs = folders.value.flatMap(f =>
       questions.value.filter(q => q.folderId === f.id).sort((a, b) => a.orderIndex - b.orderIndex)
     )
-    return [...unfiledSorted.value, ...folderQs]
+    list = [...unfiledSorted.value, ...folderQs]
+  } else if (selectedFolderFilter.value === 'unfiled') {
+    list = unfiledSorted.value
+  } else {
+    list = questions.value.filter(q => q.folderId === selectedFolderFilter.value).sort((a, b) => a.orderIndex - b.orderIndex)
   }
-  if (selectedFolderFilter.value === 'unfiled') return unfiledSorted.value
-  return questions.value.filter(q => q.folderId === selectedFolderFilter.value).sort((a, b) => a.orderIndex - b.orderIndex)
+  const q = searchQuery.value.trim().toLowerCase()
+  if (!q) return list
+  return list.filter(question => {
+    const text = question.questionBlocks.find(b => b.type === 'text')?.content || ''
+    return text.toLowerCase().includes(q)
+  })
 })
 
 const folderCounts = computed(() => {
@@ -763,10 +794,29 @@ function onSaved(q: Question) {
   const idx = questions.value.findIndex(x => x.id === q.id)
   if (idx >= 0) {
     questions.value = questions.value.map((x, i) => i === idx ? q : x)
+    toast.success('Question updated')
   } else {
     questions.value = [...questions.value, q]
+    toast.success('Question created')
   }
   modalVisible.value = false
+}
+
+async function duplicateQuestion(q: Question) {
+  try {
+    const { id, createdAt, updatedAt, createdBy, ...rest } = q
+    const duplicated = await questionsService.create({
+      ...rest,
+      questionBlocks: q.questionBlocks,
+      options: q.options,
+      hintBlocks: q.hintBlocks,
+      explanationBlocks: q.explanationBlocks,
+    })
+    questions.value.push(duplicated)
+    toast.success('Question duplicated')
+  } catch {
+    toast.error('Failed to duplicate question')
+  }
 }
 
 // ── AppDialog ──────────────────────────────────────────────────────────────
@@ -828,6 +878,7 @@ async function confirmDelete(q: Question) {
   try {
     await questionsService.delete(q.id)
     questions.value = questions.value.filter(x => x.id !== q.id)
+    toast.success('Question deleted')
   } catch {
     showAlert('Delete failed', 'Could not delete the question. Please try again.')
   }

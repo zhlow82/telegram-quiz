@@ -14,32 +14,33 @@
 
         <!-- Modal panel -->
         <div
-          class="relative bg-white rounded-2xl shadow-2xl flex flex-col w-full overflow-hidden"
+          class="relative bg-white rounded-2xl shadow-2xl flex flex-col md:flex-row w-full overflow-hidden"
           style="width: 90vw; max-width: 90vw; height: 90vh; max-height: 90vh"
           role="dialog"
           aria-modal="true"
         >
 
-          <!-- Header -->
-          <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
-            <div class="flex items-center gap-3">
-              <div class="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold text-base shrink-0">
-                {{ isEdit ? '✎' : '+' }}
-              </div>
-              <h2 class="text-lg font-bold text-slate-900 leading-tight">{{ isEdit ? 'Edit Question' : 'New Question' }}</h2>
-            </div>
-            <button
-              type="button"
-              class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition cursor-pointer"
-              aria-label="Close"
-              @click="$emit('close')"
-            >✕</button>
-          </div>
+          <!-- Left side: Header + Form + Footer -->
+          <div class="w-full md:w-1/2 flex flex-col overflow-hidden">
 
-          <!-- Body -->
-          <div class="flex flex-1 overflow-hidden min-h-0">
+            <!-- Header -->
+            <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold text-base shrink-0">
+                  {{ isEdit ? '✎' : '+' }}
+                </div>
+                <h2 class="text-lg font-bold text-slate-900 leading-tight">{{ isEdit ? 'Edit Question' : 'New Question' }}</h2>
+              </div>
+              <button
+                type="button"
+                class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition cursor-pointer"
+                aria-label="Close"
+                @click="$emit('close')"
+              >✕</button>
+            </div>
+
             <!-- Form panel -->
-            <div class="w-1/2 min-w-0 flex flex-col border-r border-slate-100">
+            <div class="flex-1 overflow-y-auto tab-scroll">
 
               <!-- Question Type (always visible) -->
               <div class="px-6 pt-5 pb-4 border-b border-slate-100 shrink-0">
@@ -125,7 +126,7 @@
               </div>
 
               <!-- Tab content -->
-              <div class="flex-1 overflow-y-auto" style="scrollbar-gutter: stable">
+              <div ref="tabContentRef" class="flex-1">
                 <form @submit.prevent="submit" class="p-6 space-y-5">
 
                   <!-- ── Tab: Question (Multiple Choice / Photo) ── -->
@@ -158,7 +159,7 @@
                             <textarea
                               :ref="(el) => { questionTextareas[block._id] = el as HTMLTextAreaElement }"
                               v-model="block.content"
-                              rows="2"
+                              rows="4"
                               class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 resize-none transition bg-white text-slate-900 placeholder-slate-400 font-[inherit]"
                               placeholder="Type here…"
                             ></textarea>
@@ -301,7 +302,7 @@
                             <textarea
                               :ref="(el) => { hintTextareas[block._id] = el as HTMLTextAreaElement }"
                               v-model="block.content"
-                              rows="2"
+                              rows="4"
                               class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 resize-none transition bg-white text-slate-900 placeholder-slate-400 font-[inherit]"
                               placeholder="Hint text…"
                             ></textarea>
@@ -356,7 +357,7 @@
                             <textarea
                               :ref="(el) => { explanationTextareas[block._id] = el as HTMLTextAreaElement }"
                               v-model="block.content"
-                              rows="3"
+                              rows="5"
                               class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 resize-none transition bg-white text-slate-900 placeholder-slate-400 font-[inherit]"
                               placeholder="After answer text…"
                             ></textarea>
@@ -436,7 +437,7 @@
                             <textarea
                               :ref="(el) => { questionTextareas[block._id] = el as HTMLTextAreaElement }"
                               v-model="block.content"
-                              rows="2"
+                              rows="4"
                               class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 resize-none transition bg-white text-slate-900 placeholder-slate-400 font-[inherit]"
                               placeholder="Type here…"
                             ></textarea>
@@ -525,26 +526,47 @@
               </div>
             </div>
 
-            <!-- Preview panel -->
-            <div class="w-1/2 flex flex-col overflow-hidden">
+            <!-- Footer -->
+            <div class="flex items-center justify-end gap-2 px-6 py-4 border-t border-slate-100 bg-slate-50/60 shrink-0">
+              <span v-if="error" class="text-red-500 text-xs mr-auto">{{ error }}</span>
+              <button
+                type="button"
+                class="px-4 py-2 rounded-xl border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-100 transition cursor-pointer"
+                @click="$emit('close')"
+              >Cancel</button>
+              <button
+                type="button"
+                class="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition disabled:opacity-60 cursor-pointer disabled:cursor-not-allowed inline-flex items-center gap-2"
+                :disabled="saving"
+                @click="submit"
+              >
+                <span v-if="saving" class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin inline-block"></span>
+                {{ isEdit ? 'Save changes' : 'Create' }}
+              </button>
+            </div>
 
-              <!-- Telegram top bar -->
-              <div class="flex items-center gap-2 px-3 h-12 shrink-0" style="background: #2b5278">
-                <div class="w-8 h-8 rounded-full flex items-center justify-center text-base shrink-0" style="background: #5288c1">🤖</div>
-                <div class="flex-1 min-w-0">
-                  <div class="text-white text-sm font-semibold leading-none mb-0.5 truncate">Quiz Bot</div>
-                  <div class="text-[0.65rem]" style="color: #7fb3e8">bot</div>
-                </div>
-                <div class="text-white/40 text-base leading-none select-none">⋮</div>
+          </div>
+
+          <!-- Preview panel (right side, desktop only) -->
+          <div class="hidden md:flex w-full md:w-1/2 flex-col overflow-hidden border-l border-slate-100">
+
+            <!-- Telegram top bar -->
+            <div class="flex items-center gap-2 px-3 h-12 shrink-0" style="background: #2b5278">
+              <div class="w-8 h-8 rounded-full flex items-center justify-center text-base shrink-0" style="background: #5288c1">🤖</div>
+              <div class="flex-1 min-w-0">
+                <div class="text-white text-sm font-semibold leading-none mb-0.5 truncate">Quiz Bot</div>
+                <div class="text-[0.65rem]" style="color: #7fb3e8">bot</div>
               </div>
+              <div class="text-white/40 text-base leading-none select-none">⋮</div>
+            </div>
 
-              <!-- Chat body -->
-              <div class="flex-1 overflow-y-auto px-2 pt-2 pb-3 flex flex-col gap-1" style="background: #e8edf2">
+            <!-- Chat body -->
+            <div class="flex-1 overflow-y-auto px-2 pt-2 pb-3 flex flex-col gap-1 tab-scroll" style="background: #e8edf2">
 
-                <!-- Date chip -->
-                <div class="flex justify-center mb-1.5">
-                  <span class="tg-date-chip">Today</span>
-                </div>
+              <!-- Date chip -->
+              <div class="flex justify-center mb-1.5">
+                <span class="tg-date-chip">Today</span>
+              </div>
 
                 <!-- ── Briefing preview ── -->
                 <template v-if="form.isBriefing">
@@ -674,27 +696,8 @@
                 </template>
                 <div v-else-if="!form.isBriefing" class="tg-empty-explanation">No after answer content added yet…</div>
 
-              </div>
             </div>
-          </div>
 
-          <!-- Footer -->
-          <div class="flex items-center justify-end gap-2 px-6 py-4 border-t border-slate-100 bg-slate-50/60">
-            <span v-if="error" class="text-red-500 text-xs mr-auto">{{ error }}</span>
-            <button
-              type="button"
-              class="px-4 py-2 rounded-xl border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-100 transition cursor-pointer"
-              @click="$emit('close')"
-            >Cancel</button>
-            <button
-              type="button"
-              class="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition disabled:opacity-60 cursor-pointer disabled:cursor-not-allowed inline-flex items-center gap-2"
-              :disabled="saving"
-              @click="submit"
-            >
-              <span v-if="saving" class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin inline-block"></span>
-              {{ isEdit ? 'Save changes' : 'Create' }}
-            </button>
           </div>
 
         </div>
@@ -704,7 +707,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, computed, nextTick } from 'vue'
+import { ref, watch, computed, nextTick, onUnmounted } from 'vue'
 import { VueDraggable } from 'vue-draggable-plus'
 import type { Question, QuestionRequest, ContentBlock } from '@/types/question'
 import type { Folder } from '@/types/folder'
@@ -738,6 +741,24 @@ const emit = defineEmits<{
   (e: 'saved', q: Question): void
 }>()
 
+function onKeydown(e: KeyboardEvent) {
+  if (e.key === 'Escape' && props.visible) {
+    emit('close')
+  }
+}
+
+watch(() => props.visible, (val) => {
+  if (val) {
+    document.addEventListener('keydown', onKeydown)
+  } else {
+    document.removeEventListener('keydown', onKeydown)
+  }
+})
+
+onUnmounted(() => {
+  document.removeEventListener('keydown', onKeydown)
+})
+
 
 
 // ── Form state ─────────────────────────────────────────────────────────────
@@ -767,6 +788,15 @@ const saving = ref(false)
 const error = ref('')
 const isEdit = ref(false)
 const activeTab = ref<'question' | 'answer' | 'mark' | 'hint' | 'explanation' | 'briefing'>('question')
+const tabContentRef = ref<HTMLDivElement | null>(null)
+
+watch(activeTab, () => {
+  nextTick(() => {
+    if (tabContentRef.value) {
+      tabContentRef.value.scrollTop = 0
+    }
+  })
+})
 const tabs = computed(() => {
   if (form.value.isBriefing) {
     return [{ value: 'briefing' as const, label: 'Briefing' }]
@@ -1035,6 +1065,27 @@ async function submit() {
 </script>
 
 <style scoped>
+/* ── Scrollbar: always visible when content overflows, no layout shift ── */
+.tab-scroll {
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.25) rgba(0, 0, 0, 0.08);
+}
+.tab-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+.tab-scroll::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: 4px;
+}
+.tab-scroll::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 4px;
+}
+.tab-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.35);
+}
+
 /* ── Date / service chips ── */
 .tg-date-chip, .tg-service-msg {
   font-size: 0.6rem;
@@ -1148,7 +1199,11 @@ async function submit() {
   object-fit: cover;
 }
 
-.tg-poll { padding: 0.55rem 0.65rem 0.4rem; min-width: 175px; }
+.tg-poll {
+  padding: 0.4rem 0.55rem 0.3rem;
+  max-width: 82%;
+  font-size: 0.8rem;
+}
 
 .tg-poll-number {
   font-size: 0.72rem;
@@ -1173,16 +1228,15 @@ async function submit() {
 }
 
 .tg-poll-q {
-  font-size: 0.875rem;
+  font-size: 0.8rem;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   font-weight: normal;
   color: #111;
-  margin-bottom: 0.45rem;
-  line-height: 1.35;
+  line-height: 1.45;
 }
 
 .tg-photo-note {
-  font-size: 0.8125rem;
+  font-size: 0.8rem;
   color: #6b7280;
   font-style: italic;
   padding: 0.5rem 0;
@@ -1200,7 +1254,7 @@ async function submit() {
   display: flex;
   align-items: center;
   gap: 0.375rem;
-  font-size: 0.875rem;
+  font-size: 0.8rem;
   margin-bottom: 0.2rem;
 }
 .tg-opt-letter {
@@ -1216,7 +1270,7 @@ async function submit() {
   justify-content: center;
   flex-shrink: 0;
 }
-.tg-opt-text { flex: 1; color: #111; font-size: 0.78rem; }
+.tg-opt-text { flex: 1; color: #111; font-size: 0.8rem; }
 .tg-opt-pct { font-size: 0.62rem; color: #8d9eac; flex-shrink: 0; min-width: 22px; text-align: right; }
 .tg-opt-bar { height: 2px; background: #e8edf2; border-radius: 1px; overflow: hidden; }
 .tg-opt-fill { height: 100%; width: 0%; background: #4fabe2; border-radius: 1px; }
@@ -1246,7 +1300,7 @@ async function submit() {
   background: rgba(255,255,255,0.92);
   border-radius: 8px;
   padding: 0.35rem 0.6rem;
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   color: #2196f3;
   font-weight: 500;
@@ -1264,7 +1318,7 @@ async function submit() {
 .tg-explanation-msg { color: #111; }
 
 .tg-empty-explanation {
-  font-size: 0.72rem;
+  font-size: 0.8rem;
   color: #9ca3af;
   font-style: italic;
   text-align: center;
