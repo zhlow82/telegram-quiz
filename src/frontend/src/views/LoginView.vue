@@ -12,14 +12,15 @@
       <div class="relative z-10 max-w-sm w-full">
         <!-- Logo -->
         <div
-          class="w-16 h-16 rounded-2xl flex items-center justify-center mb-6 bg-blue-600"
+          class="w-16 h-16 rounded-2xl flex items-center justify-center mb-6 overflow-hidden bg-blue-600"
         >
-          <Zap class="w-8 h-8 text-white" />
+          <img v-if="brandingStore.appLogoUrl" :src="brandingStore.appLogoUrl" class="w-full h-full object-cover" alt="" />
+          <Zap v-else class="w-8 h-8 text-white" />
         </div>
 
-        <h1 class="text-3xl font-black text-white mb-3">Telegram Quiz</h1>
+        <h1 class="text-3xl font-black text-white mb-3">{{ brandingStore.appName }}</h1>
         <p class="text-base mb-8 text-slate-400">
-          Create and manage engaging quiz games for your Telegram community.
+          {{ brandingStore.loginWelcomeText || 'Create and manage engaging quiz games for your Telegram community.' }}
         </p>
 
         <!-- Feature list -->
@@ -38,10 +39,11 @@
 
         <!-- Mobile logo -->
         <div class="flex md:hidden items-center gap-2 mb-8">
-          <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
-            <Zap class="w-4 h-4 text-white" />
+          <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden bg-blue-600">
+            <img v-if="brandingStore.appLogoUrl" :src="brandingStore.appLogoUrl" class="w-full h-full object-cover" alt="" />
+            <Zap v-else class="w-4 h-4 text-white" />
           </div>
-          <span class="font-bold text-slate-900 text-sm">Telegram Quiz</span>
+          <span class="font-bold text-slate-900 text-sm">{{ brandingStore.appName }}</span>
         </div>
 
         <h2 class="text-xl font-black text-slate-900 mb-1">Welcome back</h2>
@@ -144,10 +146,12 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { Zap, User, Lock, CheckCircle, AlertCircle, Eye, EyeOff } from '@lucide/vue'
 import { useAuthStore } from '@/stores/auth'
+import { useBrandingStore } from '@/stores/branding'
 import api from '@/services/api'
 
 const router = useRouter()
 const authStore = useAuthStore()
+const brandingStore = useBrandingStore()
 
 const form = ref({ username: '', password: '' })
 const error = ref('')

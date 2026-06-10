@@ -26,5 +26,6 @@ public record QuestionResponseDto(
         Integer mark,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
+        String updatedBy,
         Long folderId
 ) {}

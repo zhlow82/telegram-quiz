@@ -185,11 +185,14 @@ All requests go through the API Gateway at `http://localhost:8080`.
 | Method | Path | Auth | Description |
 |---|---|---|---|
 | `POST` | `/auth/login` | No | Login, returns `accessToken` + `refreshToken` |
+| `POST` | `/auth/refresh` | No | Body `{ refreshToken }` — returns new `{ accessToken }` |
 | `POST` | `/auth/logout` | Bearer token | Logout, invalidates refresh token in Redis |
 | `GET` | `/auth/me` | Bearer token | Get current user profile |
 | `PATCH` | `/auth/profile` | Bearer token | Update first name / last name |
 | `POST` | `/auth/change-password` | Bearer token | Change password (local accounts only) |
+| `GET` | `/auth/settings/branding` | No | Get app branding (name, welcome text, logo URL) |
 | `GET` | `/auth/oauth2/configured` | No | Whether Google OAuth2 credentials are configured |
+| `GET` | `/auth/oauth2/complete` | No | Complete Google OAuth2 registration with invitation code |
 
 ### Admin (ROLE_ADMIN only)
 | Method | Path | Auth | Description |
@@ -197,23 +200,55 @@ All requests go through the API Gateway at `http://localhost:8080`.
 | `GET` | `/auth/admin/users` | ROLE_ADMIN | List all users |
 | `POST` | `/auth/admin/users` | ROLE_ADMIN | Create local user |
 | `PATCH` | `/auth/admin/users/{id}/role` | ROLE_ADMIN | Set role (`ROLE_ADMIN` or `ROLE_MEMBER`) |
+| `PATCH` | `/auth/admin/users/{id}/profile` | ROLE_ADMIN | Update first/last name for any user |
+| `PATCH` | `/auth/admin/users/{id}/password` | ROLE_ADMIN | Reset password for local accounts |
 | `PATCH` | `/auth/admin/users/{id}/activate` | ROLE_ADMIN | Activate user |
 | `PATCH` | `/auth/admin/users/{id}/deactivate` | ROLE_ADMIN | Deactivate user |
+| `DELETE` | `/auth/admin/users/{id}` | ROLE_ADMIN | Permanently delete user |
 | `GET` | `/auth/admin/invitation-codes` | ROLE_ADMIN | List invitation codes |
 | `POST` | `/auth/admin/invitation-codes` | ROLE_ADMIN | Generate invitation code |
-| `DELETE` | `/auth/admin/invitation-codes/{id}` | ROLE_ADMIN | Delete invitation code |
+| `DELETE` | `/auth/admin/invitation-codes/{id}` | ROLE_ADMIN | Deactivate invitation code (soft) |
+| `DELETE` | `/auth/admin/invitation-codes/{id}/permanent` | ROLE_ADMIN | Permanently delete invitation code |
+| `PATCH` | `/auth/admin/invitation-codes/{id}/activate` | ROLE_ADMIN | Re-activate invitation code |
 | `GET` | `/auth/admin/settings/google` | ROLE_ADMIN | Get Google OAuth2 settings |
 | `PUT` | `/auth/admin/settings/google` | ROLE_ADMIN | Save Google OAuth2 credentials |
+| `PUT` | `/auth/admin/settings/branding` | ROLE_ADMIN | Save branding settings (app name, welcome text, logo) |
 
 ### Questions
 | Method | Path | Auth | Description |
 |---|---|---|---|
-| `GET` | `/api/questions` | Bearer token | List all questions (ordered) |
+| `GET` | `/api/questions` | Bearer token | List all accessible questions (ordered) |
 | `GET` | `/api/questions/{id}` | Bearer token | Get single question |
 | `POST` | `/api/questions` | Bearer token | Create question |
 | `PUT` | `/api/questions/{id}` | Bearer token | Replace question |
 | `DELETE` | `/api/questions/{id}` | Bearer token | Delete question |
 | `PATCH` | `/api/questions/reorder` | Bearer token | Reorder — body `{ "orderedIds": [1, 2, 3] }` |
+| `PATCH` | `/api/questions/{id}/folder` | Bearer token | Move question to folder — body `{ "folderId": 1 }` |
+
+### Folders
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| `GET` | `/api/folders` | Bearer token | List owned + shared folders |
+| `POST` | `/api/folders` | Bearer token | Create folder |
+| `PATCH` | `/api/folders/{id}/name` | Bearer token | Rename folder |
+| `DELETE` | `/api/folders/{id}` | Bearer token | Delete folder |
+| `PATCH` | `/api/folders/reorder` | Bearer token | Reorder owned folders |
+| `GET` | `/api/folders/{id}/members` | Bearer token | List folder members |
+| `POST` | `/api/folders/{id}/members` | Bearer token | Invite user to folder |
+| `PATCH` | `/api/folders/{id}/members/{username}/role` | Bearer token | Change member role |
+| `DELETE` | `/api/folders/{id}/members/{username}` | Bearer token | Remove member |
+
+### Quizzes
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| `GET` | `/api/quizzes` | Bearer token | List quizzes |
+| `GET` | `/api/quizzes/{id}` | Bearer token | Get quiz detail |
+| `POST` | `/api/quizzes` | Bearer token | Create quiz |
+| `PUT` | `/api/quizzes/{id}` | Bearer token | Update quiz |
+| `DELETE` | `/api/quizzes/{id}` | Bearer token | Delete quiz |
+| `POST` | `/api/quizzes/{id}/activate` | Bearer token | Activate quiz (start bot) |
+| `POST` | `/api/quizzes/{id}/stop` | Bearer token | Stop quiz |
+| `POST` | `/api/bot/validate-token` | Bearer token | Validate a Telegram bot token (calls Telegram `getMe`) |
 
 ### Files
 | Method | Path | Auth | Description |
@@ -253,7 +288,7 @@ Frontend → API Gateway (8080)
               └── /api/**  → Main Service (8082) → validates JWT locally
 ```
 
-- **Access token**: 15 minutes, stateless JWT
+- **Access token**: 24 hours, stateless JWT
 - **Refresh token**: 7 days, stored in Redis (deleted on logout)
 - Main Service validates JWT using the shared secret — no DB calls required
 
@@ -284,11 +319,12 @@ Schema changes are managed by **Flyway**, running independently in both `auth-se
 ```
 src/backend/auth-service/src/main/resources/db/migration/
   └─ History table: flyway_schema_history
-  └─ Manages: users, user_roles tables
+  └─ Manages: users, user_roles, invitation_codes, app_settings tables
 
 src/backend/main-service/src/main/resources/db/migration/
   └─ History table: flyway_schema_history_main
-  └─ Manages: questions, image_blobs tables
+  └─ Manages: questions, image_blobs, folders, folder_members,
+              quizzes, quiz_questions, quiz_sessions tables
 ```
 
 ### Naming convention

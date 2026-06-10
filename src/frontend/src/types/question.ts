@@ -24,6 +24,7 @@ export interface Question {
   mark: number | null
   createdAt: string
   updatedAt: string
+  updatedBy: string | null
   folderId: number | null
 }
 

@@ -72,6 +72,7 @@ public class QuestionService {
                 .explanationBlocks(dto.explanationBlocks() != null ? dto.explanationBlocks() : new ArrayList<>())
                 .mark(dto.mark())
                 .folderId(dto.folderId())
+                .updatedBy(username)
                 .build();
 
         return toDto(questionRepository.save(question));
@@ -97,6 +98,7 @@ public class QuestionService {
         question.setExplanationBlocks(dto.explanationBlocks() != null ? dto.explanationBlocks() : new ArrayList<>());
         question.setMark(dto.mark());
         question.setFolderId(dto.folderId());
+        question.setUpdatedBy(username);
         return toDto(questionRepository.save(question));
     }
 
@@ -188,6 +190,7 @@ public class QuestionService {
                 q.getMark(),
                 q.getCreatedAt(),
                 q.getUpdatedAt(),
+                q.getUpdatedBy(),
                 q.getFolderId()
         );
     }

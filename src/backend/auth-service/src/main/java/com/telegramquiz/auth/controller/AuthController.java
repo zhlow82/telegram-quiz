@@ -18,6 +18,8 @@ import com.telegramquiz.auth.repository.UserRepository;
 import com.telegramquiz.auth.security.JwtUtil;
 import com.telegramquiz.auth.service.AuthService;
 
+import com.telegramquiz.auth.model.AppSetting;
+import com.telegramquiz.auth.repository.AppSettingRepository;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -32,6 +34,7 @@ public class AuthController {
     private final JwtUtil jwtUtil;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AppSettingRepository appSettingRepository;
 
     public record ChangePasswordRequest(
             @NotBlank String currentPassword,
@@ -119,5 +122,21 @@ public class AuthController {
         } catch (Exception e) {
             return ResponseEntity.status(401).body(Map.of("error", "Refresh token invalid or expired"));
         }
+    }
+
+    @GetMapping("/settings/branding")
+    public ResponseEntity<Map<String, Object>> getBranding() {
+        String appName = appSettingRepository.findByKey("app_name")
+                .map(AppSetting::getValue).orElse("Telegram Quiz");
+        String loginWelcomeText = appSettingRepository.findByKey("login_welcome_text")
+                .map(AppSetting::getValue).orElse("");
+        String blobId = appSettingRepository.findByKey("app_logo_blob_id")
+                .map(AppSetting::getValue).orElse(null);
+        String appLogoUrl = blobId != null ? "/api/files/" + blobId : null;
+        var result = new java.util.HashMap<String, Object>();
+        result.put("appName", appName);
+        result.put("loginWelcomeText", loginWelcomeText);
+        result.put("appLogoUrl", appLogoUrl);
+        return ResponseEntity.ok(result);
     }
 }

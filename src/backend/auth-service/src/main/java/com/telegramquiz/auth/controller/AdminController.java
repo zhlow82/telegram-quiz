@@ -131,4 +131,26 @@ public class AdminController {
         }
         return ResponseEntity.noContent().build();
     }
+
+    public record BrandingSettingsRequest(String appName, String loginWelcomeText, String appLogoBlobId) {}
+
+    @PutMapping("/settings/branding")
+    public ResponseEntity<Void> saveBrandingSettings(@RequestBody BrandingSettingsRequest request) {
+        if (request.appName() != null) {
+            String name = request.appName().trim().isEmpty() ? "Telegram Quiz" : request.appName().trim();
+            appSettingRepository.save(new AppSetting("app_name", name));
+        }
+        if (request.loginWelcomeText() != null) {
+            appSettingRepository.save(new AppSetting("login_welcome_text", request.loginWelcomeText().trim()));
+        }
+        if (request.appLogoBlobId() != null) {
+            if (request.appLogoBlobId().isBlank()) {
+                appSettingRepository.deleteById("app_logo_blob_id");
+            } else {
+                appSettingRepository.save(new AppSetting("app_logo_blob_id", request.appLogoBlobId().trim()));
+            }
+        }
+        return ResponseEntity.noContent().build();
+    }
 }
+

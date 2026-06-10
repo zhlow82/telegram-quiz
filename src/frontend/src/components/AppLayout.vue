@@ -36,10 +36,11 @@
     >
       <!-- Brand -->
       <div class="flex items-center gap-3 px-4 py-5 flex-shrink-0">
-        <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
-          <Zap class="w-4 h-4 text-white" />
+        <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden bg-blue-600">
+          <img v-if="brandingStore.appLogoUrl" :src="brandingStore.appLogoUrl" class="w-full h-full object-cover" alt="" />
+          <Zap v-else class="w-4 h-4 text-white" />
         </div>
-        <span v-if="!sidebarCollapsed" class="text-white font-bold text-sm">Telegram Quiz</span>
+        <span v-if="!sidebarCollapsed" class="text-white font-bold text-sm">{{ brandingStore.appName }}</span>
         <button
           v-if="!sidebarCollapsed"
           class="hidden md:flex ml-auto w-6 h-6 rounded-lg items-center justify-center text-slate-500 hover:text-white hover:bg-white/10 transition cursor-pointer"
@@ -264,7 +265,7 @@
         >
           <Menu class="w-5 h-5 text-slate-600" />
         </button>
-        <span class="font-bold text-slate-900 text-sm">Telegram Quiz</span>
+        <span class="font-bold text-slate-900 text-sm">{{ brandingStore.appName }}</span>
       </header>
 
       <!-- Scrollable page content -->
@@ -283,11 +284,13 @@ import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { Zap, Menu, LogOut, LayoutDashboard, BookOpen, Play, Users, KeyRound, Settings, Pencil, X, Eye, EyeOff, ChevronLeft, ChevronRight } from '@lucide/vue'
 import { useAuthStore } from '@/stores/auth'
+import { useBrandingStore } from '@/stores/branding'
 import { useToast } from '@/composables/useToast'
 import api from '@/services/api'
 
 const router = useRouter()
 const authStore = useAuthStore()
+const brandingStore = useBrandingStore()
 const toast = useToast()
 
 const drawerOpen = ref(false)

@@ -147,14 +147,32 @@ All requests go through the API Gateway at `http://localhost:8080`.
 | Method | Path | Auth | Description |
 |---|---|---|---|
 | GET | `/api/home` | Bearer token | Home page message |
-| GET | `/api/questions` | Bearer token | List all questions (ordered) |
+| GET | `/api/questions` | Bearer token | List all accessible questions (ordered) |
 | GET | `/api/questions/{id}` | Bearer token | Get single question |
 | POST | `/api/questions` | Bearer token | Create question |
 | PUT | `/api/questions/{id}` | Bearer token | Replace question |
 | DELETE | `/api/questions/{id}` | Bearer token | Delete question |
 | PATCH | `/api/questions/reorder` | Bearer token | Reorder — body `{ orderedIds: [Long] }` |
+| PATCH | `/api/questions/{id}/folder` | Bearer token | Move question to folder — body `{ folderId: Long \| null }` |
 | POST | `/api/files/upload` | Bearer token | Upload image; returns `{ "path": "<id>" }` |
 | GET | `/api/files/{id}` | Bearer token | Serve image bytes (inline) |
+| GET | `/api/folders` | Bearer token | List owned + shared folders |
+| POST | `/api/folders` | Bearer token | Create folder |
+| PATCH | `/api/folders/{id}/name` | Bearer token | Rename folder |
+| DELETE | `/api/folders/{id}` | Bearer token | Delete folder |
+| PATCH | `/api/folders/reorder` | Bearer token | Reorder owned folders |
+| GET | `/api/folders/{id}/members` | Bearer token | List folder members |
+| POST | `/api/folders/{id}/members` | Bearer token | Invite user to folder |
+| PATCH | `/api/folders/{id}/members/{username}/role` | Bearer token | Change member role |
+| DELETE | `/api/folders/{id}/members/{username}` | Bearer token | Remove member |
+| GET | `/api/quizzes` | Bearer token | List quizzes |
+| GET | `/api/quizzes/{id}` | Bearer token | Get quiz detail |
+| POST | `/api/quizzes` | Bearer token | Create quiz |
+| PUT | `/api/quizzes/{id}` | Bearer token | Update quiz |
+| DELETE | `/api/quizzes/{id}` | Bearer token | Delete quiz |
+| POST | `/api/quizzes/{id}/activate` | Bearer token | Activate quiz (start bot) |
+| POST | `/api/quizzes/{id}/stop` | Bearer token | Stop quiz |
+| POST | `/api/bot/validate-token` | Bearer token | Validate Telegram bot token (calls `getMe`) |
 
 ---
 
@@ -234,26 +252,34 @@ Google OAuth2 new users must supply a valid active invitation code during regist
 |---|---|---|
 | `id` | `Long` | PK, auto-generated |
 | `orderIndex` | `int` | Display order, drag-to-reorder |
-| `questionText` | `String` | Required |
-| `intro` | `String` | Optional Telegram-formatted intro paragraph |
-| `introBlue` | `boolean` | Whether intro renders in blue |
-| `questionImagePaths` | `List<String>` | JSONB — list of `ImageBlob` IDs as strings |
-| `options` | `List<String>` | JSONB — Telegram-formatted answer options |
+| `questionBlocks` | `List<ContentBlock>` | JSONB — mixed text/image content blocks |
+| `options` | `List<String>` | JSONB — answer options |
 | `answer` | `String` | Correct answer text |
 | `expectPhoto` | `boolean` | Whether question expects a photo response |
 | `isBriefing` | `boolean` | Marks question as a briefing slide (no answer) |
-| `hintText` | `String` | Optional hint (Telegram-formatted) |
-| `hintImagePaths` | `List<String>` | JSONB — hint image IDs |
-| `explanationTexts` | `List<String>` | JSONB — post-answer explanation paragraphs |
-| `explanationImagePaths` | `List<String>` | JSONB — explanation image IDs |
+| `expectsTextInput` | `boolean` | Whether question expects free-text input |
+| `briefingPrimaryButtonText` | `String` | Label for primary briefing button (default "READY") |
+| `showBriefingPrimaryButton` | `boolean` | Whether to show primary briefing button |
+| `briefingSecondaryButtonText` | `String` | Label for secondary briefing button (default "Start Timer") |
+| `showBriefingSecondaryButton` | `boolean` | Whether to show secondary briefing button |
+| `afterAnswerButtonText` | `String` | Label for post-answer button (default "Next Question") |
+| `showAfterAnswerButton` | `boolean` | Whether to show post-answer button |
+| `hintBlocks` | `List<ContentBlock>` | JSONB — hint content blocks |
+| `explanationBlocks` | `List<ContentBlock>` | JSONB — explanation content blocks |
+| `mark` | `Integer` | Points value (null = no points) |
+| `folderId` | `Long` | FK to `folders.id` (null = unfiled) |
+| `createdBy` | `String` | Username of creator |
 | `createdAt` / `updatedAt` | `LocalDateTime` | Set via `@PrePersist` / `@PreUpdate` |
+| `updatedBy` | `String` | Username of last editor (null for legacy rows) |
+
+`ContentBlock` model: `{ type: "text" | "image", content: string }` — content is text or an `ImageBlob` id.
 
 > **Lombok note**: `boolean isBriefing` generates `isBriefing()` getter (not `getIsBriefing()`). Use `isBriefing()` in Java code.
 
 ### ImageBlob (`image_blobs` table — main-service)
 Stores uploaded images as binary in PostgreSQL. Fields: `id` (Long PK), `contentType` (String), `data` (byte[]).
 Upload via `POST /api/files/upload` (multipart), serve via `GET /api/files/{id}` (returns raw bytes with `Content-Type` header).
-Frontend stores image IDs as strings in `questionImagePaths` / `hintImagePaths` / `explanationImagePaths`.
+Frontend references image IDs as `content` values inside `ContentBlock` objects with `type: "image"`.
 
 ---
 

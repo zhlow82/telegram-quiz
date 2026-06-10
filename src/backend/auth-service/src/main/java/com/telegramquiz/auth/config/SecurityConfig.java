@@ -63,7 +63,8 @@ public class SecurityConfig {
                         "/auth/logout",
                         "/auth/refresh",
                         "/auth/oauth2/configured",
-                        "/auth/oauth2/complete"
+                        "/auth/oauth2/complete",
+                        "/auth/settings/branding"
                     ).permitAll()
                     .requestMatchers("/auth/change-password", "/auth/me", "/auth/profile").authenticated()
                     .requestMatchers("/auth/admin/**").hasAuthority("ROLE_ADMIN")

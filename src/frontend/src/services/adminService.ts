@@ -22,4 +22,9 @@ export const adminService = {
   getGoogleSettings: () => api.get<{ clientId: string; secretConfigured: boolean }>('/auth/admin/settings/google'),
   saveGoogleSettings: (clientId: string, clientSecret: string) =>
     api.put('/auth/admin/settings/google', { clientId, clientSecret }),
+
+  getBrandingSettings: () =>
+    api.get<{ appName: string; loginWelcomeText: string; appLogoUrl: string | null }>('/auth/settings/branding'),
+  saveBrandingSettings: (data: { appName: string; loginWelcomeText: string; appLogoBlobId: string | null }) =>
+    api.put('/auth/admin/settings/branding', data),
 }

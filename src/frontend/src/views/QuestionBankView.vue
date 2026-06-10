@@ -317,6 +317,7 @@
                   <FolderIcon class="w-3 h-3" />{{ folders.find(f => f.id === q.folderId)?.name }}
                 </span>
               </div>
+              <p v-if="q.updatedAt" class="text-[0.65rem] text-slate-400 mt-0.5 truncate">{{ formatRelative(q.updatedAt) }}<template v-if="q.updatedBy"> · {{ q.updatedBy }}</template></p>
             </div>
             <div class="flex items-center gap-1.5 flex-shrink-0">
               <div v-if="!q.isBriefing && q.mark != null && q.mark > 0" class="flex flex-col items-center justify-center w-9 shrink-0">
@@ -389,6 +390,7 @@
                   </span>
                   <span v-if="!q.isBriefing && q.options.length" class="inline-flex items-center text-[0.6875rem] font-medium px-2 py-0.5 rounded-md bg-slate-100 text-slate-500">{{ q.options.length }} options</span>
                 </div>
+                <p v-if="q.updatedAt" class="text-[0.65rem] text-slate-400 mt-0.5 truncate">{{ formatRelative(q.updatedAt) }}<template v-if="q.updatedBy"> · {{ q.updatedBy }}</template></p>
               </div>
               <div class="flex items-center gap-1.5 flex-shrink-0">
                 <div v-if="!q.isBriefing && q.mark != null && q.mark > 0" class="flex flex-col items-center justify-center w-9 shrink-0">
@@ -462,6 +464,7 @@
                   </span>
                   <span v-if="!q.isBriefing && q.options.length" class="inline-flex items-center text-[0.6875rem] font-medium px-2 py-0.5 rounded-md bg-slate-100 text-slate-500">{{ q.options.length }} options</span>
                 </div>
+                <p v-if="q.updatedAt" class="text-[0.65rem] text-slate-400 mt-0.5 truncate">{{ formatRelative(q.updatedAt) }}<template v-if="q.updatedBy"> · {{ q.updatedBy }}</template></p>
               </div>
               <div class="flex items-center gap-1.5 flex-shrink-0">
                 <div v-if="!q.isBriefing && q.mark != null && q.mark > 0" class="flex flex-col items-center justify-center w-9 shrink-0">
@@ -546,6 +549,22 @@ const currentUsername = computed(() => authStore.username ?? '')
 // -- Utilities --------------------------------------------------------------
 function stripHtml(html: string): string {
   return html.replace(/<[^>]*>/g, '').trim()
+}
+
+function formatRelative(iso: string | null): string {
+  if (!iso) return ''
+  const diff = Date.now() - new Date(iso).getTime()
+  const secs = Math.floor(diff / 1000)
+  if (secs < 60) return 'just now'
+  const mins = Math.floor(secs / 60)
+  if (mins < 60) return `${mins}m ago`
+  const hrs = Math.floor(mins / 60)
+  if (hrs < 24) return `${hrs}h ago`
+  const days = Math.floor(hrs / 24)
+  if (days < 30) return `${days}d ago`
+  const months = Math.floor(days / 30)
+  if (months < 12) return `${months}mo ago`
+  return `${Math.floor(months / 12)}y ago`
 }
 
 // -- Questions --------------------------------------------------------------
