@@ -9,6 +9,7 @@ public record QuizResponseDto(
         String botTokenMasked,
         String botUsername,
         int timePerQuestionSeconds,
+        int totalTimeLimitSeconds,
         int passScorePercent,
         String status,
         LocalDateTime createdAt,

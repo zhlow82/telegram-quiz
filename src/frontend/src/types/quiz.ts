@@ -9,6 +9,7 @@ export interface QuizSummary {
   status: QuizStatus
   questionCount: number
   timePerQuestionSeconds: number
+  totalTimeLimitSeconds: number
   passScorePercent: number
   createdAt: string
 }
@@ -19,6 +20,7 @@ export interface Quiz {
   botTokenMasked: string
   botUsername: string | null
   timePerQuestionSeconds: number
+  totalTimeLimitSeconds: number
   passScorePercent: number
   status: QuizStatus
   createdAt: string
@@ -30,6 +32,7 @@ export interface QuizRequest {
   botToken?: string
   botUsername?: string
   timePerQuestionSeconds: number
+  totalTimeLimitSeconds: number
   passScorePercent: number
   questionIds: number[]
 }

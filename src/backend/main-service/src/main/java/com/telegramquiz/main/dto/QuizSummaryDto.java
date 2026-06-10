@@ -9,6 +9,7 @@ public record QuizSummaryDto(
         String status,
         int questionCount,
         int timePerQuestionSeconds,
+        int totalTimeLimitSeconds,
         int passScorePercent,
         LocalDateTime createdAt
 ) {}

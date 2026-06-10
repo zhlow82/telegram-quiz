@@ -122,42 +122,97 @@
           />
         </div>
 
-        <div class="grid grid-cols-2 gap-4">
-          <div class="space-y-1.5">
-            <label class="block text-sm font-semibold text-slate-700">Time per Question</label>
-            <div class="relative">
-              <input
-                v-model.number="timePerQuestion"
-                type="number"
-                min="5"
-                max="300"
-                class="w-full px-3 py-2.5 pr-10 text-sm border border-slate-200 rounded-xl outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-white text-slate-900 transition"
-              />
-              <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400">sec</span>
-            </div>
-            <p class="text-xs text-slate-400">5 – 300 seconds</p>
+        <!-- Timing mode selector -->
+        <div class="space-y-2">
+          <label class="block text-sm font-semibold text-slate-700">Timing</label>
+          <div class="grid grid-cols-3 gap-3">
+            <button
+              type="button"
+              class="flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition cursor-pointer"
+              :class="timingMode === 'none'
+                ? 'border-slate-500 bg-slate-50'
+                : 'border-slate-200 bg-white hover:border-slate-300'"
+              @click="timingMode = 'none'"
+            >
+              <TimerOff class="w-5 h-5" :class="timingMode === 'none' ? 'text-slate-600' : 'text-slate-400'" />
+              <span class="text-xs font-semibold" :class="timingMode === 'none' ? 'text-slate-700' : 'text-slate-500'">No Timer</span>
+            </button>
+            <button
+              type="button"
+              class="flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition cursor-pointer"
+              :class="timingMode === 'per-question'
+                ? 'border-blue-500 bg-blue-50'
+                : 'border-slate-200 bg-white hover:border-slate-300'"
+              @click="timingMode = 'per-question'"
+            >
+              <Clock class="w-5 h-5" :class="timingMode === 'per-question' ? 'text-blue-600' : 'text-slate-400'" />
+              <span class="text-xs font-semibold" :class="timingMode === 'per-question' ? 'text-blue-700' : 'text-slate-500'">Per Question</span>
+            </button>
+            <button
+              type="button"
+              class="flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition cursor-pointer"
+              :class="timingMode === 'total'
+                ? 'border-violet-500 bg-violet-50'
+                : 'border-slate-200 bg-white hover:border-slate-300'"
+              @click="timingMode = 'total'"
+            >
+              <Timer class="w-5 h-5" :class="timingMode === 'total' ? 'text-violet-600' : 'text-slate-400'" />
+              <span class="text-xs font-semibold" :class="timingMode === 'total' ? 'text-violet-700' : 'text-slate-500'">Total Quiz</span>
+            </button>
           </div>
+        </div>
 
-          <div class="space-y-1.5">
-            <label class="block text-sm font-semibold text-slate-700">Pass Score</label>
-            <div class="relative">
-              <input
-                v-model.number="passScorePercent"
-                type="number"
-                min="0"
-                max="100"
-                class="w-full px-3 py-2.5 pr-8 text-sm border border-slate-200 rounded-xl outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-white text-slate-900 transition"
-              />
-              <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400">%</span>
-            </div>
-            <p class="text-xs text-slate-400">0 – 100%</p>
+        <!-- Per-question time input -->
+        <div v-if="timingMode === 'per-question'" class="space-y-1.5">
+          <label class="block text-sm font-semibold text-slate-700">Time per Question</label>
+          <div class="relative max-w-48">
+            <input
+              v-model.number="timePerQuestion"
+              type="number"
+              min="5"
+              max="300"
+              class="w-full px-3 py-2.5 pr-10 text-sm border border-slate-200 rounded-xl outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-white text-slate-900 transition"
+            />
+            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400">sec</span>
           </div>
+          <p class="text-xs text-slate-400">5 – 300 seconds per question</p>
+        </div>
+
+        <!-- Total quiz time input -->
+        <div v-if="timingMode === 'total'" class="space-y-1.5">
+          <label class="block text-sm font-semibold text-slate-700">Total Quiz Time</label>
+          <div class="relative max-w-48">
+            <input
+              v-model.number="totalQuizTimeSeconds"
+              type="number"
+              min="30"
+              class="w-full px-3 py-2.5 pr-10 text-sm border border-slate-200 rounded-xl outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 bg-white text-slate-900 transition"
+            />
+            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400">sec</span>
+          </div>
+          <p class="text-xs text-slate-400">Minimum 30 seconds for the whole quiz</p>
+        </div>
+
+        <!-- Pass Score -->
+        <div class="space-y-1.5">
+          <label class="block text-sm font-semibold text-slate-700">Pass Score</label>
+          <div class="relative max-w-48">
+            <input
+              v-model.number="passScorePercent"
+              type="number"
+              min="0"
+              max="100"
+              class="w-full px-3 py-2.5 pr-8 text-sm border border-slate-200 rounded-xl outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-white text-slate-900 transition"
+            />
+            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400">%</span>
+          </div>
+          <p class="text-xs text-slate-400">0 – 100%</p>
         </div>
       </div>
     </div>
 
     <!-- ── Step 4: Question selector ──────────────────────────────────── -->
-    <div v-else-if="step === 4" key="step4" class="max-w-3xl space-y-5">
+    <div v-else-if="step === 4" key="step4" class="space-y-5">
       <div>
         <h2 class="text-lg font-bold text-slate-900 mb-1">Select questions</h2>
         <p class="text-sm text-slate-500">Choose questions from your bank. Drag to reorder selected ones.</p>
@@ -167,6 +222,18 @@
         <!-- Available questions -->
         <div class="space-y-2">
           <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Available ({{ unselectedQuestions.length }})</p>
+          <!-- Folder filter -->
+          <div v-if="folders.length > 0" class="flex items-center gap-2">
+            <FolderOpen class="w-4 h-4 text-slate-400 flex-shrink-0" />
+            <select
+              v-model="folderFilter"
+              class="flex-1 text-sm text-slate-700 bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition cursor-pointer"
+            >
+              <option :value="null">All folders</option>
+              <option value="unfiled">Unfiled</option>
+              <option v-for="f in folders" :key="f.id" :value="f.id">{{ f.name }}</option>
+            </select>
+          </div>
           <div class="flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 rounded-lg">
             <Search class="w-4 h-4 text-slate-400 flex-shrink-0" />
             <input
@@ -192,8 +259,21 @@
               class="w-full text-left px-4 py-3 border-b border-slate-100 last:border-0 hover:bg-blue-50 transition-colors cursor-pointer flex items-start gap-3"
               @click="selectQuestion(q)"
             >
-              <Plus class="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />
-              <span class="text-sm text-slate-700 line-clamp-2">{{ q.questionBlocks.find(b => b.type === 'text')?.content || '(no text)' }}</span>
+              <Plus class="w-4 h-4 text-blue-500 flex-shrink-0 mt-1" />
+              <div class="flex-1 min-w-0 space-y-1">
+                <div class="flex items-center gap-1.5">
+                  <span class="text-[0.65rem] font-semibold px-1.5 py-0.5 rounded-full leading-none" :class="questionTypeBadgeClass(q)">{{ questionTypeLabel(q) }}</span>
+                  <span v-if="q.mark && q.mark > 0" class="text-[0.65rem] font-semibold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded-full leading-none">{{ q.mark }} pts</span>
+                </div>
+                <span class="block text-sm text-slate-700 line-clamp-2">{{ stripHtml(q.questionBlocks.find(b => b.type === 'text')?.content || '') || '(no text)' }}</span>
+              </div>
+              <img
+                v-if="q.questionBlocks.find(b => b.type === 'image')"
+                :src="`/api/files/${q.questionBlocks.find(b => b.type === 'image')!.content}`"
+                class="w-12 h-12 rounded-lg object-cover flex-shrink-0 border border-slate-100"
+                alt=""
+              />
+              <div v-else class="w-12 h-12 flex-shrink-0" />
             </button>
           </div>
         </div>
@@ -201,6 +281,17 @@
         <!-- Selected questions (draggable) -->
         <div class="space-y-2">
           <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Selected ({{ selectedQuestions.length }})</p>
+          <!-- Points summary card -->
+          <div v-if="selectedQuestions.length > 0 && totalPoints > 0" class="flex items-stretch gap-2 bg-white border border-slate-200 rounded-xl overflow-hidden">
+            <div class="flex-1 flex flex-col items-center justify-center py-3 px-4 border-r border-slate-100">
+              <span class="text-2xl font-black text-slate-900 leading-none">{{ totalPoints }}</span>
+              <span class="text-[0.65rem] font-semibold text-slate-400 uppercase tracking-wide mt-1">Total pts</span>
+            </div>
+            <div class="flex-1 flex flex-col items-center justify-center py-3 px-4">
+              <span class="text-2xl font-black leading-none" :class="passScorePercent > 0 ? 'text-emerald-600' : 'text-slate-300'">{{ passingPoints }}</span>
+              <span class="text-[0.65rem] font-semibold text-slate-400 uppercase tracking-wide mt-1">Pass at ({{ passScorePercent }}%)</span>
+            </div>
+          </div>
           <div class="bg-white border border-slate-200 rounded-xl overflow-hidden max-h-96 overflow-y-auto">
             <div v-if="selectedQuestions.length === 0" class="px-4 py-6 text-center text-sm text-slate-400">
               Click questions to add them
@@ -214,14 +305,27 @@
               <div
                 v-for="(q, i) in selectedQuestions"
                 :key="q.id"
-                class="flex items-start gap-2 px-3 py-3 border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors"
+                class="flex items-start gap-2 px-3 py-3 border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors group"
               >
-                <button type="button" class="q-drag-handle cursor-grab mt-0.5 text-slate-300 hover:text-slate-400 active:cursor-grabbing">
+                <button type="button" class="q-drag-handle cursor-grab mt-1 text-slate-300 hover:text-slate-400 active:cursor-grabbing flex-shrink-0">
                   <GripVertical class="w-4 h-4" />
                 </button>
-                <span class="text-xs font-bold text-slate-300 w-5 flex-shrink-0 mt-0.5">{{ i + 1 }}</span>
-                <span class="flex-1 text-sm text-slate-700 line-clamp-2 min-w-0">{{ q.questionBlocks.find(b => b.type === 'text')?.content || '(no text)' }}</span>
-                <button type="button" class="text-slate-300 hover:text-red-500 transition flex-shrink-0 mt-0.5 cursor-pointer" @click="deselectQuestion(q)">
+                <span class="text-xs font-bold text-slate-300 w-5 flex-shrink-0 mt-1">{{ i + 1 }}</span>
+                <div class="flex-1 min-w-0 space-y-1">
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-[0.65rem] font-semibold px-1.5 py-0.5 rounded-full leading-none" :class="questionTypeBadgeClass(q)">{{ questionTypeLabel(q) }}</span>
+                    <span v-if="q.mark && q.mark > 0" class="text-[0.65rem] font-semibold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded-full leading-none">{{ q.mark }} pts</span>
+                  </div>
+                  <span class="block text-sm text-slate-700 line-clamp-2">{{ stripHtml(q.questionBlocks.find(b => b.type === 'text')?.content || '') || '(no text)' }}</span>
+                </div>
+                <img
+                  v-if="q.questionBlocks.find(b => b.type === 'image')"
+                  :src="`/api/files/${q.questionBlocks.find(b => b.type === 'image')!.content}`"
+                  class="w-12 h-12 rounded-lg object-cover flex-shrink-0 border border-slate-100"
+                  alt=""
+                />
+                <div v-else class="w-12 h-12 flex-shrink-0" />
+                <button type="button" class="w-6 h-6 flex items-center justify-center rounded-md text-slate-300 hover:text-red-500 hover:bg-red-50 transition flex-shrink-0 mt-1 cursor-pointer" @click="deselectQuestion(q)">
                   <X class="w-3.5 h-3.5" />
                 </button>
               </div>
@@ -232,12 +336,13 @@
     </div>
 
     <!-- ── Step 5: Review ──────────────────────────────────────────────── -->
-    <div v-else-if="step === 5" key="step5" class="max-w-xl space-y-5">
+    <div v-else-if="step === 5" key="step5" class="max-w-2xl space-y-5">
       <div>
         <h2 class="text-lg font-bold text-slate-900 mb-1">Review & Create</h2>
         <p class="text-sm text-slate-500">Everything look good? Hit Create to launch your quiz.</p>
       </div>
 
+      <!-- Config summary -->
       <div class="bg-white border border-slate-200 rounded-2xl divide-y divide-slate-100">
         <div class="px-5 py-4 flex items-center justify-between gap-4">
           <span class="text-sm text-slate-500 flex items-center gap-2"><Bot class="w-4 h-4" />Bot</span>
@@ -248,20 +353,58 @@
           <span class="text-sm font-semibold text-slate-900">{{ quizName }}</span>
         </div>
         <div class="px-5 py-4 flex items-center justify-between gap-4">
-          <span class="text-sm text-slate-500 flex items-center gap-2"><Clock class="w-4 h-4" />Time per Question</span>
-          <span class="text-sm font-semibold text-slate-900">{{ timePerQuestion }}s</span>
+          <span class="text-sm text-slate-500 flex items-center gap-2">
+            <TimerOff v-if="timingMode === 'none'" class="w-4 h-4" />
+            <Clock v-else-if="timingMode === 'per-question'" class="w-4 h-4" />
+            <Timer v-else class="w-4 h-4" />
+            Timing
+          </span>
+          <span class="text-sm font-semibold text-slate-900">
+            <template v-if="timingMode === 'none'">No timer</template>
+            <template v-else-if="timingMode === 'per-question'">{{ timePerQuestion }}s per question</template>
+            <template v-else>{{ totalQuizTimeDisplay }} total</template>
+          </span>
         </div>
         <div class="px-5 py-4 flex items-center justify-between gap-4">
           <span class="text-sm text-slate-500 flex items-center gap-2"><CheckCircle class="w-4 h-4" />Pass Score</span>
           <span class="text-sm font-semibold text-slate-900">{{ passScorePercent }}%</span>
         </div>
-        <div class="px-5 py-4 flex items-start justify-between gap-4">
-          <span class="text-sm text-slate-500 flex items-center gap-2 flex-shrink-0"><BookOpen class="w-4 h-4" />Questions</span>
-          <div class="text-sm font-semibold text-slate-900 text-right">
-            {{ selectedQuestions.length }} question{{ selectedQuestions.length !== 1 ? 's' : '' }}
-            <ol class="mt-1 space-y-0.5 font-normal text-slate-500 text-xs text-left">
-              <li v-for="(q, i) in selectedQuestions" :key="q.id">{{ i + 1 }}. {{ q.questionBlocks.find(b => b.type === 'text')?.content || '(no text)' }}</li>
-            </ol>
+        <div v-if="totalPoints > 0" class="px-5 py-4 flex items-center justify-between gap-4">
+          <span class="text-sm text-slate-500 flex items-center gap-2"><Trophy class="w-4 h-4" />Points</span>
+          <span class="text-sm font-semibold text-slate-900">
+            {{ totalPoints }} total
+            <span v-if="passScorePercent > 0" class="font-normal text-slate-500">· pass at <span class="text-emerald-600 font-semibold">{{ passingPoints }}</span></span>
+          </span>
+        </div>
+      </div>
+
+      <!-- Questions list -->
+      <div class="space-y-1.5">
+        <div class="flex items-center justify-between">
+          <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Questions ({{ selectedQuestions.length }})</p>
+        </div>
+        <div class="bg-white border border-slate-200 rounded-2xl divide-y divide-slate-100">
+          <div
+            v-for="(q, i) in selectedQuestions"
+            :key="q.id"
+            class="flex items-center gap-3 px-4 py-3"
+          >
+            <span class="text-xs font-bold text-slate-300 w-5 flex-shrink-0 text-right">{{ i + 1 }}</span>
+            <div class="flex-1 min-w-0 flex items-center gap-2">
+              <span class="text-[0.65rem] font-semibold px-1.5 py-0.5 rounded-full leading-none flex-shrink-0" :class="questionTypeBadgeClass(q)">{{ questionTypeLabel(q) }}</span>
+              <span class="text-sm text-slate-700 truncate">{{ stripHtml(q.questionBlocks.find(b => b.type === 'text')?.content || '') || '(no text)' }}</span>
+            </div>
+            <div class="flex items-center gap-2 flex-shrink-0">
+              <span v-if="q.mark && q.mark > 0" class="text-[0.65rem] font-semibold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded-full leading-none">{{ q.mark }} pts</span>
+              <div v-else class="h-5" />
+              <img
+                v-if="q.questionBlocks.find(b => b.type === 'image')"
+                :src="`/api/files/${q.questionBlocks.find(b => b.type === 'image')!.content}`"
+                class="w-8 h-8 rounded-lg object-cover border border-slate-100"
+                alt=""
+              />
+              <div v-else class="w-8 h-8 flex-shrink-0" />
+            </div>
           </div>
         </div>
       </div>
@@ -271,15 +414,16 @@
     </transition>
 
     <!-- Navigation -->
-    <div class="flex items-center gap-3 mt-8">
+    <div class="flex items-center justify-between gap-3 mt-8 pt-6 border-t border-slate-200">
       <button
         v-if="step > 1"
         type="button"
-        class="px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-100 transition cursor-pointer"
+        class="px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 transition cursor-pointer"
         @click="step--"
       >
         ← Back
       </button>
+      <div v-else />
       <div
         v-if="step < TOTAL_STEPS"
         class="inline-flex"
@@ -320,13 +464,35 @@ import { useRouter, useRoute } from 'vue-router'
 import { VueDraggable } from 'vue-draggable-plus'
 import {
   ChevronLeft, Plus, X, GripVertical, Bot, Zap, BookOpen, Clock,
-  CheckCircle, AlertTriangle, Search
+  CheckCircle, AlertTriangle, Search, TimerOff, Timer, FolderOpen, Trophy
 } from '@lucide/vue'
 import AppLayout from '@/components/AppLayout.vue'
 import { quizService } from '@/services/quizService'
 import { questionsService } from '@/services/questionsService'
+import { foldersService } from '@/services/foldersService'
 import { useToast } from '@/composables/useToast'
 import type { Question } from '@/types/question'
+import type { Folder } from '@/types/folder'
+
+function stripHtml(html: string): string {
+  return html.replace(/<[^>]*>/g, '').trim()
+}
+
+function questionTypeLabel(q: Question): string {
+  if (q.isBriefing) return 'Briefing'
+  if (q.expectPhoto) return 'Photo'
+  if (q.expectsTextInput) return 'Text Input'
+  if (q.options && q.options.length > 0) return 'Multiple Choice'
+  return 'Open'
+}
+
+function questionTypeBadgeClass(q: Question): string {
+  if (q.isBriefing) return 'text-slate-600 bg-slate-100'
+  if (q.expectPhoto) return 'text-emerald-700 bg-emerald-50'
+  if (q.expectsTextInput) return 'text-violet-700 bg-violet-50'
+  if (q.options && q.options.length > 0) return 'text-blue-700 bg-blue-50'
+  return 'text-slate-600 bg-slate-100'
+}
 
 const router = useRouter()
 const route = useRoute()
@@ -348,14 +514,37 @@ const tokenError = ref('')
 
 // Step 3 — quiz config
 const quizName = ref('')
+type TimingMode = 'none' | 'per-question' | 'total'
+const timingMode = ref<TimingMode>('per-question')
 const timePerQuestion = ref(30)
+const totalQuizTimeSeconds = ref(600)
 const passScorePercent = ref(60)
+
+const totalQuizTimeDisplay = computed(() => {
+  const s = totalQuizTimeSeconds.value
+  if (s >= 60) {
+    const m = Math.floor(s / 60)
+    const rem = s % 60
+    return rem > 0 ? `${m}m ${rem}s` : `${m}m`
+  }
+  return `${s}s`
+})
+
+const totalPoints = computed(() =>
+  selectedQuestions.value.reduce((sum, q) => sum + (q.mark ?? 0), 0)
+)
+
+const passingPoints = computed(() =>
+  Math.ceil(totalPoints.value * passScorePercent.value / 100)
+)
 
 // Step 4 — questions
 const allQuestions = ref<Question[]>([])
 const selectedQuestions = ref<Question[]>([])
 const questionsLoading = ref(false)
 const questionSearch = ref('')
+const folders = ref<Folder[]>([])
+const folderFilter = ref<number | 'unfiled' | null>(null)
 
 // Step 5
 const submitting = ref(false)
@@ -377,6 +566,7 @@ function onBeforeUnload(e: BeforeUnloadEvent) {
 onMounted(() => {
   window.addEventListener('beforeunload', onBeforeUnload)
   loadQuestions()
+  loadFolders()
   if (isEditMode.value && editQuizId.value) {
     loadQuizForEdit()
   }
@@ -387,8 +577,16 @@ async function loadQuizForEdit() {
   try {
     const quiz = await quizService.get(editQuizId.value)
     quizName.value = quiz.name
-    timePerQuestion.value = quiz.timePerQuestionSeconds
     passScorePercent.value = quiz.passScorePercent
+    if (quiz.totalTimeLimitSeconds > 0) {
+      timingMode.value = 'total'
+      totalQuizTimeSeconds.value = quiz.totalTimeLimitSeconds
+    } else if (quiz.timePerQuestionSeconds > 0) {
+      timingMode.value = 'per-question'
+      timePerQuestion.value = quiz.timePerQuestionSeconds
+    } else {
+      timingMode.value = 'none'
+    }
     botName.value = quiz.botUsername || ''
     botUsername.value = quiz.botUsername || ''
     botValidated.value = true
@@ -411,6 +609,8 @@ const unselectedQuestions = computed(() => {
   const search = questionSearch.value.trim().toLowerCase()
   return allQuestions.value.filter(q => {
     if (selectedIds.has(q.id)) return false
+    if (folderFilter.value === 'unfiled' && q.folderId !== null) return false
+    if (typeof folderFilter.value === 'number' && q.folderId !== folderFilter.value) return false
     if (!search) return true
     const text = q.questionBlocks.find(b => b.type === 'text')?.content || ''
     return text.toLowerCase().includes(search)
@@ -419,14 +619,21 @@ const unselectedQuestions = computed(() => {
 
 const isQuizConfigValid = computed(() => {
   const hasName = quizName.value.trim().length > 0
-  const hasValidTime = Number.isFinite(timePerQuestion.value)
-    && timePerQuestion.value >= 5
-    && timePerQuestion.value <= 300
   const hasValidPassScore = Number.isFinite(passScorePercent.value)
     && passScorePercent.value >= 0
     && passScorePercent.value <= 100
 
-  return hasName && hasValidTime && hasValidPassScore
+  let hasValidTiming = true
+  if (timingMode.value === 'per-question') {
+    hasValidTiming = Number.isFinite(timePerQuestion.value)
+      && timePerQuestion.value >= 5
+      && timePerQuestion.value <= 300
+  } else if (timingMode.value === 'total') {
+    hasValidTiming = Number.isFinite(totalQuizTimeSeconds.value)
+      && totalQuizTimeSeconds.value >= 30
+  }
+
+  return hasName && hasValidTiming && hasValidPassScore
 })
 
 const canProceed = computed(() => {
@@ -443,6 +650,14 @@ async function loadQuestions() {
     allQuestions.value = await questionsService.list()
   } finally {
     questionsLoading.value = false
+  }
+}
+
+async function loadFolders() {
+  try {
+    folders.value = await foldersService.list()
+  } catch {
+    // folders are optional for filtering — ignore errors
   }
 }
 
@@ -490,7 +705,8 @@ async function createQuiz() {
       name: quizName.value.trim(),
       botToken: botToken.value.trim(),
       botUsername: botUsername.value.trim() || undefined,
-      timePerQuestionSeconds: timePerQuestion.value,
+      timePerQuestionSeconds: timingMode.value === 'per-question' ? timePerQuestion.value : 0,
+      totalTimeLimitSeconds: timingMode.value === 'total' ? totalQuizTimeSeconds.value : 0,
       passScorePercent: passScorePercent.value,
       questionIds: selectedQuestions.value.map(q => q.id),
     })
@@ -512,7 +728,8 @@ async function updateQuiz() {
       name: quizName.value.trim(),
       botToken: botToken.value.trim() || undefined,
       botUsername: botUsername.value.trim() || undefined,
-      timePerQuestionSeconds: timePerQuestion.value,
+      timePerQuestionSeconds: timingMode.value === 'per-question' ? timePerQuestion.value : 0,
+      totalTimeLimitSeconds: timingMode.value === 'total' ? totalQuizTimeSeconds.value : 0,
       passScorePercent: passScorePercent.value,
       questionIds: selectedQuestions.value.map(q => q.id),
     })

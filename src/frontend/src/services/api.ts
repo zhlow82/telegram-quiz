@@ -4,7 +4,9 @@ const BASE = import.meta.env.BASE_URL // '/tg-quiz/'
 
 function isTokenExpired(token: string): boolean {
   try {
-    const payload = JSON.parse(atob(token.split('.')[1]))
+    // JWT uses base64url — replace url-safe chars before decoding
+    const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')
+    const payload = JSON.parse(atob(base64))
     return payload.exp * 1000 < Date.now()
   } catch {
     return true
@@ -13,7 +15,13 @@ function isTokenExpired(token: string): boolean {
 
 function clearSession() {
   localStorage.removeItem('accessToken')
+  localStorage.removeItem('refreshToken')
   localStorage.removeItem('username')
+  localStorage.removeItem('userRole')
+  localStorage.removeItem('userProvider')
+  localStorage.removeItem('userId')
+  localStorage.removeItem('firstName')
+  localStorage.removeItem('lastName')
   window.location.href = `${BASE}login`
 }
 
@@ -36,13 +44,57 @@ api.interceptors.request.use((config) => {
   return config
 })
 
+// Track whether a refresh is already in-flight to avoid parallel refresh calls
+let isRefreshing = false
+let refreshSubscribers: ((token: string) => void)[] = []
+
+function onRefreshed(token: string) {
+  refreshSubscribers.forEach(cb => cb(token))
+  refreshSubscribers = []
+}
+
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
+  async (error) => {
     if (axios.isCancel(error)) return Promise.reject(error)
-    if (error.response?.status === 401) {
-      clearSession()
+
+    const originalRequest = error.config
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      const refreshToken = localStorage.getItem('refreshToken')
+      if (!refreshToken) {
+        clearSession()
+        return Promise.reject(error)
+      }
+
+      if (isRefreshing) {
+        // Queue this request until the refresh completes
+        return new Promise((resolve) => {
+          refreshSubscribers.push((token: string) => {
+            originalRequest.headers.Authorization = `Bearer ${token}`
+            resolve(api(originalRequest))
+          })
+        })
+      }
+
+      originalRequest._retry = true
+      isRefreshing = true
+
+      try {
+        const res = await axios.post('/auth/refresh', { refreshToken })
+        const newToken: string = res.data.accessToken
+        localStorage.setItem('accessToken', newToken)
+        api.defaults.headers.common.Authorization = `Bearer ${newToken}`
+        onRefreshed(newToken)
+        originalRequest.headers.Authorization = `Bearer ${newToken}`
+        return api(originalRequest)
+      } catch {
+        clearSession()
+        return Promise.reject(error)
+      } finally {
+        isRefreshing = false
+      }
     }
+
     return Promise.reject(error)
   }
 )

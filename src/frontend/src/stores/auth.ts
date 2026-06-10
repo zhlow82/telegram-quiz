@@ -35,7 +35,7 @@ export const useAuthStore = defineStore('auth', () => {
       username: usernameInput,
       password
     })
-    const { accessToken: token } = response.data
+    const { accessToken: token, refreshToken } = response.data
     const payload = decodeJwtPayload(token)
     accessToken.value = token
     username.value = usernameInput
@@ -44,6 +44,7 @@ export const useAuthStore = defineStore('auth', () => {
     userId.value = payload.userId as number ?? null
 
     localStorage.setItem('accessToken', token)
+    if (refreshToken) localStorage.setItem('refreshToken', refreshToken)
     localStorage.setItem('username', usernameInput)
     localStorage.setItem('userRole', role.value)
     localStorage.setItem('userProvider', provider.value)
@@ -63,6 +64,7 @@ export const useAuthStore = defineStore('auth', () => {
       firstName.value = null
       lastName.value = null
       localStorage.removeItem('accessToken')
+      localStorage.removeItem('refreshToken')
       localStorage.removeItem('username')
       localStorage.removeItem('userRole')
       localStorage.removeItem('userProvider')

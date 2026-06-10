@@ -59,6 +59,7 @@ public class QuizService {
                 .botToken(encryptionService.encrypt(dto.botToken()))
                 .botUsername(dto.botUsername())
                 .timePerQuestionSeconds(dto.timePerQuestionSeconds())
+                .totalTimeLimitSeconds(dto.totalTimeLimitSeconds())
                 .passScorePercent(dto.passScorePercent())
                 .status(QuizStatus.DRAFT)
                 .build();
@@ -79,6 +80,7 @@ public class QuizService {
             quiz.setBotUsername(dto.botUsername());
         }
         quiz.setTimePerQuestionSeconds(dto.timePerQuestionSeconds());
+        quiz.setTotalTimeLimitSeconds(dto.totalTimeLimitSeconds());
         quiz.setPassScorePercent(dto.passScorePercent());
         quiz.getQuizQuestions().clear();
         quizRepository.save(quiz);
@@ -143,6 +145,7 @@ public class QuizService {
                 quiz.getStatus().name(),
                 quiz.getQuizQuestions().size(),
                 quiz.getTimePerQuestionSeconds(),
+                quiz.getTotalTimeLimitSeconds(),
                 quiz.getPassScorePercent(),
                 quiz.getCreatedAt()
         );
@@ -159,6 +162,7 @@ public class QuizService {
                 masked,
                 quiz.getBotUsername(),
                 quiz.getTimePerQuestionSeconds(),
+                quiz.getTotalTimeLimitSeconds(),
                 quiz.getPassScorePercent(),
                 quiz.getStatus().name(),
                 quiz.getCreatedAt(),

@@ -10,7 +10,7 @@
     >
       <div v-if="visible" class="fixed inset-0 z-50 flex items-center justify-center p-4">
         <!-- Backdrop -->
-        <div class="absolute inset-0 bg-black/50" @click="$emit('close')" />
+        <div class="absolute inset-0 bg-black/50" />
 
         <!-- Modal panel -->
         <div
@@ -46,55 +46,92 @@
               <div class="px-6 pt-5 pb-4 border-b border-slate-100 shrink-0">
                 <div class="space-y-2">
                   <label class="block text-sm font-semibold text-slate-700">Question Type</label>
-                  <div class="grid grid-cols-4 gap-3">
+                  <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+
+                    <!-- Multiple Choice -->
                     <button
                       type="button"
                       class="flex flex-col items-center gap-2 px-3 py-4 rounded-xl border-2 transition cursor-pointer text-center"
                       :class="!form.expectPhoto && !form.isBriefing && !form.expectsTextInput
-                        ? 'border-blue-500 bg-blue-50 shadow-sm'
-                        : 'border-slate-200 bg-slate-50 hover:border-slate-300 hover:bg-white'"
+                        ? 'border-blue-500 bg-blue-50 shadow-md'
+                        : 'border-slate-200 bg-white hover:border-blue-200 hover:bg-blue-50/40'"
                       @click="setQuestionType(false, false)"
                     >
-                      <span class="text-2xl leading-none">⌨️</span>
-                      <span class="text-sm font-bold" :class="!form.expectPhoto && !form.isBriefing && !form.expectsTextInput ? 'text-blue-700' : 'text-slate-800'">Multiple Choice</span>
+                      <div
+                        class="w-10 h-10 rounded-xl flex items-center justify-center transition"
+                        :class="!form.expectPhoto && !form.isBriefing && !form.expectsTextInput
+                          ? 'bg-blue-600 text-white shadow-sm'
+                          : 'bg-slate-100 text-slate-400'"
+                      >
+                        <ListChecks class="w-5 h-5" />
+                      </div>
+                      <span class="text-sm font-bold leading-tight" :class="!form.expectPhoto && !form.isBriefing && !form.expectsTextInput ? 'text-blue-700' : 'text-slate-700'">Multiple Choice</span>
                       <span class="text-xs text-slate-500 leading-snug">Players pick from A / B / C / D options</span>
                     </button>
+
+                    <!-- Photo -->
                     <button
                       type="button"
                       class="flex flex-col items-center gap-2 px-3 py-4 rounded-xl border-2 transition cursor-pointer text-center"
                       :class="form.expectPhoto && !form.isBriefing
-                        ? 'border-blue-500 bg-blue-50 shadow-sm'
-                        : 'border-slate-200 bg-slate-50 hover:border-slate-300 hover:bg-white'"
+                        ? 'border-violet-500 bg-violet-50 shadow-md'
+                        : 'border-slate-200 bg-white hover:border-violet-200 hover:bg-violet-50/40'"
                       @click="setQuestionType(true, false)"
                     >
-                      <span class="text-2xl leading-none">📷</span>
-                      <span class="text-sm font-bold" :class="form.expectPhoto && !form.isBriefing ? 'text-blue-700' : 'text-slate-800'">Photo</span>
+                      <div
+                        class="w-10 h-10 rounded-xl flex items-center justify-center transition"
+                        :class="form.expectPhoto && !form.isBriefing
+                          ? 'bg-violet-600 text-white shadow-sm'
+                          : 'bg-slate-100 text-slate-400'"
+                      >
+                        <Camera class="w-5 h-5" />
+                      </div>
+                      <span class="text-sm font-bold leading-tight" :class="form.expectPhoto && !form.isBriefing ? 'text-violet-700' : 'text-slate-700'">Photo</span>
                       <span class="text-xs text-slate-500 leading-snug">Players send a photo as their answer</span>
                     </button>
+
+                    <!-- Briefing -->
                     <button
                       type="button"
                       class="flex flex-col items-center gap-2 px-3 py-4 rounded-xl border-2 transition cursor-pointer text-center"
                       :class="form.isBriefing
-                        ? 'border-blue-500 bg-blue-50 shadow-sm'
-                        : 'border-slate-200 bg-slate-50 hover:border-slate-300 hover:bg-white'"
+                        ? 'border-amber-500 bg-amber-50 shadow-md'
+                        : 'border-slate-200 bg-white hover:border-amber-200 hover:bg-amber-50/40'"
                       @click="setQuestionType(false, true)"
                     >
-                      <span class="text-2xl leading-none">📋</span>
-                      <span class="text-sm font-bold" :class="form.isBriefing ? 'text-blue-700' : 'text-slate-800'">Briefing</span>
+                      <div
+                        class="w-10 h-10 rounded-xl flex items-center justify-center transition"
+                        :class="form.isBriefing
+                          ? 'bg-amber-500 text-white shadow-sm'
+                          : 'bg-slate-100 text-slate-400'"
+                      >
+                        <BookOpen class="w-5 h-5" />
+                      </div>
+                      <span class="text-sm font-bold leading-tight" :class="form.isBriefing ? 'text-amber-700' : 'text-slate-700'">Briefing</span>
                       <span class="text-xs text-slate-500 leading-snug">Instructions + photo, then READY</span>
                     </button>
+
+                    <!-- Text Input -->
                     <button
                       type="button"
                       class="flex flex-col items-center gap-2 px-3 py-4 rounded-xl border-2 transition cursor-pointer text-center"
                       :class="form.expectsTextInput
-                        ? 'border-blue-500 bg-blue-50 shadow-sm'
-                        : 'border-slate-200 bg-slate-50 hover:border-slate-300 hover:bg-white'"
+                        ? 'border-emerald-500 bg-emerald-50 shadow-md'
+                        : 'border-slate-200 bg-white hover:border-emerald-200 hover:bg-emerald-50/40'"
                       @click="setQuestionType(false, false, true)"
                     >
-                      <span class="text-2xl leading-none">✍️</span>
-                      <span class="text-sm font-bold" :class="form.expectsTextInput ? 'text-blue-700' : 'text-slate-800'">Text Input</span>
+                      <div
+                        class="w-10 h-10 rounded-xl flex items-center justify-center transition"
+                        :class="form.expectsTextInput
+                          ? 'bg-emerald-600 text-white shadow-sm'
+                          : 'bg-slate-100 text-slate-400'"
+                      >
+                        <Type class="w-5 h-5" />
+                      </div>
+                      <span class="text-sm font-bold leading-tight" :class="form.expectsTextInput ? 'text-emerald-700' : 'text-slate-700'">Text Input</span>
                       <span class="text-xs text-slate-500 leading-snug">Players type a short answer like team name</span>
                     </button>
+
                   </div>
                 </div>
               </div>
@@ -153,14 +190,14 @@
                               <button type="button" class="px-1.5 py-0.5 text-xs line-through text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" @click="applyBlockFormat(questionTextareas[block._id] ?? null, form.questionBlocks, block._id, '<s>', '</s>')">S</button>
                               <div class="w-px h-3 bg-slate-200 mx-0.5"></div>
                               <button type="button" class="px-1.5 py-0.5 text-xs font-mono text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" @click="applyBlockFormat(questionTextareas[block._id] ?? null, form.questionBlocks, block._id, '<code>', '</code>')">&lt;/&gt;</button>
+                              <button type="button" class="px-1.5 py-0.5 text-xs text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" title="Bullet" @click="insertBullet(questionTextareas[block._id] ?? null, form.questionBlocks, block._id)">•</button>
                               <div class="w-px h-3 bg-slate-200 mx-0.5"></div>
                               <button v-for="c in COLORS" :key="c.hex" type="button" :title="c.label" :style="{ backgroundColor: c.hex }" class="w-3.5 h-3.5 rounded-full cursor-pointer hover:scale-110 transition-transform flex-shrink-0" @click="applyBlockFormat(questionTextareas[block._id] ?? null, form.questionBlocks, block._id, colorTag(c.hex), '</span>')"></button>
                             </div>
                             <textarea
                               :ref="(el) => { questionTextareas[block._id] = el as HTMLTextAreaElement }"
                               v-model="block.content"
-                              rows="4"
-                              class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 resize-none transition bg-white text-slate-900 placeholder-slate-400 font-[inherit]"
+                              class="tg-auto-textarea w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 resize-none transition bg-white text-slate-900 placeholder-slate-400 font-[inherit]"
                               placeholder="Type here…"
                             ></textarea>
                           </div>
@@ -236,12 +273,12 @@
 
                   </template>
 
-                  <!-- ── Tab: Mark ── -->
+                  <!-- ── Tab: Points ── -->
                   <template v-if="activeTab === 'mark'">
 
                     <div class="space-y-4">
                       <div class="space-y-1.5">
-                        <label class="block text-sm font-semibold text-slate-700">Points / Mark</label>
+                        <label class="block text-sm font-semibold text-slate-700">Points</label>
                         <p class="text-xs text-slate-400">How many points this question is worth. Leave blank for unscored.</p>
                         <div class="flex items-center gap-3">
                           <input
@@ -296,14 +333,14 @@
                               <button type="button" class="px-1.5 py-0.5 text-xs line-through text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" @click="applyBlockFormat(hintTextareas[block._id] ?? null, form.hintBlocks, block._id, '<s>', '</s>')">S</button>
                               <div class="w-px h-3 bg-slate-200 mx-0.5"></div>
                               <button type="button" class="px-1.5 py-0.5 text-xs font-mono text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" @click="applyBlockFormat(hintTextareas[block._id] ?? null, form.hintBlocks, block._id, '<code>', '</code>')">&lt;/&gt;</button>
+                              <button type="button" class="px-1.5 py-0.5 text-xs text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" title="Bullet" @click="insertBullet(hintTextareas[block._id] ?? null, form.hintBlocks, block._id)">•</button>
                               <div class="w-px h-3 bg-slate-200 mx-0.5"></div>
                               <button v-for="c in COLORS" :key="c.hex" type="button" :title="c.label" :style="{ backgroundColor: c.hex }" class="w-3.5 h-3.5 rounded-full cursor-pointer hover:scale-110 transition-transform flex-shrink-0" @click="applyBlockFormat(hintTextareas[block._id] ?? null, form.hintBlocks, block._id, colorTag(c.hex), '</span>')"></button>
                             </div>
                             <textarea
                               :ref="(el) => { hintTextareas[block._id] = el as HTMLTextAreaElement }"
                               v-model="block.content"
-                              rows="4"
-                              class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 resize-none transition bg-white text-slate-900 placeholder-slate-400 font-[inherit]"
+                              class="tg-auto-textarea w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 resize-none transition bg-white text-slate-900 placeholder-slate-400 font-[inherit]"
                               placeholder="Hint text…"
                             ></textarea>
                           </div>
@@ -351,14 +388,14 @@
                               <button type="button" class="px-1.5 py-0.5 text-xs line-through text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" @click="applyBlockFormat(explanationTextareas[block._id] ?? null, form.explanationBlocks, block._id, '<s>', '</s>')">S</button>
                               <div class="w-px h-3 bg-slate-200 mx-0.5"></div>
                               <button type="button" class="px-1.5 py-0.5 text-xs font-mono text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" @click="applyBlockFormat(explanationTextareas[block._id] ?? null, form.explanationBlocks, block._id, '<code>', '</code>')">&lt;/&gt;</button>
+                              <button type="button" class="px-1.5 py-0.5 text-xs text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" title="Bullet" @click="insertBullet(explanationTextareas[block._id] ?? null, form.explanationBlocks, block._id)">•</button>
                               <div class="w-px h-3 bg-slate-200 mx-0.5"></div>
                               <button v-for="c in COLORS" :key="c.hex" type="button" :title="c.label" :style="{ backgroundColor: c.hex }" class="w-3.5 h-3.5 rounded-full cursor-pointer hover:scale-110 transition-transform flex-shrink-0" @click="applyBlockFormat(explanationTextareas[block._id] ?? null, form.explanationBlocks, block._id, colorTag(c.hex), '</span>')"></button>
                             </div>
                             <textarea
                               :ref="(el) => { explanationTextareas[block._id] = el as HTMLTextAreaElement }"
                               v-model="block.content"
-                              rows="5"
-                              class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 resize-none transition bg-white text-slate-900 placeholder-slate-400 font-[inherit]"
+                              class="tg-auto-textarea w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 resize-none transition bg-white text-slate-900 placeholder-slate-400 font-[inherit]"
                               placeholder="After answer text…"
                             ></textarea>
                           </div>
@@ -383,27 +420,43 @@
                       </div>
                     </div>
 
-                    <div v-if="!form.isBriefing" class="rounded-2xl border border-emerald-200 bg-emerald-50/60 p-5 space-y-4">
-                      <div class="flex items-start justify-between gap-4 flex-wrap">
-                        <div>
-                          <h3 class="text-lg font-bold text-slate-900">After Answer Action</h3>
-                          <p class="mt-1 text-xs text-slate-500">Show a confirmation button after the reply so teams can acknowledge and continue.</p>
+                    <!-- ── Unified Action Button (non-briefing) ── -->
+                    <div
+                      class="rounded-2xl border-2 p-4 space-y-3 transition-colors"
+                      :class="form.showActionButton ? 'border-emerald-400 bg-emerald-50/60' : 'border-slate-200 bg-slate-50/70 opacity-60'"
+                    >
+                      <div class="flex items-center justify-between gap-3">
+                        <div class="flex items-center gap-2">
+                          <div class="w-7 h-7 rounded-lg flex items-center justify-center transition"
+                            :class="form.showActionButton ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-400'">
+                            <CheckCircle2 class="w-4 h-4" />
+                          </div>
+                          <div>
+                            <h3 class="text-sm font-bold text-slate-900">Action Button</h3>
+                            <p class="text-xs text-slate-500">Show a button after the reply so teams can proceed.</p>
+                          </div>
                         </div>
-                        <label class="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 cursor-pointer select-none">
-                          <input v-model="form.showAfterAnswerButton" type="checkbox" class="w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" />
-                          Show
-                        </label>
+                        <button type="button" role="switch" :aria-checked="form.showActionButton"
+                          class="relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus:outline-none"
+                          :class="form.showActionButton ? 'bg-emerald-500' : 'bg-slate-200'"
+                          @click="form.showActionButton = !form.showActionButton">
+                          <span class="pointer-events-none inline-block h-4 w-4 rounded-full bg-white shadow transform transition-transform"
+                            :class="form.showActionButton ? 'translate-x-4' : 'translate-x-0'" />
+                        </button>
                       </div>
-                      <div class="space-y-1.5">
-                        <label class="block text-xs font-semibold tracking-wide text-slate-500 uppercase">Button Label</label>
-                        <input
-                          v-model="form.afterAnswerButtonText"
-                          type="text"
-                          maxlength="40"
-                          class="w-full px-4 py-3 rounded-2xl border border-slate-200 bg-white text-slate-900 outline-none focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100 transition"
-                          placeholder="READY"
-                        />
-                      </div>
+                      <template v-if="form.showActionButton">
+                        <div class="space-y-2">
+                          <label class="block text-xs font-semibold tracking-wide text-slate-500 uppercase">Button Label</label>
+                          <input v-model="form.actionButtonText" type="text" maxlength="255"
+                            class="w-full px-3 py-2 text-sm border border-emerald-300 rounded-lg outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition bg-white text-slate-900 placeholder-slate-400"
+                            placeholder="Next Question" />
+                          <div class="flex justify-center pt-1">
+                            <span class="px-5 py-1.5 rounded-full text-xs font-semibold bg-white border border-emerald-400 text-emerald-700 shadow-sm select-none">
+                              {{ form.actionButtonText || 'Next Question' }}
+                            </span>
+                          </div>
+                        </div>
+                      </template>
                     </div>
 
                   </template>
@@ -431,14 +484,14 @@
                               <button type="button" class="px-1.5 py-0.5 text-xs line-through text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" @click="applyBlockFormat(questionTextareas[block._id] ?? null, form.questionBlocks, block._id, '<s>', '</s>')">S</button>
                               <div class="w-px h-3 bg-slate-200 mx-0.5"></div>
                               <button type="button" class="px-1.5 py-0.5 text-xs font-mono text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" @click="applyBlockFormat(questionTextareas[block._id] ?? null, form.questionBlocks, block._id, '<code>', '</code>')">&lt;/&gt;</button>
+                              <button type="button" class="px-1.5 py-0.5 text-xs text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" title="Bullet" @click="insertBullet(questionTextareas[block._id] ?? null, form.questionBlocks, block._id)">•</button>
                               <div class="w-px h-3 bg-slate-200 mx-0.5"></div>
                               <button v-for="c in COLORS" :key="c.hex" type="button" :title="c.label" :style="{ backgroundColor: c.hex }" class="w-3.5 h-3.5 rounded-full cursor-pointer hover:scale-110 transition-transform flex-shrink-0" @click="applyBlockFormat(questionTextareas[block._id] ?? null, form.questionBlocks, block._id, colorTag(c.hex), '</span>')"></button>
                             </div>
                             <textarea
                               :ref="(el) => { questionTextareas[block._id] = el as HTMLTextAreaElement }"
                               v-model="block.content"
-                              rows="4"
-                              class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 resize-none transition bg-white text-slate-900 placeholder-slate-400 font-[inherit]"
+                              class="tg-auto-textarea w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 resize-none transition bg-white text-slate-900 placeholder-slate-400 font-[inherit]"
                               placeholder="Type here…"
                             ></textarea>
                           </div>
@@ -463,61 +516,87 @@
                       </div>
                     </div>
 
-                    <div class="rounded-2xl border border-slate-200 bg-slate-50/70 p-4 space-y-4">
-                      <div>
-                        <h3 class="text-sm font-bold text-slate-900">Briefing Actions</h3>
-                        <p class="mt-1 text-xs text-slate-500">Use separate actions for starting the countdown and marking the team as ready.</p>
-                      </div>
-
-                      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="rounded-xl border border-emerald-200 bg-white p-4 space-y-3">
-                          <div class="flex items-start justify-between gap-3">
-                            <div>
-                              <div class="text-sm font-semibold text-slate-900">Ready Action</div>
-                              <div class="text-xs text-slate-500 mt-1">Skips the rest of the briefing and moves on immediately.</div>
-                            </div>
-                            <label class="inline-flex items-center gap-2 text-sm font-medium text-slate-600 whitespace-nowrap">
-                              <input v-model="form.showBriefingPrimaryButton" type="checkbox" class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" />
-                              Show
-                            </label>
+                    <!-- ── Unified Action Button (briefing) ── -->
+                    <div
+                      class="rounded-2xl border-2 p-4 space-y-3 transition-colors"
+                      :class="form.showActionButton
+                        ? (form.briefingButtonType === 'start-timer' ? 'border-amber-400 bg-amber-50/60' : 'border-emerald-400 bg-emerald-50/60')
+                        : 'border-slate-200 bg-slate-50/70 opacity-60'"
+                    >
+                      <!-- Header row -->
+                      <div class="flex items-center justify-between gap-3">
+                        <div class="flex items-center gap-2">
+                          <div class="w-7 h-7 rounded-lg flex items-center justify-center transition"
+                            :class="form.showActionButton
+                              ? (form.briefingButtonType === 'start-timer' ? 'bg-amber-500 text-white' : 'bg-emerald-500 text-white')
+                              : 'bg-slate-100 text-slate-400'">
+                            <Timer v-if="form.briefingButtonType === 'start-timer'" class="w-4 h-4" />
+                            <CheckCircle2 v-else class="w-4 h-4" />
                           </div>
-                          <div class="space-y-1.5">
-                            <label class="block text-xs font-semibold uppercase tracking-wide text-slate-500">Button Label</label>
-                            <input
-                              v-model="form.briefingPrimaryButtonText"
-                              type="text"
-                              maxlength="255"
-                              :disabled="!form.showBriefingPrimaryButton"
-                              class="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-xl outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition bg-white text-slate-900 placeholder-slate-400 disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed"
-                              placeholder="READY"
-                            />
+                          <div>
+                            <h3 class="text-sm font-bold text-slate-900">Action Button</h3>
+                            <p class="text-xs text-slate-500">Show a button on the briefing slide.</p>
                           </div>
                         </div>
+                        <button type="button" role="switch" :aria-checked="form.showActionButton"
+                          class="relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus:outline-none"
+                          :class="form.showActionButton
+                            ? (form.briefingButtonType === 'start-timer' ? 'bg-amber-500' : 'bg-emerald-500')
+                            : 'bg-slate-200'"
+                          @click="form.showActionButton = !form.showActionButton">
+                          <span class="pointer-events-none inline-block h-4 w-4 rounded-full bg-white shadow transform transition-transform"
+                            :class="form.showActionButton ? 'translate-x-4' : 'translate-x-0'" />
+                        </button>
+                      </div>
 
-                        <div class="rounded-xl border border-amber-200 bg-white p-4 space-y-3">
-                          <div class="flex items-start justify-between gap-3">
-                            <div>
-                              <div class="text-sm font-semibold text-slate-900">Start Timer Action</div>
-                              <div class="text-xs text-slate-500 mt-1">Starts the countdown while keeping the briefing on screen.</div>
+                      <template v-if="form.showActionButton">
+                        <!-- Button type selector -->
+                        <div class="grid grid-cols-2 gap-2">
+                          <button type="button"
+                            class="flex items-center gap-2 px-3 py-2.5 rounded-xl border-2 transition cursor-pointer"
+                            :class="form.briefingButtonType === 'advance'
+                              ? 'border-emerald-400 bg-emerald-50 text-emerald-700'
+                              : 'border-slate-200 bg-white text-slate-500 hover:border-emerald-200'"
+                            @click="form.briefingButtonType = 'advance'; if (!form.actionButtonText || form.actionButtonText === 'Start Timer') form.actionButtonText = 'READY'">
+                            <CheckCircle2 class="w-4 h-4 shrink-0" />
+                            <div class="text-left">
+                              <div class="text-xs font-semibold leading-tight">Advance</div>
+                              <div class="text-[0.65rem] leading-tight opacity-70">Proceed to next</div>
                             </div>
-                            <label class="inline-flex items-center gap-2 text-sm font-medium text-slate-600 whitespace-nowrap">
-                              <input v-model="form.showBriefingSecondaryButton" type="checkbox" class="rounded border-slate-300 text-amber-600 focus:ring-amber-500" />
-                              Show
-                            </label>
-                          </div>
-                          <div class="space-y-1.5">
-                            <label class="block text-xs font-semibold uppercase tracking-wide text-slate-500">Button Label</label>
-                            <input
-                              v-model="form.briefingSecondaryButtonText"
-                              type="text"
-                              maxlength="255"
-                              :disabled="!form.showBriefingSecondaryButton"
-                              class="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-xl outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition bg-white text-slate-900 placeholder-slate-400 disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed"
-                              placeholder="Start Timer"
-                            />
+                          </button>
+                          <button type="button"
+                            class="flex items-center gap-2 px-3 py-2.5 rounded-xl border-2 transition cursor-pointer"
+                            :class="form.briefingButtonType === 'start-timer'
+                              ? 'border-amber-400 bg-amber-50 text-amber-700'
+                              : 'border-slate-200 bg-white text-slate-500 hover:border-amber-200'"
+                            @click="form.briefingButtonType = 'start-timer'; if (!form.actionButtonText || form.actionButtonText === 'READY') form.actionButtonText = 'Start Timer'">
+                            <Timer class="w-4 h-4 shrink-0" />
+                            <div class="text-left">
+                              <div class="text-xs font-semibold leading-tight">Start Timer</div>
+                              <div class="text-[0.65rem] leading-tight opacity-70">Keeps slide visible</div>
+                            </div>
+                          </button>
+                        </div>
+
+                        <!-- Label + preview -->
+                        <div class="space-y-2">
+                          <label class="block text-xs font-semibold uppercase tracking-wide text-slate-500">Button Label</label>
+                          <input v-model="form.actionButtonText" type="text" maxlength="255"
+                            class="w-full px-3 py-2 text-sm border rounded-lg outline-none transition bg-white text-slate-900 placeholder-slate-400"
+                            :class="form.briefingButtonType === 'start-timer'
+                              ? 'border-amber-300 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20'
+                              : 'border-emerald-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20'"
+                            :placeholder="form.briefingButtonType === 'start-timer' ? 'Start Timer' : 'READY'" />
+                          <div class="flex justify-center pt-1">
+                            <span class="px-5 py-1.5 rounded-full text-xs font-semibold bg-white shadow-sm select-none"
+                              :class="form.briefingButtonType === 'start-timer'
+                                ? 'border border-amber-400 text-amber-700'
+                                : 'border border-emerald-400 text-emerald-700'">
+                              {{ form.actionButtonText || (form.briefingButtonType === 'start-timer' ? 'Start Timer' : 'READY') }}
+                            </span>
                           </div>
                         </div>
-                      </div>
+                      </template>
                     </div>
 
                   </template>
@@ -584,9 +663,9 @@
                     <div class="tg-avatar">🤖</div>
                     <div class="tg-msg"><span class="text-slate-400 italic">Your instructions…</span><span class="tg-ts">12:00</span></div>
                   </div>
-                  <div v-if="showAnyBriefingButton" class="tg-keyboard">
-                    <div v-if="form.showBriefingSecondaryButton" class="tg-kb-btn">⏱ {{ briefingSecondaryButtonLabel }}</div>
-                    <div v-if="form.showBriefingPrimaryButton" class="tg-kb-btn tg-kb-ready">✅ {{ briefingPrimaryButtonLabel }}</div>
+                  <div v-if="form.showActionButton" class="tg-keyboard">
+                    <div v-if="form.briefingButtonType === 'start-timer'" class="tg-kb-btn">⏱ {{ form.actionButtonText || 'Start Timer' }}</div>
+                    <div v-else class="tg-kb-btn tg-kb-ready">✅ {{ form.actionButtonText || 'READY' }}</div>
                   </div>
                 </template>
 
@@ -679,22 +758,24 @@
                 </template> <!-- end v-else question preview -->
 
                 <!-- After Answer blocks (not shown for briefing) -->
-                <template v-if="!form.isBriefing && hasFilledExplanationBlocks">
-                  <template v-for="block in form.explanationBlocks" :key="'pe'+block._id">
-                    <div v-if="block.type === 'text' && block.content.trim()" class="tg-row">
-                      <div class="tg-avatar">🤖</div>
-                      <div class="tg-msg tg-explanation-msg"><span v-html="tgToHtml(block.content)"></span><span class="tg-ts">12:02</span></div>
-                    </div>
-                    <div v-else-if="block.type === 'image' && block.content" class="tg-row">
-                      <div class="tg-avatar">🤖</div>
-                      <div class="tg-msg tg-img-msg"><img :src="`/api/files/${block.content}`" class="tg-qimg" alt="" /></div>
-                    </div>
+                <template v-if="!form.isBriefing">
+                  <template v-if="hasFilledExplanationBlocks">
+                    <template v-for="block in form.explanationBlocks" :key="'pe'+block._id">
+                      <div v-if="block.type === 'text' && block.content.trim()" class="tg-row">
+                        <div class="tg-avatar">🤖</div>
+                        <div class="tg-msg tg-explanation-msg"><span v-html="tgToHtml(block.content)"></span><span class="tg-ts">12:02</span></div>
+                      </div>
+                      <div v-else-if="block.type === 'image' && block.content" class="tg-row">
+                        <div class="tg-avatar">🤖</div>
+                        <div class="tg-msg tg-img-msg"><img :src="`/api/files/${block.content}`" class="tg-qimg" alt="" /></div>
+                      </div>
+                    </template>
                   </template>
-                  <div v-if="form.showAfterAnswerButton" class="tg-keyboard">
-                    <div class="tg-kb-btn tg-kb-ready">✅ {{ afterAnswerButtonLabel }}</div>
+                  <div v-else-if="!form.showActionButton" class="tg-empty-explanation">No after answer content added yet…</div>
+                  <div v-if="form.showActionButton" class="tg-keyboard">
+                    <div class="tg-kb-btn tg-kb-ready">✅ {{ form.actionButtonText || 'Next Question' }}</div>
                   </div>
                 </template>
-                <div v-else-if="!form.isBriefing" class="tg-empty-explanation">No after answer content added yet…</div>
 
             </div>
 
@@ -708,6 +789,7 @@
 
 <script setup lang="ts">
 import { ref, watch, computed, nextTick, onUnmounted } from 'vue'
+import { ListChecks, Camera, BookOpen, Type, CheckCircle2, Timer } from '@lucide/vue'
 import { VueDraggable } from 'vue-draggable-plus'
 import type { Question, QuestionRequest, ContentBlock } from '@/types/question'
 import type { Folder } from '@/types/folder'
@@ -772,11 +854,14 @@ function blankForm() {
     isBriefing: false,
     expectsTextInput: false,
     briefingPrimaryButtonText: 'READY',
-    showBriefingPrimaryButton: true,
+    showBriefingPrimaryButton: false,
     briefingSecondaryButtonText: 'Start Timer',
-    showBriefingSecondaryButton: true,
+    showBriefingSecondaryButton: false,
+    briefingButtonType: 'advance' as 'advance' | 'start-timer',
+    showActionButton: false,
+    actionButtonText: 'READY',
     afterAnswerButtonText: 'Next Question',
-    showAfterAnswerButton: true,
+    showAfterAnswerButton: false,
     hintBlocks: [] as FormBlock[],
     explanationBlocks: [] as FormBlock[],
     folderId: null as number | null,
@@ -803,15 +888,16 @@ const tabs = computed(() => {
   }
   if (form.value.expectsTextInput) {
     return [
-      { value: 'question' as const, label: 'Prompt' },
-      { value: 'mark' as const, label: 'Mark' },
+      { value: 'question' as const, label: 'Question' },
+      { value: 'mark' as const, label: 'Points' },
+      { value: 'hint' as const, label: 'Hint' },
       { value: 'explanation' as const, label: 'After Answer' },
     ]
   }
   if (form.value.expectPhoto) {
     return [
       { value: 'question' as const, label: 'Question' },
-      { value: 'mark' as const, label: 'Mark' },
+      { value: 'mark' as const, label: 'Points' },
       { value: 'hint' as const, label: 'Hint' },
       { value: 'explanation' as const, label: 'After Answer' },
     ]
@@ -819,7 +905,7 @@ const tabs = computed(() => {
   return [
     { value: 'question' as const, label: 'Question' },
     { value: 'answer' as const, label: 'Answer' },
-    { value: 'mark' as const, label: 'Mark' },
+    { value: 'mark' as const, label: 'Points' },
     { value: 'hint' as const, label: 'Hint' },
     { value: 'explanation' as const, label: 'After Answer' },
   ]
@@ -909,6 +995,20 @@ function applyBlockFormat(
   nextTick(() => { el.focus(); el.setSelectionRange(result.selStart, result.selEnd) })
 }
 
+function insertBullet(
+  el: HTMLTextAreaElement | null,
+  blocks: FormBlock[],
+  blockId: string
+) {
+  if (!el) return
+  const block = blocks.find(b => b._id === blockId)
+  if (!block) return
+  const pos = el.selectionStart ?? block.content.length
+  const bullet = '• '
+  block.content = block.content.slice(0, pos) + bullet + block.content.slice(pos)
+  nextTick(() => { el.focus(); el.setSelectionRange(pos + bullet.length, pos + bullet.length) })
+}
+
 function tgToHtml(text: string): string {
   if (!text) return ''
 
@@ -936,6 +1036,16 @@ function setQuestionType(expectPhoto: boolean, isBriefing: boolean, expectsTextI
   form.value.isBriefing = isBriefing
   form.value.expectsTextInput = expectsTextInput
   activeTab.value = isBriefing ? 'briefing' : 'question'
+  // Reset actionButtonText to the sensible default for the new type
+  if (isBriefing) {
+    if (!form.value.actionButtonText || form.value.actionButtonText === 'Next Question') {
+      form.value.actionButtonText = form.value.briefingButtonType === 'start-timer' ? 'Start Timer' : 'READY'
+    }
+  } else {
+    if (!form.value.actionButtonText || form.value.actionButtonText === 'READY' || form.value.actionButtonText === 'Start Timer') {
+      form.value.actionButtonText = 'Next Question'
+    }
+  }
 }
 
 function onMarkInput(event: Event) {
@@ -961,11 +1071,18 @@ watch(() => props.visible, (v) => {
       isBriefing: q.isBriefing,
       expectsTextInput: q.expectsTextInput ?? false,
       briefingPrimaryButtonText: q.briefingPrimaryButtonText ?? 'READY',
-      showBriefingPrimaryButton: q.showBriefingPrimaryButton ?? true,
+      showBriefingPrimaryButton: q.showBriefingPrimaryButton ?? false,
       briefingSecondaryButtonText: q.briefingSecondaryButtonText ?? 'Start Timer',
-      showBriefingSecondaryButton: q.showBriefingSecondaryButton ?? true,
+      showBriefingSecondaryButton: q.showBriefingSecondaryButton ?? false,
+      briefingButtonType: (q.showBriefingSecondaryButton ? 'start-timer' : 'advance') as 'advance' | 'start-timer',
+      showActionButton: q.isBriefing
+        ? ((q.showBriefingPrimaryButton ?? false) || (q.showBriefingSecondaryButton ?? false))
+        : (q.showAfterAnswerButton ?? false),
+      actionButtonText: q.isBriefing
+        ? (q.showBriefingSecondaryButton ? (q.briefingSecondaryButtonText ?? 'Start Timer') : (q.briefingPrimaryButtonText ?? 'READY'))
+        : (q.afterAnswerButtonText ?? 'Next Question'),
       afterAnswerButtonText: q.afterAnswerButtonText ?? 'Next Question',
-      showAfterAnswerButton: q.showAfterAnswerButton ?? true,
+      showAfterAnswerButton: q.showAfterAnswerButton ?? false,
       hintBlocks: q.hintBlocks.map(b => ({ ...b, _id: makeId() })),
       explanationBlocks: q.explanationBlocks.map(b => ({ ...b, _id: makeId() })),
       folderId: q.folderId ?? null,
@@ -1035,16 +1152,26 @@ async function submit() {
     questionBlocks: toContentBlocks(form.value.questionBlocks),
     options: (form.value.expectPhoto || form.value.isBriefing || form.value.expectsTextInput) ? [] : form.value.options.filter(o => o.trim()),
     answer: (form.value.isBriefing || form.value.expectsTextInput) ? null : (form.value.answer || null),
-    mark: form.value.isBriefing ? null : (form.value.mark ?? null),
+    mark: form.value.isBriefing ? null : (form.value.mark ?? 0),
     expectPhoto: form.value.expectPhoto,
     isBriefing: form.value.isBriefing,
     expectsTextInput: form.value.expectsTextInput,
-    briefingPrimaryButtonText: form.value.isBriefing ? briefingPrimaryButtonLabel.value : undefined,
-    showBriefingPrimaryButton: form.value.isBriefing ? form.value.showBriefingPrimaryButton : undefined,
-    briefingSecondaryButtonText: form.value.isBriefing ? briefingSecondaryButtonLabel.value : undefined,
-    showBriefingSecondaryButton: form.value.isBriefing ? form.value.showBriefingSecondaryButton : undefined,
-    afterAnswerButtonText: !form.value.isBriefing ? afterAnswerButtonLabel.value : undefined,
-    showAfterAnswerButton: !form.value.isBriefing ? form.value.showAfterAnswerButton : undefined,
+    briefingPrimaryButtonText: form.value.isBriefing
+      ? (form.value.actionButtonText?.trim() || 'READY')
+      : undefined,
+    showBriefingPrimaryButton: form.value.isBriefing
+      ? (form.value.showActionButton && form.value.briefingButtonType === 'advance')
+      : undefined,
+    briefingSecondaryButtonText: form.value.isBriefing
+      ? (form.value.actionButtonText?.trim() || 'Start Timer')
+      : undefined,
+    showBriefingSecondaryButton: form.value.isBriefing
+      ? (form.value.showActionButton && form.value.briefingButtonType === 'start-timer')
+      : undefined,
+    afterAnswerButtonText: !form.value.isBriefing
+      ? (form.value.actionButtonText?.trim() || 'Next Question')
+      : undefined,
+    showAfterAnswerButton: !form.value.isBriefing ? form.value.showActionButton : undefined,
     hintBlocks: toContentBlocks(form.value.hintBlocks),
     explanationBlocks: toContentBlocks(form.value.explanationBlocks),
     folderId: form.value.folderId ?? null,
@@ -1065,6 +1192,12 @@ async function submit() {
 </script>
 
 <style scoped>
+/* ── Auto-resizing textarea ── */
+.tg-auto-textarea {
+  field-sizing: content;
+  min-height: 96px;
+}
+
 /* ── Scrollbar: always visible when content overflows, no layout shift ── */
 .tab-scroll {
   scrollbar-gutter: stable;

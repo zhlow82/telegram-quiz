@@ -108,4 +108,16 @@ public class AuthController {
         authService.logout(username);
         return ResponseEntity.noContent().build();
     }
+
+    public record RefreshRequest(@NotBlank String refreshToken) {}
+
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refresh(@RequestBody @Valid RefreshRequest req) {
+        try {
+            String newAccessToken = authService.refreshAccessToken(req.refreshToken());
+            return ResponseEntity.ok(Map.of("accessToken", newAccessToken));
+        } catch (Exception e) {
+            return ResponseEntity.status(401).body(Map.of("error", "Refresh token invalid or expired"));
+        }
+    }
 }

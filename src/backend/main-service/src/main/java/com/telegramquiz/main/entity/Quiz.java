@@ -51,6 +51,9 @@ public class Quiz {
     @Column(name = "time_per_question_seconds", nullable = false)
     private int timePerQuestionSeconds;
 
+    @Column(name = "total_time_limit_seconds", nullable = false)
+    private int totalTimeLimitSeconds;
+
     @Column(name = "pass_score_percent", nullable = false)
     private int passScorePercent;
 

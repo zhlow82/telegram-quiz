@@ -1,8 +1,8 @@
-﻿<template>
+<template>
   <AppLayout>
     <div class="flex gap-5 items-start">
 
-      <!-- ── Folder sidebar ── -->
+      <!-- -- Folder sidebar -- -->
       <aside class="w-52 flex-shrink-0 hidden md:block">
         <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
 
@@ -159,7 +159,7 @@
                 >
                   <p class="text-xs font-semibold text-slate-800 mb-0.5 truncate">{{ inv.folderName }}</p>
                   <p class="text-[0.65rem] text-slate-500 mb-1.5">
-                    {{ inv.invitedBy }} · {{ inv.role === 'CO_OWNER' ? 'Co-owner' : 'Contributor' }}
+                    {{ inv.invitedBy }} � {{ inv.role === 'CO_OWNER' ? 'Co-owner' : 'Contributor' }}
                   </p>
                   <div class="flex gap-1.5">
                     <button
@@ -201,7 +201,7 @@
         </div>
       </aside>
 
-      <!-- ── Main content ── -->
+      <!-- -- Main content -- -->
       <div class="flex-1 min-w-0">
 
         <!-- Page header -->
@@ -214,7 +214,7 @@
               <h1 class="text-2xl font-black text-slate-900 leading-tight">{{ currentFolderLabel }}</h1>
               <p class="text-sm text-slate-500 mt-0.5">
                 {{ visibleQuestions.length }} question{{ visibleQuestions.length !== 1 ? 's' : '' }}
-                <template v-if="typeof selectedFolderFilter === 'number' || selectedFolderFilter === 'unfiled'"> · drag to reorder</template>
+                <template v-if="typeof selectedFolderFilter === 'number' || selectedFolderFilter === 'unfiled'"> � drag to reorder</template>
               </p>
             </div>
           </div>
@@ -224,7 +224,7 @@
               <input
                 v-model="searchQuery"
                 type="text"
-                placeholder="Search questions…"
+                placeholder="Search questions..."
                 class="flex-1 text-sm text-slate-700 placeholder-slate-400 bg-transparent outline-none"
               />
             </div>
@@ -279,25 +279,37 @@
           </button>
         </div>
 
-        <!-- Question list (All view — read only) -->
+        <!-- Question list (All view � read only) -->
         <div v-else-if="selectedFolderFilter === null" class="bg-white rounded-xl border border-slate-200 overflow-hidden">
           <div v-for="(q, i) in questions" :key="q.id"
             class="flex items-center gap-3 px-5 py-3.5 border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors"
           >
             <span class="text-[0.8125rem] font-bold text-slate-300 w-[22px] shrink-0 text-right">{{ i + 1 }}</span>
+            <div v-if="q.questionBlocks.some(b => b.type === 'image')" class="relative w-10 h-10 shrink-0">
+              <img
+                :src="`/api/files/${q.questionBlocks.find(b => b.type === 'image')?.content}`"
+                class="w-10 h-10 rounded-lg object-cover border border-slate-200 bg-slate-100"
+                alt=""
+              />
+              <span
+                v-if="q.questionBlocks.filter(b => b.type === 'image').length > 1"
+                class="absolute -bottom-1 -right-1 bg-slate-700 text-white text-[0.55rem] font-bold leading-none px-1 py-0.5 rounded-md"
+              >+{{ q.questionBlocks.filter(b => b.type === 'image').length - 1 }}</span>
+            </div>
+            <div v-else class="w-10 h-10 shrink-0" />
             <div class="flex-1 min-w-0">
-              <span class="block text-sm font-medium text-slate-900 truncate sm:whitespace-normal">{{ q.questionBlocks.find(b => b.type === 'text')?.content || '(no text)' }}</span>
+              <span class="block text-sm font-medium text-slate-900 truncate sm:whitespace-normal">{{ stripHtml(q.questionBlocks.find(b => b.type === 'text')?.content || '') || '(no text)' }}</span>
               <div class="flex gap-1.5 mt-1 flex-wrap">
-                <span v-if="q.isBriefing" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-violet-100 text-violet-700">
-                  <FileText class="w-3 h-3" />Briefing
+                <span v-if="q.isBriefing" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-amber-100 text-amber-700">
+                  <BookOpen class="w-3 h-3" />Briefing
                 </span>
                 <span v-else-if="q.expectsTextInput" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-700">
-                  <AlignLeft class="w-3 h-3" />Text Input
+                  <Type class="w-3 h-3" />Text Input
                 </span>
                 <span v-else-if="q.options.length" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-blue-100 text-blue-700">
                   <ListChecks class="w-3 h-3" />Multiple Choice
                 </span>
-                <span v-else-if="q.expectPhoto" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-amber-100 text-amber-700">
+                <span v-else-if="q.expectPhoto" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-violet-100 text-violet-700">
                   <Camera class="w-3 h-3" />Photo
                 </span>
                 <span v-if="!q.isBriefing && q.options.length" class="inline-flex items-center text-[0.6875rem] font-medium px-2 py-0.5 rounded-md bg-slate-100 text-slate-500">{{ q.options.length }} options</span>
@@ -307,6 +319,11 @@
               </div>
             </div>
             <div class="flex items-center gap-1.5 flex-shrink-0">
+              <div v-if="!q.isBriefing && q.mark != null && q.mark > 0" class="flex flex-col items-center justify-center w-9 shrink-0">
+                <span class="text-sm font-bold text-slate-700 leading-none">{{ q.mark }}</span>
+                <span class="text-[0.6rem] font-medium text-slate-400 uppercase tracking-wide leading-none mt-0.5">pts</span>
+              </div>
+              <div v-else class="w-9 shrink-0" />
               <button class="w-8 h-8 rounded-lg bg-slate-50 hover:bg-slate-100 flex items-center justify-center text-slate-500 transition cursor-pointer" title="Duplicate" @click="duplicateQuestion(q)">
                 <Copy class="w-3.5 h-3.5" />
               </button>
@@ -320,7 +337,7 @@
           </div>
         </div>
 
-        <!-- Question list (Unfiled view — draggable to reorder + draggable to sidebar folders) -->
+        <!-- Question list (Unfiled view � draggable to reorder + draggable to sidebar folders) -->
         <div v-else-if="selectedFolderFilter === 'unfiled'" class="bg-white rounded-xl border border-slate-200 overflow-hidden">
           <VueDraggable
             v-model="unfiledQuestions"
@@ -343,25 +360,42 @@
                 <GripVertical class="w-4 h-4" />
               </button>
               <span class="text-[0.8125rem] font-bold text-slate-300 w-[22px] shrink-0 text-right">{{ i + 1 }}</span>
+              <div v-if="q.questionBlocks.some(b => b.type === 'image')" class="relative w-10 h-10 shrink-0">
+                <img
+                  :src="`/api/files/${q.questionBlocks.find(b => b.type === 'image')?.content}`"
+                  class="w-10 h-10 rounded-lg object-cover border border-slate-200 bg-slate-100"
+                  alt=""
+                />
+                <span
+                  v-if="q.questionBlocks.filter(b => b.type === 'image').length > 1"
+                  class="absolute -bottom-1 -right-1 bg-slate-700 text-white text-[0.55rem] font-bold leading-none px-1 py-0.5 rounded-md"
+                >+{{ q.questionBlocks.filter(b => b.type === 'image').length - 1 }}</span>
+              </div>
+              <div v-else class="w-10 h-10 shrink-0" />
               <div class="flex-1 min-w-0">
-                <span class="block text-sm font-medium text-slate-900 truncate sm:whitespace-normal">{{ q.questionBlocks.find(b => b.type === 'text')?.content || '(no text)' }}</span>
+                <span class="block text-sm font-medium text-slate-900 truncate sm:whitespace-normal">{{ stripHtml(q.questionBlocks.find(b => b.type === 'text')?.content || '') || '(no text)' }}</span>
                 <div class="flex gap-1.5 mt-1 flex-wrap">
-                  <span v-if="q.isBriefing" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-violet-100 text-violet-700">
-                    <FileText class="w-3 h-3" />Briefing
+                  <span v-if="q.isBriefing" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-amber-100 text-amber-700">
+                    <BookOpen class="w-3 h-3" />Briefing
                   </span>
                   <span v-else-if="q.expectsTextInput" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-700">
-                    <AlignLeft class="w-3 h-3" />Text Input
+                    <Type class="w-3 h-3" />Text Input
                   </span>
                   <span v-else-if="q.options.length" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-blue-100 text-blue-700">
                     <ListChecks class="w-3 h-3" />Multiple Choice
                   </span>
-                  <span v-else-if="q.expectPhoto" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-amber-100 text-amber-700">
+                  <span v-else-if="q.expectPhoto" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-violet-100 text-violet-700">
                     <Camera class="w-3 h-3" />Photo
                   </span>
                   <span v-if="!q.isBriefing && q.options.length" class="inline-flex items-center text-[0.6875rem] font-medium px-2 py-0.5 rounded-md bg-slate-100 text-slate-500">{{ q.options.length }} options</span>
                 </div>
               </div>
               <div class="flex items-center gap-1.5 flex-shrink-0">
+                <div v-if="!q.isBriefing && q.mark != null && q.mark > 0" class="flex flex-col items-center justify-center w-9 shrink-0">
+                  <span class="text-sm font-bold text-slate-700 leading-none">{{ q.mark }}</span>
+                  <span class="text-[0.6rem] font-medium text-slate-400 uppercase tracking-wide leading-none mt-0.5">pts</span>
+                </div>
+                <div v-else class="w-9 shrink-0" />
                 <button class="w-8 h-8 rounded-lg bg-slate-50 hover:bg-slate-100 flex items-center justify-center text-slate-500 transition cursor-pointer" title="Duplicate" @click="duplicateQuestion(q)">
                   <Copy class="w-3.5 h-3.5" />
                 </button>
@@ -376,7 +410,7 @@
           </VueDraggable>
         </div>
 
-        <!-- Question list (Folder view — draggable to reorder within folder) -->
+        <!-- Question list (Folder view � draggable to reorder within folder) -->
         <div v-else class="bg-white rounded-xl border border-slate-200 overflow-hidden">
           <VueDraggable
             v-model="folderQuestions"
@@ -399,25 +433,42 @@
                 <GripVertical class="w-4 h-4" />
               </button>
               <span class="text-[0.8125rem] font-bold text-slate-300 w-[22px] shrink-0 text-right">{{ i + 1 }}</span>
+              <div v-if="q.questionBlocks.some(b => b.type === 'image')" class="relative w-10 h-10 shrink-0">
+                <img
+                  :src="`/api/files/${q.questionBlocks.find(b => b.type === 'image')?.content}`"
+                  class="w-10 h-10 rounded-lg object-cover border border-slate-200 bg-slate-100"
+                  alt=""
+                />
+                <span
+                  v-if="q.questionBlocks.filter(b => b.type === 'image').length > 1"
+                  class="absolute -bottom-1 -right-1 bg-slate-700 text-white text-[0.55rem] font-bold leading-none px-1 py-0.5 rounded-md"
+                >+{{ q.questionBlocks.filter(b => b.type === 'image').length - 1 }}</span>
+              </div>
+              <div v-else class="w-10 h-10 shrink-0" />
               <div class="flex-1 min-w-0">
-                <span class="block text-sm font-medium text-slate-900 truncate sm:whitespace-normal">{{ q.questionBlocks.find(b => b.type === 'text')?.content || '(no text)' }}</span>
+                <span class="block text-sm font-medium text-slate-900 truncate sm:whitespace-normal">{{ stripHtml(q.questionBlocks.find(b => b.type === 'text')?.content || '') || '(no text)' }}</span>
                 <div class="flex gap-1.5 mt-1 flex-wrap">
-                  <span v-if="q.isBriefing" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-violet-100 text-violet-700">
-                    <FileText class="w-3 h-3" />Briefing
+                  <span v-if="q.isBriefing" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-amber-100 text-amber-700">
+                    <BookOpen class="w-3 h-3" />Briefing
                   </span>
                   <span v-else-if="q.expectsTextInput" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-700">
-                    <AlignLeft class="w-3 h-3" />Text Input
+                    <Type class="w-3 h-3" />Text Input
                   </span>
                   <span v-else-if="q.options.length" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-blue-100 text-blue-700">
                     <ListChecks class="w-3 h-3" />Multiple Choice
                   </span>
-                  <span v-else-if="q.expectPhoto" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-amber-100 text-amber-700">
+                  <span v-else-if="q.expectPhoto" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-violet-100 text-violet-700">
                     <Camera class="w-3 h-3" />Photo
                   </span>
                   <span v-if="!q.isBriefing && q.options.length" class="inline-flex items-center text-[0.6875rem] font-medium px-2 py-0.5 rounded-md bg-slate-100 text-slate-500">{{ q.options.length }} options</span>
                 </div>
               </div>
               <div class="flex items-center gap-1.5 flex-shrink-0">
+                <div v-if="!q.isBriefing && q.mark != null && q.mark > 0" class="flex flex-col items-center justify-center w-9 shrink-0">
+                  <span class="text-sm font-bold text-slate-700 leading-none">{{ q.mark }}</span>
+                  <span class="text-[0.6rem] font-medium text-slate-400 uppercase tracking-wide leading-none mt-0.5">pts</span>
+                </div>
+                <div v-else class="w-9 shrink-0" />
                 <button class="w-8 h-8 rounded-lg bg-slate-50 hover:bg-slate-100 flex items-center justify-center text-slate-500 transition cursor-pointer" title="Duplicate" @click="duplicateQuestion(q)">
                   <Copy class="w-3.5 h-3.5" />
                 </button>
@@ -473,7 +524,7 @@ import { ref, computed, watch, onMounted, nextTick } from 'vue'
 import { VueDraggable } from 'vue-draggable-plus'
 import {
   Plus, AlertCircle, BookOpen, GripVertical, Pencil, Trash2,
-  FileText, ListChecks, Camera, AlignLeft,
+  Type, ListChecks, Camera,
   Library, Inbox, FolderPlus, FolderOpen, Share2, Bell, ChevronDown,
   Folder as FolderIcon, FolderSymlink, Search, Copy,
 } from '@lucide/vue'
@@ -492,13 +543,18 @@ const authStore = useAuthStore()
 const toast = useToast()
 const currentUsername = computed(() => authStore.username ?? '')
 
-// ── Questions ──────────────────────────────────────────────────────────────
+// -- Utilities --------------------------------------------------------------
+function stripHtml(html: string): string {
+  return html.replace(/<[^>]*>/g, '').trim()
+}
+
+// -- Questions --------------------------------------------------------------
 const questions = ref<Question[]>([])
 const loading = ref(true)
 const loadError = ref(false)
 const searchQuery = ref('')
 
-// ── Folders ────────────────────────────────────────────────────────────────
+// -- Folders ----------------------------------------------------------------
 const folders = ref<Folder[]>([])
 const selectedFolderFilter = ref<null | 'unfiled' | number>(null)
 
@@ -509,7 +565,7 @@ watch(folders, (newFolders) => {
   ownedFoldersModel.value = newFolders.filter(f => f.role === 'OWNER')
 }, { immediate: true, deep: true })
 
-// ── Pending invitations ────────────────────────────────────────────────────
+// -- Pending invitations ----------------------------------------------------
 const pendingInvitations = ref<FolderMember[]>([])
 const invitationsExpanded = ref(true)
 
@@ -544,7 +600,7 @@ async function declineInvite(id: number) {
   }
 }
 
-// ── Share modal ────────────────────────────────────────────────────────────
+// -- Share modal ------------------------------------------------------------
 const shareModalFolderId = ref<number | null>(null)
 const shareModalFolderName = ref('')
 const shareModalFolderOwner = ref('')
@@ -561,7 +617,7 @@ function closeShareModal() {
   shareModalFolderId.value = null
 }
 
-// ── Permission helpers ─────────────────────────────────────────────────────
+// -- Permission helpers -----------------------------------------------------
 function canDeleteQuestion(q: Question): boolean {
   if (q.createdBy === currentUsername.value) return true
   if (q.folderId == null) return false
@@ -616,7 +672,7 @@ const activeFolderId = computed(() =>
   typeof selectedFolderFilter.value === 'number' ? selectedFolderFilter.value : null
 )
 
-// ── Per-folder question list (for drag reorder) ────────────────────────────
+// -- Per-folder question list (for drag reorder) ----------------------------
 const folderQuestions = ref<Question[]>([])
 
 watch([selectedFolderFilter, questions], () => {
@@ -625,7 +681,7 @@ watch([selectedFolderFilter, questions], () => {
   }
 }, { immediate: true })
 
-// ── Unfiled question list (for drag reorder) ──────────────────────────────
+// -- Unfiled question list (for drag reorder) ------------------------------
 const unfiledQuestions = ref<Question[]>([])
 
 // Re-initialize with orderIndex sort whenever we switch TO the unfiled view
@@ -638,7 +694,7 @@ watch(selectedFolderFilter, (newVal) => {
 }, { immediate: true })
 
 // Re-sync only when the unfiled count changes (add / delete / move to-from folder).
-// A same-count change means it was a drag reorder — preserve the user's order.
+// A same-count change means it was a drag reorder � preserve the user's order.
 watch(questions, (newVal) => {
   if (selectedFolderFilter.value !== 'unfiled') return
   const newCount = newVal.filter(q => q.folderId == null).length
@@ -649,7 +705,7 @@ watch(questions, (newVal) => {
   }
 })
 
-// ── Drag-to-folder ─────────────────────────────────────────────────────────
+// -- Drag-to-folder ---------------------------------------------------------
 const draggingQuestion = ref<Question | null>(null)
 const dropTarget = ref<'unfiled' | number | null>(null)
 
@@ -667,7 +723,7 @@ function onDragEnd() {
 function onDragStartFolder(q: Question, e: DragEvent) {
   const path = e.composedPath() as Element[]
   if (path.some(el => (el as HTMLElement).classList?.contains('drag-handle'))) {
-    // Drag from grip handle — SortableJS handles reordering.
+    // Drag from grip handle � SortableJS handles reordering.
     // Suppress the browser's ghost image so it doesn't double-up with SortableJS's clone.
     const img = new Image()
     e.dataTransfer?.setDragImage(img, 0, 0)
@@ -701,7 +757,7 @@ async function onDrop(target: 'unfiled' | number) {
   }
 }
 
-// ── Folder CRUD ────────────────────────────────────────────────────────────
+// -- Folder CRUD ------------------------------------------------------------
 const creatingFolder = ref(false)
 const newFolderName = ref('')
 const newFolderInputRef = ref<HTMLInputElement | null>(null)
@@ -776,7 +832,7 @@ async function confirmDeleteFolder(folder: Folder) {
   }
 }
 
-// ── Modal ──────────────────────────────────────────────────────────────────
+// -- Modal ------------------------------------------------------------------
 const modalVisible = ref(false)
 const editingQuestion = ref<Question | null>(null)
 
@@ -819,7 +875,7 @@ async function duplicateQuestion(q: Question) {
   }
 }
 
-// ── AppDialog ──────────────────────────────────────────────────────────────
+// -- AppDialog --------------------------------------------------------------
 const dialogVisible = ref(false)
 const dialogType = ref<'confirm' | 'alert'>('alert')
 const dialogTitle = ref('')
@@ -853,7 +909,7 @@ function onDialogCancel() {
   dialogResolve = null
 }
 
-// ── Load ───────────────────────────────────────────────────────────────────
+// -- Load -------------------------------------------------------------------
 onMounted(async () => {
   loading.value = true
   loadError.value = false
@@ -870,7 +926,7 @@ onMounted(async () => {
   }
 })
 
-// ── Delete question ────────────────────────────────────────────────────────
+// -- Delete question --------------------------------------------------------
 async function confirmDelete(q: Question) {
   const label = q.questionBlocks.find(b => b.type === 'text')?.content || 'this question'
   const ok = await showConfirm('Delete question?', `"${label}" will be permanently removed.`)
@@ -884,7 +940,7 @@ async function confirmDelete(q: Question) {
   }
 }
 
-// ── Reorder questions within a folder ────────────────────────────────────
+// -- Reorder questions within a folder ------------------------------------
 async function persistFolderQuestionsReorder() {
   const folderId = selectedFolderFilter.value as number
   // Merge the reordered folderQuestions back into the global questions array
@@ -904,7 +960,7 @@ async function persistFolderQuestionsReorder() {
   }
 }
 
-// ── Reorder unfiled questions ─────────────────────────────────────────────
+// -- Reorder unfiled questions ---------------------------------------------
 async function persistUnfiledQuestionsReorder() {
   // Merge reordered unfiledQuestions back into global questions array
   const newQuestions = [...questions.value]
@@ -923,12 +979,12 @@ async function persistUnfiledQuestionsReorder() {
   }
 }
 
-// ── Reorder folders ────────────────────────────────────────────────────────
+// -- Reorder folders --------------------------------------------------------
 async function persistFolderReorder() {
   try {
     await foldersService.reorder(ownedFoldersModel.value.map(f => f.id))
   } catch {
-    /* order is cosmetic — silently ignore network failures */
+    /* order is cosmetic � silently ignore network failures */
   }
 }
 </script>

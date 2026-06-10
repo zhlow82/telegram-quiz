@@ -54,4 +54,20 @@ public class AuthService {
     public void logout(String username) {
         redisTemplate.delete("refresh:" + username);
     }
+
+    public String refreshAccessToken(String refreshToken) {
+        if (!jwtUtil.validateToken(refreshToken)) {
+            throw new RuntimeException("Invalid refresh token");
+        }
+        String username = jwtUtil.extractUsername(refreshToken);
+        String stored = redisTemplate.opsForValue().get("refresh:" + username);
+        if (stored == null || !stored.equals(refreshToken)) {
+            throw new RuntimeException("Refresh token not found or revoked");
+        }
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        String role = user.getRoles().contains("ROLE_ADMIN") ? "ROLE_ADMIN" : "ROLE_MEMBER";
+        return jwtUtil.generateAccessToken(username, user.getId(), role,
+                user.getGoogleSub() != null ? "google" : "local");
+    }
 }

@@ -61,6 +61,7 @@ public class SecurityConfig {
                     .requestMatchers(
                         "/auth/login",
                         "/auth/logout",
+                        "/auth/refresh",
                         "/auth/oauth2/configured",
                         "/auth/oauth2/complete"
                     ).permitAll()

@@ -11,7 +11,8 @@ public record QuizRequestDto(
         @NotBlank String name,
         @NotBlank String botToken,
         String botUsername,
-        @Min(5) @Max(300) int timePerQuestionSeconds,
+        @Min(0) @Max(300) int timePerQuestionSeconds,
+        @Min(0) int totalTimeLimitSeconds,
         @Min(0) @Max(100) int passScorePercent,
         @NotNull List<Long> questionIds
 ) {}
