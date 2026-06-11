@@ -29,8 +29,8 @@ services:
         value: telegram-quiz-redis
       - key: REDIS_PORT
         value: 6379
-    envVarGroups:
-      - name: shared-secrets
+      - key: JWT_SECRET
+        generateValue: true
 
   - type: web
     name: main-service
@@ -60,8 +60,8 @@ services:
           property: password
       - key: BOT_TOKEN_ENCRYPTION_KEY
         generateValue: true
-    envVarGroups:
-      - name: shared-secrets
+      - key: JWT_SECRET
+        generateValue: true
 
   - type: web
     name: api-gateway
@@ -92,9 +92,3 @@ databases:
   - name: telegram-quiz-db
     databaseName: postgres
     plan: free
-
-envVarGroups:
-  - name: shared-secrets
-    envVars:
-      - key: JWT_SECRET
-        generateValue: true
