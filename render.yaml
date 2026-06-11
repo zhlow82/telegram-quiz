@@ -26,17 +26,11 @@ services:
           name: telegram-quiz-db
           property: password
       - key: REDIS_HOST
-        fromService:
-          name: telegram-quiz-redis
-          type: redis
-          property: host
+        value: telegram-quiz-redis
       - key: REDIS_PORT
-        fromService:
-          name: telegram-quiz-redis
-          type: redis
-          property: port
+        value: 6379
     envVarGroups:
-      - shared-secrets
+      - name: shared-secrets
 
   - type: web
     name: main-service
@@ -67,7 +61,7 @@ services:
       - key: BOT_TOKEN_ENCRYPTION_KEY
         generateValue: true
     envVarGroups:
-      - shared-secrets
+      - name: shared-secrets
 
   - type: web
     name: api-gateway
