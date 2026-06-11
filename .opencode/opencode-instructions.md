@@ -121,7 +121,7 @@ src/frontend/src/
 - **Props/Emits**: `defineProps<{...}>()` and `defineEmits<{...}>()` with generic type parameters.
 - **Path alias**: `@/` maps to `./src/`. Use it consistently for all imports.
 - **Styling**: Tailwind utility classes inline in templates. `slate-*` neutrals, `blue-600` primary, `red-500/600` destructive, `green-*` success, `amber-*` warnings.
-- **Modals**: `<teleport to="body">` for z-index isolation.
+- **Modals**: `<teleport to="body">` for z-index isolation. **NEVER** add a click handler to the backdrop (overlay). Users must explicitly click the X or Cancel button to dismiss.
 - **Layout**: All authenticated views wrap in `<AppLayout>` component.
 - **Drag-and-drop**: `vue-draggable-plus` for list reordering, native HTML5 DnD for cross-container moves.
 
