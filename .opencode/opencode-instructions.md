@@ -30,7 +30,7 @@ All frontend API calls go through the gateway at `localhost:8080`. Vite proxies 
 ## Commands
 
 ```bash
-# Infrastructure
+# Infrastructure (local dev)
 docker-compose -f docker-compose.dev.yml up -d
 
 # Backend (each in separate terminal)
@@ -46,6 +46,10 @@ cd src/frontend && npx vue-tsc --noEmit
 
 # Frontend build
 cd src/frontend && npm run build
+
+# Full stack deployment (VPS)
+cp .env.example .env  # Edit with real secrets
+docker compose up -d --build
 ```
 
 ## Backend Conventions
@@ -128,4 +132,23 @@ src/frontend/src/
 - CORS is hardcoded to `http://localhost:5173` in both backend services and the gateway.
 - The gateway is a transparent proxy with no security — all auth is handled downstream.
 - File uploads (`/api/files/**`) are publicly accessible without auth.
-- Default admin account: `localadmin` / `password88` (seeded by `DataInitializer`).
+- Default admin account: `localadmin` / `szR.ir=-:Un~}RYyxZ0c` (seeded by `DataInitializer`).
+
+## Deployment
+
+Two deployment methods are supported:
+
+### VPS (Docker Compose)
+- `docker-compose.yml` — full stack deployment with all services containerized
+- Each service has its own `Dockerfile` (backend uses multi-stage Maven build, frontend uses Node build + Nginx)
+- Environment variables managed via `.env` file (template: `.env.example`)
+- Frontend Nginx proxies `/auth` and `/api` to the API gateway
+- Database and Redis use Docker volumes for persistence
+
+### Render (Cloud)
+- `render.yaml` — Render blueprint for one-click deployment
+- Defines: 4 web services, 1 managed PostgreSQL, 1 managed Redis
+- Database credentials auto-injected via `fromDatabase` (individual properties: `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USERNAME`, `DB_PASSWORD`)
+- Redis connection auto-injected via `fromService`
+- JWT secret shared between auth and main services via `envVarGroups`
+- Frontend `API_GATEWAY_URL` injected at runtime via `envsubst` in Nginx config

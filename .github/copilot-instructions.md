@@ -35,11 +35,19 @@ telegram-quiz/
 ├── src/
 │   ├── backend/
 │   │   ├── auth-service/        # Login, logout, JWT issuance (port 8081)
+│   │   │   └── Dockerfile
 │   │   ├── main-service/        # Protected API endpoints (port 8082)
+│   │   │   └── Dockerfile
 │   │   └── api-gateway/         # Single entry point routing (port 8080)
+│   │       └── Dockerfile
 │   └── frontend/                # Vue 3 SPA (port 5173)
-├── docker-compose.yml           # Full stack (infrastructure)
+│       ├── Dockerfile
+│       ├── nginx.conf
+│       └── entrypoint.sh
+├── docker-compose.yml           # Full stack deployment (VPS)
 ├── docker-compose.dev.yml       # Dev infrastructure only (Postgres, Redis, pgAdmin)
+├── render.yaml                  # Render cloud deployment blueprint
+├── .env.example                 # Environment variable template
 └── .gitignore
 ```
 
@@ -209,7 +217,28 @@ All requests go through the API Gateway at `http://localhost:8080`.
 - Activated via env var: `SPRING_PROFILES_ACTIVE=prod`
 - Sensitive values in `application-prod.yml` must use env var placeholders: `${DB_PASSWORD}` — never hardcoded
 - `docker-compose.dev.yml` is for local dev infrastructure only (Postgres, Redis, pgAdmin)
-- Production does not use Docker Compose — use cloud-managed services (Azure / AWS)
+- `docker-compose.yml` is for VPS deployment (full stack with all services)
+- `render.yaml` is for Render cloud deployment (managed infrastructure)
+
+---
+
+## Deployment
+
+Two deployment methods are supported:
+
+### VPS (Docker Compose)
+- Uses `docker-compose.yml` — deploys all services (Postgres, Redis, auth, main, gateway, frontend)
+- Create `.env` from `.env.example` with real secrets before running
+- Run: `docker compose up -d --build`
+- Frontend served via Nginx at port 80, API gateway at port 8080
+- Each service has its own `Dockerfile` for containerized builds
+
+### Render (Cloud)
+- Uses `render.yaml` blueprint — push to GitHub, select "New Blueprint" in Render dashboard
+- Render auto-creates: 4 web services, 1 managed PostgreSQL, 1 managed Redis
+- Environment variables wired automatically via `fromDatabase` and `fromService`
+- JWT secret auto-generated and shared via `envVarGroups`
+- Database properties (`DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USERNAME`, `DB_PASSWORD`) injected individually and assembled into JDBC URL in `application.yml`
 
 ---
 
@@ -284,7 +313,7 @@ Frontend references image IDs as `content` values inside `ContentBlock` objects 
 ---
 
 ## Default Dev Credentials
-- **Admin login**: `localadmin` / `password88` (seeded on startup by `DataInitializer` with `ROLE_ADMIN`)
+- **Admin login**: `localadmin` / `szR.ir=-:Un~}RYyxZ0c` (seeded on startup by `DataInitializer` with `ROLE_ADMIN`)
 - **pgAdmin**: `admin@telegramquiz.com` / `admin`
 - **PostgreSQL**: host `localhost:5432`, db/user/pass `postgres`
 - **Redis**: `localhost:6379` (no auth in dev)

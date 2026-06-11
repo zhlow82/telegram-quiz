@@ -26,11 +26,19 @@ telegram-quiz/
 ├── src/
 │   ├── backend/
 │   │   ├── auth-service/        # Login, logout, JWT issuance       (port 8081)
+│   │   │   └── Dockerfile
 │   │   ├── main-service/        # Protected API endpoints            (port 8082)
+│   │   │   └── Dockerfile
 │   │   └── api-gateway/         # Single entry point routing         (port 8080)
+│   │       └── Dockerfile
 │   └── frontend/                # Vue 3 SPA                          (port 5173)
-├── docker-compose.yml           # Full infrastructure
-├── docker-compose.dev.yml       # Dev infrastructure only
+│       ├── Dockerfile
+│       ├── nginx.conf           # Nginx reverse proxy config
+│       └── entrypoint.sh        # Runtime env var substitution
+├── docker-compose.yml           # Full stack deployment (VPS)
+├── docker-compose.dev.yml       # Dev infrastructure only (Postgres, Redis, pgAdmin)
+├── render.yaml                  # Render cloud deployment blueprint
+├── .env.example                 # Environment variable template
 └── .gitignore
 ```
 
@@ -157,7 +165,7 @@ Navigate to http://localhost:5173/tg-quiz/
 
 Login with:
 - **Username**: `localadmin`
-- **Password**: `password88`
+- **Password**: `szR.ir=-:Un~}RYyxZ0c`
 
 > `localadmin` is the default admin account seeded by `DataInitializer` on first startup.
 
@@ -266,7 +274,7 @@ All requests go through the API Gateway at `http://localhost:8080`.
 ```bash
 curl -X POST http://localhost:8080/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"username": "localadmin", "password": "password88"}'
+  -d '{"username": "localadmin", "password": "szR.ir=-:Un~}RYyxZ0c"}'
 ```
 
 Response:
@@ -307,6 +315,98 @@ Key settings in `application.yml` per service:
 | `spring.data.redis.*` | auth-service | Redis connection |
 
 > **Security note**: Change `jwt.secret` before deploying to any non-local environment and store it as an environment variable, not in source code.
+
+---
+
+## Deployment
+
+The project supports two deployment methods:
+
+### Method 1: VPS with Docker Compose
+
+Deploy the entire stack on a Linux VPS (DigitalOcean, Hetzner, Linode, etc.) using `docker-compose.yml`.
+
+**Prerequisites:**
+- A Linux VPS with Docker and Docker Compose installed
+- SSH access to the server
+
+**Steps:**
+
+1. SSH into your VPS and install Docker (if not already installed):
+   ```bash
+   sudo apt update && sudo apt install docker.io docker-compose-v2 -y
+   ```
+
+2. Clone the repository:
+   ```bash
+   git clone <your-repo-url>
+   cd telegram-quiz
+   ```
+
+3. Create your `.env` file from the template:
+   ```bash
+   cp .env.example .env
+   nano .env  # Edit with real passwords and secrets
+   ```
+
+4. Build and start all services:
+   ```bash
+   docker compose up -d --build
+   ```
+
+**Services included:**
+| Service | Port | Description |
+|---|---|---|
+| Frontend (Nginx) | 80 | Vue 3 SPA served at `/tg-quiz/` |
+| API Gateway | 8080 | Spring Cloud Gateway |
+| Auth Service | 8081 | JWT authentication |
+| Main Service | 8082 | Business logic |
+| PostgreSQL | 5432 | Database |
+| Redis | 6379 | Token cache |
+
+**Environment variables** (`.env` file):
+| Variable | Description |
+|---|---|
+| `POSTGRES_DB` | Database name |
+| `POSTGRES_USER` | Database username |
+| `POSTGRES_PASSWORD` | Database password |
+| `JWT_SECRET` | Base64-encoded JWT signing secret |
+| `BOT_TOKEN_ENCRYPTION_KEY` | Base64-encoded AES-256 key for bot token encryption |
+
+> **Note:** Never commit your `.env` file to Git. It is already listed in `.gitignore`.
+
+---
+
+### Method 2: Render (Cloud Platform)
+
+Deploy using `render.yaml` blueprint on [Render](https://render.com). Render manages infrastructure, databases, and secrets automatically.
+
+**Steps:**
+
+1. Push your code to GitHub.
+
+2. In the Render dashboard:
+   - Click **New** → **Blueprint**
+   - Connect your GitHub repository
+   - Render reads `render.yaml` and shows a preview of all services
+
+3. Click **Apply** — Render creates:
+   - 4 Web Services (auth, main, gateway, frontend)
+   - 1 Managed PostgreSQL database
+   - 1 Managed Redis instance
+   - Environment variables wired automatically between services
+
+**What `render.yaml` defines:**
+- Backend services built from their respective Dockerfiles
+- Database and Redis credentials auto-injected via `fromDatabase` and `fromService`
+- JWT secret auto-generated and shared between auth and main services
+- Frontend Nginx configured to proxy API requests to the gateway
+
+**Updating services:**
+- Push changes to GitHub → Render auto-detects and redeploys
+- Modify `render.yaml` → Render prompts to sync changes
+
+**Cost estimate:** ~$12-15/month (free tier available for static sites and databases)
 
 ---
 
