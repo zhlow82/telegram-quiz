@@ -381,8 +381,8 @@ const navItems = [
 const adminNavItems = [
   { to: '/admin/users', label: 'Users', icon: Users },
   { to: '/admin/invitation-codes', label: 'Invitation Codes', icon: KeyRound },
-  { to: '/admin/settings', label: 'Settings', icon: Settings },
   { to: '/admin/logs', label: 'Logs', icon: ScrollText },
+  { to: '/admin/settings', label: 'Settings', icon: Settings },
 ]
 
 const userInitial = computed(() => {

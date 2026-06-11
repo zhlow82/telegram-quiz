@@ -231,7 +231,7 @@ public class QuizBotSession extends TelegramLongPollingBot {
                 : null;
 
         try {
-            sessionService.recordAnswer(state.sessionId, q.questionId(), text, null,
+            sessionService.recordAnswer(state.sessionId, q.id(), text, null,
                     null, null, responseTimeMs);
         } catch (Exception e) {
             log.warn("Could not record text answer for session {}: {}", state.sessionId, e.getMessage());
@@ -266,7 +266,7 @@ public class QuizBotSession extends TelegramLongPollingBot {
                 : null;
 
         try {
-            sessionService.recordAnswer(state.sessionId, q.questionId(), null, null,
+            sessionService.recordAnswer(state.sessionId, q.id(), null, null,
                     fileId, caption, responseTimeMs);
         } catch (Exception e) {
             log.warn("Could not record photo answer for session {}: {}", state.sessionId, e.getMessage());
@@ -340,7 +340,7 @@ public class QuizBotSession extends TelegramLongPollingBot {
                 : null;
 
         try {
-            sessionService.recordAnswer(state.sessionId, q.questionId(), selectedAnswer, correct,
+            sessionService.recordAnswer(state.sessionId, q.id(), selectedAnswer, correct,
                     null, null, responseTimeMs);
         } catch (Exception e) {
             log.warn("Could not record answer for session {}: {}", state.sessionId, e.getMessage());
@@ -375,7 +375,7 @@ public class QuizBotSession extends TelegramLongPollingBot {
                     : null;
 
             try {
-                sessionService.recordAnswer(state.sessionId, q.questionId(), null, false,
+                sessionService.recordAnswer(state.sessionId, q.id(), null, false,
                         null, null, responseTimeMs);
             } catch (Exception e) {
                 log.debug("Could not record timeout answer for session {}: {}", state.sessionId, e.getMessage());
