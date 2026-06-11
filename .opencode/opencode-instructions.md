@@ -52,6 +52,18 @@ cp .env.example .env  # Edit with real secrets
 docker compose up -d --build
 ```
 
+## Logging Profiles
+
+| Profile | Output | Use Case |
+|---|---|---|
+| `dev` | Colored console, DEBUG level | Local development |
+| `prod-render` | JSON structured to console | Render cloud platform |
+| `prod-vps` | File + console, daily rotation (30 days, 3GB cap) | VPS with Docker Compose |
+
+All profiles include an **in-memory circular buffer** (last 1000 entries) accessible via:
+- `GET /auth/admin/logs` (auth-service)
+- `GET /api/admin/logs` (main-service)
+
 ## Backend Conventions
 
 ### Package Structure
@@ -79,10 +91,11 @@ docker compose up -d --build
 
 ### Security
 
-- Stateless JWT. Access token: 15 min. Refresh token: 7 days (stored in Redis).
+- Stateless JWT. Access token: 24 hours. Refresh token: 7 days (stored in Redis).
 - Both auth-service and main-service validate JWTs independently using a shared secret.
 - Roles: `ROLE_ADMIN`, `ROLE_MEMBER`.
 - Bot tokens are AES-256-GCM encrypted at rest.
+- Google OAuth2 credentials stored in `app_settings` table (dynamic registration).
 
 ## Frontend Conventions
 
@@ -144,11 +157,12 @@ Two deployment methods are supported:
 - Environment variables managed via `.env` file (template: `.env.example`)
 - Frontend Nginx proxies `/auth` and `/api` to the API gateway
 - Database and Redis use Docker volumes for persistence
+- Log files stored in Docker volumes (`auth-logs`, `main-logs`, `gateway-logs`)
 
 ### Render (Cloud)
 - `render.yaml` — Render blueprint for one-click deployment
 - Defines: 4 web services, 1 managed PostgreSQL, 1 managed Redis
 - Database credentials auto-injected via `fromDatabase` (individual properties: `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USERNAME`, `DB_PASSWORD`)
 - Redis connection auto-injected via `fromService`
-- JWT secret shared between auth and main services via `envVarGroups`
+- JWT secret shared between auth and main services via direct `generateValue: true` in each service
 - Frontend `API_GATEWAY_URL` injected at runtime via `envsubst` in Nginx config

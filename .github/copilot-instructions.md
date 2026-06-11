@@ -212,13 +212,25 @@ All requests go through the API Gateway at `http://localhost:8080`.
 
 ## Spring Profiles (Multi-Environment)
 
-- Use Spring Boot profiles for environment-specific config: `dev`, `stg`, `prod`
-- File pattern: `application.yml` (shared) + `application-{profile}.yml` (overrides)
-- Activated via env var: `SPRING_PROFILES_ACTIVE=prod`
-- Sensitive values in `application-prod.yml` must use env var placeholders: `${DB_PASSWORD}` — never hardcoded
+- Use Spring Boot profiles for environment-specific config: `dev`, `prod-render`, `prod-vps`
+- File pattern: `application.yml` (shared) + `logback-spring.xml` (logging per profile)
+- Activated via env var: `SPRING_PROFILES_ACTIVE=dev`
+- Sensitive values must use env var placeholders: `${DB_PASSWORD}` — never hardcoded
 - `docker-compose.dev.yml` is for local dev infrastructure only (Postgres, Redis, pgAdmin)
 - `docker-compose.yml` is for VPS deployment (full stack with all services)
 - `render.yaml` is for Render cloud deployment (managed infrastructure)
+
+### Logging Profiles
+
+| Profile | Output | Use Case |
+|---|---|---|
+| `dev` | Colored console, DEBUG level | Local development (`mvn spring-boot:run`) |
+| `prod-render` | JSON structured to console | Render (logs visible in dashboard) |
+| `prod-vps` | File + console, daily rotation (30 days, 3GB cap) | VPS with Docker Compose |
+
+All profiles include an **in-memory circular buffer** (last 1000 entries, ~500KB) accessible via:
+- `GET /auth/admin/logs` (auth-service)
+- `GET /api/admin/logs` (main-service)
 
 ---
 
@@ -232,13 +244,15 @@ Two deployment methods are supported:
 - Run: `docker compose up -d --build`
 - Frontend served via Nginx at port 80, API gateway at port 8080
 - Each service has its own `Dockerfile` for containerized builds
+- Log files stored in Docker volumes (`auth-logs`, `main-logs`, `gateway-logs`)
 
 ### Render (Cloud)
 - Uses `render.yaml` blueprint — push to GitHub, select "New Blueprint" in Render dashboard
 - Render auto-creates: 4 web services, 1 managed PostgreSQL, 1 managed Redis
 - Environment variables wired automatically via `fromDatabase` and `fromService`
-- JWT secret auto-generated and shared via `envVarGroups`
+- JWT secret auto-generated and shared between auth and main services
 - Database properties (`DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USERNAME`, `DB_PASSWORD`) injected individually and assembled into JDBC URL in `application.yml`
+- Frontend Nginx uses `envsubst` to inject `API_GATEWAY_URL` at runtime
 
 ---
 

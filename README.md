@@ -221,6 +221,13 @@ All requests go through the API Gateway at `http://localhost:8080`.
 | `GET` | `/auth/admin/settings/google` | ROLE_ADMIN | Get Google OAuth2 settings |
 | `PUT` | `/auth/admin/settings/google` | ROLE_ADMIN | Save Google OAuth2 credentials |
 | `PUT` | `/auth/admin/settings/branding` | ROLE_ADMIN | Save branding settings (app name, welcome text, logo) |
+| `GET` | `/auth/admin/logs` | ROLE_ADMIN | View in-memory application logs (auth-service) |
+
+### Quiz Sessions
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| `GET` | `/api/quizzes/{id}/sessions` | ROLE_ADMIN | List participant sessions for a quiz |
+| `GET` | `/api/quizzes/sessions/{sessionId}/answers` | ROLE_ADMIN | View participant's individual answers |
 
 ### Questions
 | Method | Path | Auth | Description |
@@ -256,7 +263,19 @@ All requests go through the API Gateway at `http://localhost:8080`.
 | `DELETE` | `/api/quizzes/{id}` | Bearer token | Delete quiz |
 | `POST` | `/api/quizzes/{id}/activate` | Bearer token | Activate quiz (start bot) |
 | `POST` | `/api/quizzes/{id}/stop` | Bearer token | Stop quiz |
+| `GET` | `/api/quizzes/{id}/sessions` | ROLE_ADMIN | List participant sessions |
 | `POST` | `/api/bot/validate-token` | Bearer token | Validate a Telegram bot token (calls Telegram `getMe`) |
+
+### Quiz Session Answers
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| `GET` | `/api/quizzes/sessions/{sessionId}/answers` | ROLE_ADMIN | View participant's individual answers |
+
+### Admin Logs
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| `GET` | `/auth/admin/logs` | ROLE_ADMIN | View in-memory application logs (auth-service) |
+| `GET` | `/api/admin/logs` | ROLE_ADMIN | View in-memory application logs (main-service) |
 
 ### Files
 | Method | Path | Auth | Description |

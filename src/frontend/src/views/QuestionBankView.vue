@@ -602,10 +602,6 @@ const selectedFolderFilter = ref<null | 'unfiled' | number>(null)
 // Owned folders drive the VueDraggable model; shared folders are a static list below
 const ownedFoldersModel = ref<Folder[]>([])
 const sharedFolders = computed(() => folders.value.filter(f => f.role !== 'OWNER'))
-watch(folders, (newFolders) => {
-  ownedFoldersModel.value = newFolders.filter(f => f.role === 'OWNER')
-  folderPage.value = 1 // reset to first page on folder change
-}, { immediate: true, deep: true })
 
 // -- Folder pagination --------------------------------------------------------
 const FOLDERS_PER_PAGE = 8
@@ -615,6 +611,11 @@ const paginatedOwnedFolders = computed(() => {
   const start = (folderPage.value - 1) * FOLDERS_PER_PAGE
   return ownedFoldersModel.value.slice(start, start + FOLDERS_PER_PAGE)
 })
+
+watch(folders, (newFolders) => {
+  ownedFoldersModel.value = newFolders.filter(f => f.role === 'OWNER')
+  folderPage.value = 1 // reset to first page on folder change
+}, { immediate: true, deep: true })
 
 // -- Pending invitations ----------------------------------------------------
 const pendingInvitations = ref<FolderMember[]>([])
