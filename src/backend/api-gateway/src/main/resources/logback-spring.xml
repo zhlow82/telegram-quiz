@@ -37,7 +37,7 @@
     </springProfile>
 
     <!-- Prod (Render): JSON to console -->
-    <springProfile name="prod">
+    <springProfile name="prod-render">
         <root level="INFO">
             <appender-ref ref="JSON_CONSOLE" />
         </root>
@@ -45,7 +45,7 @@
     </springProfile>
 
     <!-- VPS: file logging with rotation -->
-    <springProfile name="vps">
+    <springProfile name="prod-vps">
         <root level="INFO">
             <appender-ref ref="FILE" />
             <appender-ref ref="CONSOLE" />
@@ -54,7 +54,7 @@
     </springProfile>
 
     <!-- Default fallback: console -->
-    <springProfile name="!dev &amp; !prod &amp; !vps">
+    <springProfile name="!dev &amp; !prod-render &amp; !prod-vps">
         <root level="INFO">
             <appender-ref ref="CONSOLE" />
         </root>

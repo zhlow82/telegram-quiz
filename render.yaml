@@ -6,7 +6,7 @@ services:
     dockerContext: src/backend/auth-service
     envVars:
       - key: SPRING_PROFILES_ACTIVE
-        value: prod
+        value: prod-render
       - key: DB_HOST
         fromDatabase:
           name: telegram-quiz-db
@@ -41,7 +41,7 @@ services:
     dockerContext: src/backend/main-service
     envVars:
       - key: SPRING_PROFILES_ACTIVE
-        value: prod
+        value: prod-render
       - key: DB_HOST
         fromDatabase:
           name: telegram-quiz-db
@@ -74,7 +74,7 @@ services:
     dockerContext: src/backend/api-gateway
     envVars:
       - key: SPRING_PROFILES_ACTIVE
-        value: prod
+        value: prod-render
       - key: AUTH_SERVICE_URL
         value: http://auth-service:8081
       - key: MAIN_SERVICE_URL

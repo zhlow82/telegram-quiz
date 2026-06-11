@@ -39,7 +39,7 @@ services:
       dockerfile: Dockerfile
     container_name: telegram-quiz-auth
     environment:
-      - SPRING_PROFILES_ACTIVE=vps
+      - SPRING_PROFILES_ACTIVE=prod-vps
       - DATABASE_URL=jdbc:postgresql://postgres:5432/${POSTGRES_DB:-postgres}
       - DB_USERNAME=${POSTGRES_USER:-postgres}
       - DB_PASSWORD=${POSTGRES_PASSWORD:-postgres}
@@ -60,7 +60,7 @@ services:
       dockerfile: Dockerfile
     container_name: telegram-quiz-main
     environment:
-      - SPRING_PROFILES_ACTIVE=vps
+      - SPRING_PROFILES_ACTIVE=prod-vps
       - DATABASE_URL=jdbc:postgresql://postgres:5432/${POSTGRES_DB:-postgres}
       - DB_USERNAME=${POSTGRES_USER:-postgres}
       - DB_PASSWORD=${POSTGRES_PASSWORD:-postgres}
@@ -83,7 +83,7 @@ services:
       dockerfile: Dockerfile
     container_name: telegram-quiz-gateway
     environment:
-      - SPRING_PROFILES_ACTIVE=vps
+      - SPRING_PROFILES_ACTIVE=prod-vps
       - AUTH_SERVICE_URL=http://auth-service:8081
       - MAIN_SERVICE_URL=http://main-service:8082
     volumes:
