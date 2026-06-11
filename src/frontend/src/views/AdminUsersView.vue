@@ -212,7 +212,6 @@
       <div
         v-if="showEdit"
         class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
-        @click.self="closeEdit"
         @keydown.escape="closeEdit"
       >
         <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-sm p-6">
@@ -312,7 +311,6 @@
       <div
         v-if="showCreate"
         class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
-        @click.self="showCreate = false"
         @keydown.escape="showCreate = false"
       >
         <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-sm p-6">

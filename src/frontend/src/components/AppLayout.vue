@@ -142,7 +142,6 @@
         v-if="showProfile"
         class="fixed inset-0 z-50 flex items-center justify-center p-4"
         style="background: rgba(0,0,0,0.5)"
-        @click.self="closeProfile"
         @keydown.escape="closeProfile"
       >
         <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 overflow-y-auto max-h-[90vh]">

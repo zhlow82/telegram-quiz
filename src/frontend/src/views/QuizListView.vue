@@ -178,7 +178,7 @@
     <!-- Delete confirmation dialog -->
     <teleport to="body">
       <div v-if="deleteTarget" class="fixed inset-0 z-50 flex items-center justify-center p-4" @keydown.escape="deleteTarget = null">
-        <div class="absolute inset-0 bg-black/50" @click="deleteTarget = null" />
+        <div class="absolute inset-0 bg-black/50" />
         <div class="relative bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm">
           <h3 class="text-base font-bold text-slate-900 mb-2">Delete quiz?</h3>
           <p class="text-sm text-slate-500 mb-5">
@@ -202,7 +202,7 @@
     <!-- QR Code modal -->
     <teleport to="body">
       <div v-if="qrQuiz" class="fixed inset-0 z-50 flex items-center justify-center p-4" @keydown.escape="qrQuiz = null">
-        <div class="absolute inset-0 bg-black/50" @click="qrQuiz = null" />
+        <div class="absolute inset-0 bg-black/50" />
         <div class="relative bg-white rounded-2xl shadow-2xl p-6 w-full max-w-xs text-center">
           <div class="flex items-center justify-between mb-4">
             <h3 class="text-base font-bold text-slate-900">Scan to join</h3>
@@ -236,7 +236,7 @@
     <!-- Participant details modal -->
     <teleport to="body">
       <div v-if="detailsQuiz" class="fixed inset-0 z-50 flex items-start justify-center p-4 pt-12" @keydown.escape="closeDetails">
-        <div class="absolute inset-0 bg-black/50" @click="closeDetails" />
+        <div class="absolute inset-0 bg-black/50" />
         <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl flex flex-col max-h-[85vh]">
           <!-- Modal header -->
           <div class="flex items-start justify-between gap-4 px-6 pt-5 pb-4 border-b border-slate-100">
@@ -357,7 +357,7 @@
     <!-- Participant answers modal -->
     <teleport to="body">
       <div v-if="answersSession" class="fixed inset-0 z-[60] flex items-start justify-center p-4 pt-12" @keydown.escape="answersSession = null">
-        <div class="absolute inset-0 bg-black/50" @click="answersSession = null" />
+        <div class="absolute inset-0 bg-black/50" />
         <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-xl flex flex-col max-h-[85vh]">
           <!-- Modal header -->
           <div class="flex items-start justify-between gap-4 px-6 pt-5 pb-4 border-b border-slate-100">
