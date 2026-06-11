@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 
+    <!-- In-memory circular buffer appender (all profiles) -->
+    <appender name="IN_MEMORY" class="com.telegramquiz.main.config.InMemoryLogAppender" />
+
     <!-- Console appender for dev (default) -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
@@ -32,6 +35,7 @@
     <springProfile name="dev">
         <root level="INFO">
             <appender-ref ref="CONSOLE" />
+            <appender-ref ref="IN_MEMORY" />
         </root>
         <logger name="com.telegramquiz" level="DEBUG" />
     </springProfile>
@@ -40,6 +44,7 @@
     <springProfile name="prod-render">
         <root level="INFO">
             <appender-ref ref="JSON_CONSOLE" />
+            <appender-ref ref="IN_MEMORY" />
         </root>
         <logger name="com.telegramquiz" level="INFO" />
     </springProfile>
@@ -49,6 +54,7 @@
         <root level="INFO">
             <appender-ref ref="FILE" />
             <appender-ref ref="CONSOLE" />
+            <appender-ref ref="IN_MEMORY" />
         </root>
         <logger name="com.telegramquiz" level="INFO" />
     </springProfile>
@@ -57,6 +63,7 @@
     <springProfile name="!dev &amp; !prod-render &amp; !prod-vps">
         <root level="INFO">
             <appender-ref ref="CONSOLE" />
+            <appender-ref ref="IN_MEMORY" />
         </root>
     </springProfile>
 

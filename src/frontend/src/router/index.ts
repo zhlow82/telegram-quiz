@@ -8,6 +8,7 @@ import QuizWizardView from '@/views/QuizWizardView.vue'
 import AdminUsersView from '@/views/AdminUsersView.vue'
 import AdminInvitationCodesView from '@/views/AdminInvitationCodesView.vue'
 import AdminSettingsView from '@/views/AdminSettingsView.vue'
+import AdminLogsView from '@/views/AdminLogsView.vue'
 import OAuth2CallbackView from '@/views/OAuth2CallbackView.vue'
 import OAuth2RegisterView from '@/views/OAuth2RegisterView.vue'
 import NotFoundView from '@/views/NotFoundView.vue'
@@ -71,6 +72,12 @@ const router = createRouter({
       path: '/admin/settings',
       name: 'admin-settings',
       component: AdminSettingsView,
+      meta: { requiresAuth: true, requiresAdmin: true }
+    },
+    {
+      path: '/admin/logs',
+      name: 'admin-logs',
+      component: AdminLogsView,
       meta: { requiresAuth: true, requiresAdmin: true }
     },
     {

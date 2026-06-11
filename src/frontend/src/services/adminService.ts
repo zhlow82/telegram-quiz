@@ -27,4 +27,18 @@ export const adminService = {
     api.get<{ appName: string; loginWelcomeText: string; appLogoUrl: string | null }>('/auth/settings/branding'),
   saveBrandingSettings: (data: { appName: string; loginWelcomeText: string; appLogoBlobId: string | null }) =>
     api.put('/auth/admin/settings/branding', data),
+
+  getLogs: (params?: { level?: string; search?: string; limit?: number }) =>
+    api.get<LogEntry[]>('/auth/admin/logs', { params }),
+
+  getMainServiceLogs: (params?: { level?: string; search?: string; limit?: number }) =>
+    api.get<LogEntry[]>('/api/admin/logs', { params }),
+}
+
+export interface LogEntry {
+  timestamp: number
+  level: string
+  logger: string
+  message: string
+  formattedTimestamp: string
 }

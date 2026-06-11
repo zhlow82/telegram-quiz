@@ -282,7 +282,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { Zap, Menu, LogOut, LayoutDashboard, BookOpen, Play, Users, KeyRound, Settings, Pencil, X, Eye, EyeOff, ChevronLeft, ChevronRight } from '@lucide/vue'
+import { Zap, Menu, LogOut, LayoutDashboard, BookOpen, Play, Users, KeyRound, Settings, Pencil, X, Eye, EyeOff, ChevronLeft, ChevronRight, ScrollText } from '@lucide/vue'
 import { useAuthStore } from '@/stores/auth'
 import { useBrandingStore } from '@/stores/branding'
 import { useToast } from '@/composables/useToast'
@@ -382,6 +382,7 @@ const adminNavItems = [
   { to: '/admin/users', label: 'Users', icon: Users },
   { to: '/admin/invitation-codes', label: 'Invitation Codes', icon: KeyRound },
   { to: '/admin/settings', label: 'Settings', icon: Settings },
+  { to: '/admin/logs', label: 'Logs', icon: ScrollText },
 ]
 
 const userInitial = computed(() => {
