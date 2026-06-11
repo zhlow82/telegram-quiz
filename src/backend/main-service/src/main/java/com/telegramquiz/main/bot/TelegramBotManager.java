@@ -56,10 +56,12 @@ public class TelegramBotManager {
                         .map(qq -> {
                             var q = qq.getQuestion();
                             return new QuizBotQuestion(
+                                    q.getId(),
                                     q.getQuestionBlocks() != null ? q.getQuestionBlocks() : List.of(),
                                     q.getOptions() != null ? q.getOptions() : List.of(),
                                     q.getAnswer(),
                                     q.isBriefing(),
+                                    q.isExpectPhoto(),
                                     q.isExpectsTextInput(),
                                     q.getBriefingPrimaryButtonText(),
                                     q.isShowBriefingPrimaryButton(),
