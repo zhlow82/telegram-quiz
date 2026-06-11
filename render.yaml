@@ -90,5 +90,5 @@ services:
 
 databases:
   - name: telegram-quiz-db
-    databaseName: postgres
+    databaseName: telegram_quiz
     plan: free
