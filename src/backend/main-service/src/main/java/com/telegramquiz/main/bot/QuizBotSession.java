@@ -68,12 +68,17 @@ public class QuizBotSession extends TelegramLongPollingBot {
     @Override
     public void onUpdateReceived(Update update) {
         try {
-            if (update.hasMessage() && update.getMessage().hasText()) {
-                String text = update.getMessage().getText();
-                if ("/start".equals(text) || text.startsWith("/start ")) {
-                    startOrRestartSession(update.getMessage());
-                } else {
-                    handleTextMessage(update.getMessage());
+            if (update.hasMessage()) {
+                Message message = update.getMessage();
+                if (message.hasText()) {
+                    String text = message.getText();
+                    if ("/start".equals(text) || text.startsWith("/start ")) {
+                        startOrRestartSession(message);
+                    } else {
+                        handleTextMessage(message);
+                    }
+                } else if (message.hasPhoto()) {
+                    handlePhotoMessage(message);
                 }
             } else if (update.hasCallbackQuery()) {
                 handleCallback(update.getCallbackQuery());
@@ -105,8 +110,9 @@ public class QuizBotSession extends TelegramLongPollingBot {
         sessions.put(chatId, state);
 
         try {
-            sessionService.recordStarted(quizData.quizId(), quizData.questions().size(),
+            Long sessionId = sessionService.recordStarted(quizData.quizId(), quizData.questions().size(),
                     telegramUserId, telegramUsername, telegramFirstName);
+            state.sessionId = sessionId;
         } catch (Exception e) {
             log.warn("Could not record session start for quiz {}: {}", quizData.quizId(), e.getMessage());
         }
@@ -125,6 +131,8 @@ public class QuizBotSession extends TelegramLongPollingBot {
             endQuiz(chatId, state);
             return;
         }
+
+        state.questionStartedAt = LocalDateTime.now();
 
         QuizBotQuestion q = quizData.questions().get(state.questionIndex);
         int imageBlockCount = q.questionBlocks() == null ? 0
@@ -216,10 +224,56 @@ public class QuizBotSession extends TelegramLongPollingBot {
 
         state.waitingForTextInput = false;
         sessionService.recordTeamName(quizData.quizId(), state.telegramUserId, text);
+
+        Integer responseTimeMs = state.questionStartedAt != null
+                ? (int) java.time.Duration.between(state.questionStartedAt, LocalDateTime.now()).toMillis()
+                : null;
+
+        try {
+            sessionService.recordAnswer(state.sessionId, q.questionId(), text, null,
+                    null, null, responseTimeMs);
+        } catch (Exception e) {
+            log.warn("Could not record text answer for session {}: {}", state.sessionId, e.getMessage());
+        }
+
         StringBuilder result = new StringBuilder();
         result.append("✅ Team name saved: <b>").append(escapeHtml(text)).append("</b>");
         appendExplanationText(result, q, text);
         sendAfterAnswer(chatId, state, q, result.toString());
+    }
+
+    private void handlePhotoMessage(Message message) {
+        Long chatId = message.getChatId();
+        ChatQuizState state = sessions.get(chatId);
+        if (state == null || state.sessionId == null) {
+            return;
+        }
+        if (state.questionIndex >= quizData.questions().size()) {
+            return;
+        }
+
+        QuizBotQuestion q = quizData.questions().get(state.questionIndex);
+        if (!q.expectPhoto()) {
+            return;
+        }
+
+        String fileId = message.getPhoto().get(message.getPhoto().size() - 1).getFileId();
+        String caption = message.getCaption();
+
+        Integer responseTimeMs = state.questionStartedAt != null
+                ? (int) java.time.Duration.between(state.questionStartedAt, LocalDateTime.now()).toMillis()
+                : null;
+
+        try {
+            sessionService.recordAnswer(state.sessionId, q.questionId(), null, null,
+                    fileId, caption, responseTimeMs);
+        } catch (Exception e) {
+            log.warn("Could not record photo answer for session {}: {}", state.sessionId, e.getMessage());
+        }
+
+        sendText(chatId, "📸 Photo received! Moving to next question...");
+        state.questionIndex++;
+        scheduler.schedule(() -> sendCurrentQuestion(chatId, state), 2, TimeUnit.SECONDS);
     }
 
     private void handleCallback(org.telegram.telegrambots.meta.api.objects.CallbackQuery callback) {
@@ -269,14 +323,26 @@ public class QuizBotSession extends TelegramLongPollingBot {
         List<String> options = q.options();
 
         boolean correct = false;
+        String selectedAnswer = null;
         if (selectedIndex >= 0 && selectedIndex < options.size()) {
-            String selectedOption = options.get(selectedIndex);
+            selectedAnswer = options.get(selectedIndex);
             correct = q.answer() != null
-                && q.answer().trim().equalsIgnoreCase(selectedOption.trim());
+                && q.answer().trim().equalsIgnoreCase(selectedAnswer.trim());
         }
 
         if (correct) {
             state.score++;
+        }
+
+        Integer responseTimeMs = state.questionStartedAt != null
+                ? (int) java.time.Duration.between(state.questionStartedAt, LocalDateTime.now()).toMillis()
+                : null;
+
+        try {
+            sessionService.recordAnswer(state.sessionId, q.questionId(), selectedAnswer, correct,
+                    null, null, responseTimeMs);
+        } catch (Exception e) {
+            log.warn("Could not record answer for session {}: {}", state.sessionId, e.getMessage());
         }
 
         StringBuilder result = new StringBuilder();
@@ -301,6 +367,19 @@ public class QuizBotSession extends TelegramLongPollingBot {
         ScheduledFuture<?> future = scheduler.schedule(() -> {
             ChatQuizState current = sessions.get(chatId);
             if (current != state) return;
+
+            QuizBotQuestion q = quizData.questions().get(state.questionIndex);
+            Integer responseTimeMs = state.questionStartedAt != null
+                    ? (int) java.time.Duration.between(state.questionStartedAt, LocalDateTime.now()).toMillis()
+                    : null;
+
+            try {
+                sessionService.recordAnswer(state.sessionId, q.questionId(), null, false,
+                        null, null, responseTimeMs);
+            } catch (Exception e) {
+                log.debug("Could not record timeout answer for session {}: {}", state.sessionId, e.getMessage());
+            }
+
             Integer msgId = state.lastMessageId;
             if (msgId != null) removeKeyboard(chatId, msgId);
             sendText(chatId, "⏰ <b>Time's up!</b>");

@@ -1,5 +1,5 @@
 import api from './api'
-import type { Quiz, QuizSummary, QuizRequest, ValidateTokenRequest, ValidateTokenResponse, QuizSessionSummary } from '@/types/quiz'
+import type { Quiz, QuizSummary, QuizRequest, ValidateTokenRequest, ValidateTokenResponse, QuizSessionSummary, QuizSessionAnswer } from '@/types/quiz'
 
 export const quizService = {
   list: (): Promise<QuizSummary[]> =>
@@ -28,4 +28,7 @@ export const quizService = {
 
   getSessions: (id: number): Promise<QuizSessionSummary[]> =>
     api.get<QuizSessionSummary[]>(`/api/quizzes/${id}/sessions`).then(r => r.data),
+
+  getSessionAnswers: (sessionId: number): Promise<QuizSessionAnswer[]> =>
+    api.get<QuizSessionAnswer[]>(`/api/quizzes/sessions/${sessionId}/answers`).then(r => r.data),
 }

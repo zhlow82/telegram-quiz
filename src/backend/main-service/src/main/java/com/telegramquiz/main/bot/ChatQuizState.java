@@ -1,5 +1,6 @@
 package com.telegramquiz.main.bot;
 
+import java.time.LocalDateTime;
 import java.util.concurrent.ScheduledFuture;
 
 public class ChatQuizState {
@@ -9,10 +10,12 @@ public class ChatQuizState {
     public final long telegramUserId;
     public final String telegramUsername;
     public final String telegramFirstName;
+    public volatile Long sessionId = null;
     public volatile int questionIndex = 0;
     public volatile int score = 0;
     public volatile Integer lastMessageId = null;
     public volatile boolean waitingForTextInput = false;
+    public volatile LocalDateTime questionStartedAt = null;
     private volatile ScheduledFuture<?> timeoutFuture = null;
 
     public ChatQuizState(long chatId, int totalQuestions,

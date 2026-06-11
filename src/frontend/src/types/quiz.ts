@@ -52,10 +52,26 @@ export interface QuizSessionSummary {
   telegramUserId: number
   telegramUsername: string | null
   telegramFirstName: string
+  teamName: string | null
   score: number
   totalQuestions: number
   passed: boolean
-  status: 'IN_PROGRESS' | 'COMPLETED'
+  status: 'IN_PROGRESS' | 'COMPLETED' | 'ABANDONED'
+  currentQuestionIndex: number
   startedAt: string
   completedAt: string | null
+  lastActivityAt: string
+  abandonedAt: string | null
+}
+
+export interface QuizSessionAnswer {
+  id: number
+  sessionId: number
+  questionId: number
+  selectedAnswer: string | null
+  isCorrect: boolean | null
+  photoFileId: string | null
+  photoCaption: string | null
+  responseTimeMs: number | null
+  answeredAt: string
 }

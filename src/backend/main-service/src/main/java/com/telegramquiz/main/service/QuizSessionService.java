@@ -26,7 +26,7 @@ public class QuizSessionService {
     private final QuizSessionAnswerRepository answerRepository;
 
     @Transactional
-    public void recordStarted(Long quizId, int totalQuestions,
+    public Long recordStarted(Long quizId, int totalQuestions,
                                long telegramUserId, String username, String firstName) {
         repository.findByQuizIdAndTelegramUserIdAndStatus(quizId, telegramUserId, QuizSessionStatus.IN_PROGRESS)
                 .ifPresent(session -> {
@@ -36,7 +36,7 @@ public class QuizSessionService {
                 });
 
         LocalDateTime now = LocalDateTime.now();
-        repository.save(QuizSession.builder()
+        QuizSession session = repository.save(QuizSession.builder()
                 .quizId(quizId)
                 .telegramUserId(telegramUserId)
                 .telegramUsername(username)
@@ -50,6 +50,7 @@ public class QuizSessionService {
                 .startedAt(now)
                 .lastActivityAt(now)
                 .build());
+        return session.getId();
     }
 
     @Transactional

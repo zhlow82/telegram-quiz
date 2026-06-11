@@ -235,9 +235,9 @@
     </teleport>
     <!-- Participant details modal -->
     <teleport to="body">
-      <div v-if="detailsQuiz" class="fixed inset-0 z-50 flex items-start justify-center p-4 pt-12" @keydown.escape="detailsQuiz = null">
-        <div class="absolute inset-0 bg-black/50" @click="detailsQuiz = null" />
-        <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-xl flex flex-col max-h-[80vh]">
+      <div v-if="detailsQuiz" class="fixed inset-0 z-50 flex items-start justify-center p-4 pt-12" @keydown.escape="closeDetails">
+        <div class="absolute inset-0 bg-black/50" @click="closeDetails" />
+        <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl flex flex-col max-h-[85vh]">
           <!-- Modal header -->
           <div class="flex items-start justify-between gap-4 px-6 pt-5 pb-4 border-b border-slate-100">
             <div class="min-w-0">
@@ -258,7 +258,7 @@
                 {{ detailsQuiz.passScorePercent }}% to pass
               </p>
             </div>
-            <button class="text-slate-400 hover:text-slate-600 cursor-pointer flex-shrink-0 mt-0.5" @click="detailsQuiz = null">
+            <button class="text-slate-400 hover:text-slate-600 cursor-pointer flex-shrink-0 mt-0.5" @click="closeDetails">
               <X class="w-5 h-5" />
             </button>
           </div>
@@ -268,6 +268,7 @@
             <span><span class="font-bold text-slate-800 text-sm">{{ sessions.length }}</span> attempt{{ sessions.length !== 1 ? 's' : '' }}</span>
             <span><span class="font-bold text-slate-800 text-sm">{{ completedCount }}</span> completed</span>
             <span><span class="font-bold text-slate-800 text-sm">{{ passRate }}%</span> pass rate</span>
+            <span><span class="font-bold text-slate-800 text-sm">{{ abandonedCount }}</span> abandoned</span>
           </div>
 
           <!-- Body: loading / empty / list -->
@@ -294,11 +295,12 @@
               <div
                 v-for="s in sessions"
                 :key="s.id"
-                class="flex items-center gap-3 px-3 py-3"
+                class="flex items-center gap-3 px-3 py-3 hover:bg-slate-50 cursor-pointer transition-colors"
+                @click="openParticipantAnswers(s)"
               >
                 <!-- Avatar -->
-                <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                  <span class="text-xs font-bold text-blue-700">{{ (s.telegramFirstName || '?')[0].toUpperCase() }}</span>
+                <div class="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                  <span class="text-sm font-bold text-blue-700">{{ (s.telegramFirstName || '?')[0].toUpperCase() }}</span>
                 </div>
                 <!-- Name -->
                 <div class="flex-1 min-w-0">
@@ -306,7 +308,10 @@
                     {{ s.telegramFirstName }}
                     <span v-if="s.telegramUsername" class="text-slate-400 font-normal text-xs ml-1">@{{ s.telegramUsername }}</span>
                   </p>
-                  <p class="text-xs text-slate-400 mt-0.5">{{ formatDate(s.startedAt) }}</p>
+                  <p class="text-xs text-slate-400 mt-0.5">
+                    {{ formatDate(s.startedAt) }}
+                    <span v-if="s.teamName" class="ml-1">· Team: {{ s.teamName }}</span>
+                  </p>
                 </div>
                 <!-- Score / result -->
                 <div class="flex flex-col items-end gap-1 flex-shrink-0">
@@ -319,12 +324,16 @@
                     <XCircle v-else class="w-3 h-3" />
                     {{ s.passed ? 'PASS' : 'FAIL' }}
                   </span>
+                  <span v-else-if="s.status === 'ABANDONED'" class="inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">
+                    <Minus class="w-3 h-3" />
+                    Abandoned
+                  </span>
                   <span v-else class="inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-blue-50 text-blue-500">
                     <div class="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></div>
                     In progress
                   </span>
                   <span class="text-xs text-slate-500">
-                    {{ s.status === 'COMPLETED' ? `${s.score} / ${s.totalQuestions}` : '…' }}
+                    {{ s.status === 'COMPLETED' ? `${s.score} / ${s.totalQuestions}` : `Q${s.currentQuestionIndex + 1} / ${s.totalQuestions}` }}
                   </span>
                 </div>
               </div>
@@ -344,6 +353,93 @@
         </div>
       </div>
     </teleport>
+
+    <!-- Participant answers modal -->
+    <teleport to="body">
+      <div v-if="answersSession" class="fixed inset-0 z-[60] flex items-start justify-center p-4 pt-12" @keydown.escape="answersSession = null">
+        <div class="absolute inset-0 bg-black/50" @click="answersSession = null" />
+        <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-xl flex flex-col max-h-[85vh]">
+          <!-- Modal header -->
+          <div class="flex items-start justify-between gap-4 px-6 pt-5 pb-4 border-b border-slate-100">
+            <div class="min-w-0">
+              <h3 class="text-base font-bold text-slate-900 truncate">
+                {{ answersSession.telegramFirstName }}'s Answers
+              </h3>
+              <p class="text-xs text-slate-500 mt-0.5">
+                {{ answersSession.score }} / {{ answersSession.totalQuestions }} ·
+                <span :class="answersSession.passed ? 'text-green-600 font-semibold' : 'text-red-600 font-semibold'">
+                  {{ answersSession.passed ? 'PASSED' : 'FAILED' }}
+                </span>
+                <span v-if="answersSession.teamName"> · Team: {{ answersSession.teamName }}</span>
+              </p>
+            </div>
+            <button class="text-slate-400 hover:text-slate-600 cursor-pointer flex-shrink-0 mt-0.5" @click="answersSession = null">
+              <X class="w-5 h-5" />
+            </button>
+          </div>
+
+          <!-- Answers list -->
+          <div class="overflow-y-auto flex-1 px-2 py-2">
+            <div v-if="answersLoading" class="flex items-center justify-center py-12 text-slate-400 text-sm gap-2">
+              <div class="w-4 h-4 rounded-full border-2 border-blue-400 border-t-transparent animate-spin"></div>
+              Loading answers…
+            </div>
+            <div v-else-if="answers.length === 0" class="flex flex-col items-center gap-3 py-12 text-center">
+              <div class="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center">
+                <FileText class="w-6 h-6 text-slate-400" />
+              </div>
+              <p class="text-sm font-semibold text-slate-700">No answers recorded yet</p>
+            </div>
+            <div v-else class="space-y-2">
+              <div
+                v-for="(a, idx) in answers"
+                :key="a.id"
+                class="rounded-xl border px-4 py-3"
+                :class="{
+                  'border-green-200 bg-green-50': a.isCorrect === true,
+                  'border-red-200 bg-red-50': a.isCorrect === false,
+                  'border-slate-200 bg-slate-50': a.isCorrect === null,
+                }"
+              >
+                <div class="flex items-center justify-between gap-2">
+                  <span class="text-xs font-bold text-slate-700">Question {{ idx + 1 }}</span>
+                  <span v-if="a.responseTimeMs" class="text-xs text-slate-400">{{ formatResponseTime(a.responseTimeMs) }}</span>
+                </div>
+                <div class="mt-1.5 text-sm">
+                  <template v-if="a.photoFileId">
+                    <span class="text-slate-600">📸 Photo response</span>
+                    <span v-if="a.photoCaption" class="text-slate-500 text-xs ml-2">"{{ a.photoCaption }}"</span>
+                  </template>
+                  <template v-else-if="a.selectedAnswer">
+                    <span class="text-slate-700 font-medium">{{ a.selectedAnswer }}</span>
+                  </template>
+                  <template v-else>
+                    <span class="text-slate-400 italic">No answer (timed out)</span>
+                  </template>
+                </div>
+                <div class="flex items-center gap-2 mt-1.5">
+                  <span
+                    v-if="a.isCorrect === true"
+                    class="inline-flex items-center gap-1 text-xs font-semibold text-green-700"
+                  >
+                    <CheckCircle class="w-3 h-3" /> Correct
+                  </span>
+                  <span
+                    v-else-if="a.isCorrect === false"
+                    class="inline-flex items-center gap-1 text-xs font-semibold text-red-600"
+                  >
+                    <XCircle class="w-3 h-3" /> Wrong
+                  </span>
+                  <span v-else class="inline-flex items-center gap-1 text-xs font-medium text-slate-400">
+                    <Clock class="w-3 h-3" /> Timed out
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </teleport>
   </AppLayout>
 </template>
 
@@ -351,11 +447,11 @@
 import { ref, onMounted, nextTick, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import QRCode from 'qrcode'
-import { Plus, AlertCircle, Zap, BookOpen, Clock, CheckCircle, Trash2, Play, Square, QrCode, X, Users, XCircle, RefreshCw, Search, Pencil } from '@lucide/vue'
+import { Plus, AlertCircle, Zap, BookOpen, Clock, CheckCircle, Trash2, Play, Square, QrCode, X, Users, XCircle, RefreshCw, Search, Pencil, Minus, FileText } from '@lucide/vue'
 import AppLayout from '@/components/AppLayout.vue'
 import { quizService } from '@/services/quizService'
 import { useToast } from '@/composables/useToast'
-import type { QuizSummary, QuizSessionSummary } from '@/types/quiz'
+import type { QuizSummary, QuizSessionSummary, QuizSessionAnswer } from '@/types/quiz'
 
 const toast = useToast()
 const router = useRouter()
@@ -387,12 +483,18 @@ const sessions = ref<QuizSessionSummary[]>([])
 const sessionsLoading = ref(false)
 
 const completedCount = computed(() => sessions.value.filter(s => s.status === 'COMPLETED').length)
+const abandonedCount = computed(() => sessions.value.filter(s => s.status === 'ABANDONED').length)
 const passRate = computed(() => {
   const done = completedCount.value
   if (done === 0) return 0
   const passed = sessions.value.filter(s => s.status === 'COMPLETED' && s.passed).length
   return Math.round((passed / done) * 100)
 })
+
+// Participant answers
+const answersSession = ref<QuizSessionSummary | null>(null)
+const answers = ref<QuizSessionAnswer[]>([])
+const answersLoading = ref(false)
 
 onMounted(loadQuizzes)
 
@@ -503,6 +605,30 @@ function formatDate(iso: string): string {
     month: 'short', day: 'numeric',
     hour: '2-digit', minute: '2-digit',
   })
+}
+
+function formatResponseTime(ms: number): string {
+  if (ms < 1000) return `${ms}ms`
+  return `${(ms / 1000).toFixed(1)}s`
+}
+
+function closeDetails() {
+  detailsQuiz.value = null
+  answersSession.value = null
+}
+
+async function openParticipantAnswers(session: QuizSessionSummary) {
+  if (session.status !== 'COMPLETED') return
+  answersSession.value = session
+  answersLoading.value = true
+  answers.value = []
+  try {
+    answers.value = await quizService.getSessionAnswers(session.id)
+  } catch {
+    // show empty state on error
+  } finally {
+    answersLoading.value = false
+  }
 }
 </script>
 
