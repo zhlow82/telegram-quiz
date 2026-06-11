@@ -1,0 +1,106 @@
+services:
+  - type: web
+    name: auth-service
+    env: docker
+    dockerfilePath: src/backend/auth-service/Dockerfile
+    dockerContext: src/backend/auth-service
+    envVars:
+      - key: DB_HOST
+        fromDatabase:
+          name: telegram-quiz-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: telegram-quiz-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: telegram-quiz-db
+          property: database
+      - key: DB_USERNAME
+        fromDatabase:
+          name: telegram-quiz-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: telegram-quiz-db
+          property: password
+      - key: REDIS_HOST
+        fromService:
+          name: telegram-quiz-redis
+          type: redis
+          property: host
+      - key: REDIS_PORT
+        fromService:
+          name: telegram-quiz-redis
+          type: redis
+          property: port
+    envVarGroups:
+      - shared-secrets
+
+  - type: web
+    name: main-service
+    env: docker
+    dockerfilePath: src/backend/main-service/Dockerfile
+    dockerContext: src/backend/main-service
+    envVars:
+      - key: DB_HOST
+        fromDatabase:
+          name: telegram-quiz-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: telegram-quiz-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: telegram-quiz-db
+          property: database
+      - key: DB_USERNAME
+        fromDatabase:
+          name: telegram-quiz-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: telegram-quiz-db
+          property: password
+      - key: BOT_TOKEN_ENCRYPTION_KEY
+        generateValue: true
+    envVarGroups:
+      - shared-secrets
+
+  - type: web
+    name: api-gateway
+    env: docker
+    dockerfilePath: src/backend/api-gateway/Dockerfile
+    dockerContext: src/backend/api-gateway
+    envVars:
+      - key: AUTH_SERVICE_URL
+        value: http://auth-service:8081
+      - key: MAIN_SERVICE_URL
+        value: http://main-service:8082
+
+  - type: web
+    name: frontend
+    env: docker
+    dockerfilePath: src/frontend/Dockerfile
+    dockerContext: src/frontend
+    envVars:
+      - key: API_GATEWAY_URL
+        value: http://api-gateway:8080
+
+  - type: redis
+    name: telegram-quiz-redis
+    ipAllowList: []
+    plan: free
+
+databases:
+  - name: telegram-quiz-db
+    databaseName: postgres
+    plan: free
+
+envVarGroups:
+  - name: shared-secrets
+    envVars:
+      - key: JWT_SECRET
+        generateValue: true

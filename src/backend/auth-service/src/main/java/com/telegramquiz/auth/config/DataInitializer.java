@@ -29,7 +29,7 @@ public class DataInitializer implements CommandLineRunner {
         if (existing.isEmpty()) {
             User user = User.builder()
                     .username("localadmin")
-                    .password(passwordEncoder.encode("password88"))
+                    .password(passwordEncoder.encode("szR.ir=-:Un~}RYyxZ0c"))
                     .firstName("localadmin")
                     .lastName("localadmin")
                     .roles(new HashSet<>(Set.of("ROLE_ADMIN")))
