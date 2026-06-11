@@ -62,4 +62,14 @@ public class QuizSession {
 
     @Column(name = "completed_at")
     private LocalDateTime completedAt;
+
+    @Column(name = "current_question_index", nullable = false)
+    @Builder.Default
+    private int currentQuestionIndex = 0;
+
+    @Column(name = "last_activity_at", nullable = false)
+    private LocalDateTime lastActivityAt;
+
+    @Column(name = "abandoned_at")
+    private LocalDateTime abandonedAt;
 }

@@ -6,9 +6,12 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.telegramquiz.main.dto.QuizSessionAnswerDto;
 import com.telegramquiz.main.dto.QuizSessionDto;
 import com.telegramquiz.main.entity.QuizSession;
+import com.telegramquiz.main.entity.QuizSessionAnswer;
 import com.telegramquiz.main.entity.QuizSessionStatus;
+import com.telegramquiz.main.repository.QuizSessionAnswerRepository;
 import com.telegramquiz.main.repository.QuizSessionRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -20,14 +23,19 @@ import lombok.extern.slf4j.Slf4j;
 public class QuizSessionService {
 
     private final QuizSessionRepository repository;
+    private final QuizSessionAnswerRepository answerRepository;
 
     @Transactional
     public void recordStarted(Long quizId, int totalQuestions,
                                long telegramUserId, String username, String firstName) {
-        // If participant restarts mid-quiz, remove their in-progress session
         repository.findByQuizIdAndTelegramUserIdAndStatus(quizId, telegramUserId, QuizSessionStatus.IN_PROGRESS)
-                .ifPresent(repository::delete);
+                .ifPresent(session -> {
+                    session.setStatus(QuizSessionStatus.ABANDONED);
+                    session.setAbandonedAt(LocalDateTime.now());
+                    repository.save(session);
+                });
 
+        LocalDateTime now = LocalDateTime.now();
         repository.save(QuizSession.builder()
                 .quizId(quizId)
                 .telegramUserId(telegramUserId)
@@ -38,7 +46,9 @@ public class QuizSessionService {
                 .totalQuestions(totalQuestions)
                 .passed(false)
                 .status(QuizSessionStatus.IN_PROGRESS)
-                .startedAt(LocalDateTime.now())
+                .currentQuestionIndex(0)
+                .startedAt(now)
+                .lastActivityAt(now)
                 .build());
     }
 
@@ -52,18 +62,58 @@ public class QuizSessionService {
                     session.setPassed(passed);
                     session.setStatus(QuizSessionStatus.COMPLETED);
                     session.setCompletedAt(LocalDateTime.now());
+                    session.setLastActivityAt(LocalDateTime.now());
                     repository.save(session);
                 });
     }
 
-        @Transactional
-        public void recordTeamName(Long quizId, long telegramUserId, String teamName) {
-                repository.findByQuizIdAndTelegramUserIdAndStatus(quizId, telegramUserId, QuizSessionStatus.IN_PROGRESS)
-                                .ifPresent(session -> {
-                                        session.setTeamName(teamName);
-                                        repository.save(session);
-                                });
-        }
+    @Transactional
+    public void recordTeamName(Long quizId, long telegramUserId, String teamName) {
+        repository.findByQuizIdAndTelegramUserIdAndStatus(quizId, telegramUserId, QuizSessionStatus.IN_PROGRESS)
+                .ifPresent(session -> {
+                    session.setTeamName(teamName);
+                    session.setLastActivityAt(LocalDateTime.now());
+                    repository.save(session);
+                });
+    }
+
+    @Transactional
+    public void recordAnswer(Long sessionId, Long questionId, String selectedAnswer,
+                              Boolean isCorrect, String photoFileId, String photoCaption, Integer responseTimeMs) {
+        answerRepository.save(QuizSessionAnswer.builder()
+                .sessionId(sessionId)
+                .questionId(questionId)
+                .selectedAnswer(selectedAnswer)
+                .isCorrect(isCorrect)
+                .photoFileId(photoFileId)
+                .photoCaption(photoCaption)
+                .responseTimeMs(responseTimeMs)
+                .answeredAt(LocalDateTime.now())
+                .build());
+
+        repository.findById(sessionId).ifPresent(session -> {
+            session.setCurrentQuestionIndex(session.getCurrentQuestionIndex() + 1);
+            session.setLastActivityAt(LocalDateTime.now());
+            repository.save(session);
+        });
+    }
+
+    @Transactional(readOnly = true)
+    public List<QuizSessionAnswerDto> getAnswersBySessionId(Long sessionId) {
+        return answerRepository.findBySessionIdOrderByAnsweredAtAsc(sessionId).stream()
+                .map(a -> new QuizSessionAnswerDto(
+                        a.getId(),
+                        a.getSessionId(),
+                        a.getQuestionId(),
+                        a.getSelectedAnswer(),
+                        a.getIsCorrect(),
+                        a.getPhotoFileId(),
+                        a.getPhotoCaption(),
+                        a.getResponseTimeMs(),
+                        a.getAnsweredAt()
+                ))
+                .toList();
+    }
 
     @Transactional(readOnly = true)
     public List<QuizSessionDto> findByQuizId(Long quizId) {
@@ -78,8 +128,11 @@ public class QuizSessionService {
                         s.getTotalQuestions(),
                         s.isPassed(),
                         s.getStatus().name(),
+                        s.getCurrentQuestionIndex(),
                         s.getStartedAt(),
-                        s.getCompletedAt()
+                        s.getCompletedAt(),
+                        s.getLastActivityAt(),
+                        s.getAbandonedAt()
                 ))
                 .toList();
     }

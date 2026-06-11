@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.telegramquiz.main.bot.QuizBotData;
 import com.telegramquiz.main.dto.QuizRequestDto;
 import com.telegramquiz.main.dto.QuizResponseDto;
+import com.telegramquiz.main.dto.QuizSessionAnswerDto;
 import com.telegramquiz.main.dto.QuizSessionDto;
 import com.telegramquiz.main.dto.QuizSummaryDto;
 import com.telegramquiz.main.service.QuizService;
@@ -96,5 +97,11 @@ public class QuizController {
         // Verify ownership before returning sessions
         quizService.findById(id, username);
         return ResponseEntity.ok(quizSessionService.findByQuizId(id));
+    }
+
+    @GetMapping("/sessions/{sessionId}/answers")
+    public ResponseEntity<List<QuizSessionAnswerDto>> getSessionAnswers(
+            @PathVariable Long sessionId) {
+        return ResponseEntity.ok(quizSessionService.getAnswersBySessionId(sessionId));
     }
 }

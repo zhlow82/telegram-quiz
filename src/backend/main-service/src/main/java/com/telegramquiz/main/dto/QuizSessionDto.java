@@ -12,6 +12,9 @@ public record QuizSessionDto(
         int totalQuestions,
         boolean passed,
         String status,
+        int currentQuestionIndex,
         LocalDateTime startedAt,
-        LocalDateTime completedAt
+        LocalDateTime completedAt,
+        LocalDateTime lastActivityAt,
+        LocalDateTime abandonedAt
 ) {}
