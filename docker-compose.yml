@@ -39,11 +39,14 @@ services:
       dockerfile: Dockerfile
     container_name: telegram-quiz-auth
     environment:
+      - SPRING_PROFILES_ACTIVE=vps
       - DATABASE_URL=jdbc:postgresql://postgres:5432/${POSTGRES_DB:-postgres}
       - DB_USERNAME=${POSTGRES_USER:-postgres}
       - DB_PASSWORD=${POSTGRES_PASSWORD:-postgres}
       - REDIS_HOST=redis
       - JWT_SECRET=${JWT_SECRET}
+    volumes:
+      - auth-logs:/app/logs
     depends_on:
       postgres:
         condition: service_healthy
@@ -57,11 +60,14 @@ services:
       dockerfile: Dockerfile
     container_name: telegram-quiz-main
     environment:
+      - SPRING_PROFILES_ACTIVE=vps
       - DATABASE_URL=jdbc:postgresql://postgres:5432/${POSTGRES_DB:-postgres}
       - DB_USERNAME=${POSTGRES_USER:-postgres}
       - DB_PASSWORD=${POSTGRES_PASSWORD:-postgres}
       - JWT_SECRET=${JWT_SECRET}
       - BOT_TOKEN_ENCRYPTION_KEY=${BOT_TOKEN_ENCRYPTION_KEY}
+    volumes:
+      - main-logs:/app/logs
     depends_on:
       postgres:
         condition: service_healthy
@@ -77,8 +83,11 @@ services:
       dockerfile: Dockerfile
     container_name: telegram-quiz-gateway
     environment:
+      - SPRING_PROFILES_ACTIVE=vps
       - AUTH_SERVICE_URL=http://auth-service:8081
       - MAIN_SERVICE_URL=http://main-service:8082
+    volumes:
+      - gateway-logs:/app/logs
     ports:
       - "8080:8080"
     depends_on:
@@ -102,3 +111,6 @@ services:
 volumes:
   postgres_data:
   redis_data:
+  auth-logs:
+  main-logs:
+  gateway-logs:
