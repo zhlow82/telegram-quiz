@@ -27,6 +27,9 @@ logs/
 # OS
 Thumbs.db
 
+# Distribution
+telegram-quiz.zip
+
 # opencode — ignore runtime data, keep config/instructions/skills
 .opencode/*
 !.opencode/opencode.json
