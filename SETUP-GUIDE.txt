@@ -1,0 +1,106 @@
+========================================================
+  TELEGRAM QUIZ - SETUP GUIDE
+  How to install and run the system on your computer
+========================================================
+
+
+--------------------------------------------------------
+  WHAT YOU NEED
+--------------------------------------------------------
+
+  1. Docker Desktop (free) - Download from docker.com
+  2. The project folder (telegram-quiz.zip)
+
+  That's it! No Java, no Node.js, no database installation needed.
+  Docker handles everything automatically.
+
+
+--------------------------------------------------------
+  STEP 1: Install Docker Desktop
+--------------------------------------------------------
+
+  1. Open your browser and go to: docker.com/products/docker-desktop
+  2. Click "Download Docker Desktop"
+  3. Run the installer and follow the prompts
+  4. Restart your computer if prompted
+  5. Open Docker Desktop and wait for the whale icon to appear
+     in the system tray (bottom-right corner of your screen)
+
+  [Insert screenshot: Docker Desktop whale icon in system tray]
+
+
+--------------------------------------------------------
+  STEP 2: Extract the Project
+--------------------------------------------------------
+
+  1. Right-click telegram-quiz.zip
+  2. Select "Extract All..."
+  3. Choose a location (e.g., Desktop)
+  4. Click "Extract"
+
+  [Insert screenshot: Right-click zip file -> Extract All]
+
+
+--------------------------------------------------------
+  STEP 3: Start the Services
+--------------------------------------------------------
+
+  1. Open the extracted telegram-quiz folder
+  2. Double-click start.bat
+  3. A window will appear showing the progress
+  4. Wait for "Services started successfully!" message
+  5. Press any key to close the window
+
+  [Insert screenshot: start.bat running with success message]
+
+
+--------------------------------------------------------
+  STEP 4: Access the Application
+--------------------------------------------------------
+
+  1. Open your browser
+  2. Go to: http://localhost
+  3. Log in with the provided credentials
+
+  Default Admin Login:
+    Username: localadmin
+    Password: password88
+
+  [Insert screenshot: Login page at http://localhost]
+
+
+--------------------------------------------------------
+  STOPPING THE SERVICES
+--------------------------------------------------------
+
+  When you're done, double-click stop.bat in the project folder.
+
+  This stops all services but keeps your data safe
+  (quizzes, questions, users).
+
+  To start again, just double-click start.bat.
+
+  [Insert screenshot: stop.bat file in folder]
+
+
+--------------------------------------------------------
+  TROUBLESHOOTING
+--------------------------------------------------------
+
+  Docker not running?
+    - Make sure Docker Desktop is open
+    - Wait for the whale icon in the system tray
+
+  Port already in use?
+    - Make sure no other app is using port 80
+    - Close Skype, IIS, or other web servers
+
+  Services not starting?
+    - Open Docker Desktop to check container status
+    - Right-click start.bat and select "Run as Administrator"
+
+  Need help?
+    - Contact your system administrator
+
+
+========================================================

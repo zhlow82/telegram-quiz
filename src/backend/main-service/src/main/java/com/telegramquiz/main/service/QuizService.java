@@ -138,12 +138,15 @@ public class QuizService {
     }
 
     private QuizSummaryDto toSummaryDto(Quiz quiz) {
+        int scoredCount = (int) quiz.getQuizQuestions().stream()
+                .filter(qq -> !qq.getQuestion().isBriefing() && !qq.getQuestion().isExpectsTextInput())
+                .count();
         return new QuizSummaryDto(
                 quiz.getId(),
                 quiz.getName(),
                 quiz.getBotUsername(),
                 quiz.getStatus().name(),
-                quiz.getQuizQuestions().size(),
+                scoredCount,
                 quiz.getTimePerQuestionSeconds(),
                 quiz.getTotalTimeLimitSeconds(),
                 quiz.getPassScorePercent(),

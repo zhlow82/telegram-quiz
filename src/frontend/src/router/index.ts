@@ -4,6 +4,7 @@ import LoginView from '@/views/LoginView.vue'
 import HomeView from '@/views/HomeView.vue'
 import QuestionBankView from '@/views/QuestionBankView.vue'
 import QuizListView from '@/views/QuizListView.vue'
+import QuizParticipantsView from '@/views/QuizParticipantsView.vue'
 import QuizWizardView from '@/views/QuizWizardView.vue'
 import AdminUsersView from '@/views/AdminUsersView.vue'
 import AdminInvitationCodesView from '@/views/AdminInvitationCodesView.vue'
@@ -54,6 +55,12 @@ const router = createRouter({
       path: '/quizzes/:id/edit',
       name: 'quiz-edit',
       component: QuizWizardView,
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/quizzes/:id/participants',
+      name: 'quiz-participants',
+      component: QuizParticipantsView,
       meta: { requiresAuth: true }
     },
     {

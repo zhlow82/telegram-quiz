@@ -12,6 +12,7 @@ public class ChatQuizState {
     public final String telegramFirstName;
     public volatile Long sessionId = null;
     public volatile int questionIndex = 0;
+    public volatile int scoredQuestionNumber = 0;
     public volatile int score = 0;
     public volatile Integer lastMessageId = null;
     public volatile boolean waitingForTextInput = false;

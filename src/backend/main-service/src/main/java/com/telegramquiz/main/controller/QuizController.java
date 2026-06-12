@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.telegramquiz.main.bot.QuizBotData;
@@ -22,6 +23,7 @@ import com.telegramquiz.main.dto.QuizSessionDto;
 import com.telegramquiz.main.dto.QuizSummaryDto;
 import com.telegramquiz.main.service.QuizService;
 import com.telegramquiz.main.service.QuizSessionService;
+import com.telegramquiz.main.service.TelegramFileService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +35,7 @@ public class QuizController {
 
     private final QuizService quizService;
     private final QuizSessionService quizSessionService;
+    private final TelegramFileService telegramFileService;
 
     @GetMapping
     public ResponseEntity<List<QuizSummaryDto>> list(@AuthenticationPrincipal String username) {
@@ -103,5 +106,12 @@ public class QuizController {
     public ResponseEntity<List<QuizSessionAnswerDto>> getSessionAnswers(
             @PathVariable Long sessionId) {
         return ResponseEntity.ok(quizSessionService.getAnswersBySessionId(sessionId));
+    }
+
+    @GetMapping("/sessions/{sessionId}/photos")
+    public ResponseEntity<byte[]> getSessionPhoto(
+            @PathVariable Long sessionId,
+            @RequestParam("fileId") String photoFileId) {
+        return telegramFileService.downloadPhoto(sessionId, photoFileId);
     }
 }

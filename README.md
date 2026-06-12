@@ -165,7 +165,7 @@ Navigate to http://localhost:5173/tg-quiz/
 
 Login with:
 - **Username**: `localadmin`
-- **Password**: `szR.ir=-:Un~}RYyxZ0c`
+- **Password**: `password88`
 
 > `localadmin` is the default admin account seeded by `DataInitializer` on first startup.
 
@@ -293,7 +293,7 @@ All requests go through the API Gateway at `http://localhost:8080`.
 ```bash
 curl -X POST http://localhost:8080/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"username": "localadmin", "password": "szR.ir=-:Un~}RYyxZ0c"}'
+  -d '{"username": "localadmin", "password": "password88"}'
 ```
 
 Response:

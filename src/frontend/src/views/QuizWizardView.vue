@@ -256,24 +256,33 @@
               v-for="q in unselectedQuestions"
               :key="q.id"
               type="button"
-              class="w-full text-left px-4 py-3 border-b border-slate-100 last:border-0 hover:bg-blue-50 transition-colors cursor-pointer flex items-start gap-3"
+              class="w-full text-left px-4 py-3 border-b border-slate-100 last:border-0 hover:bg-blue-50 transition-colors cursor-pointer flex items-center gap-3"
               @click="selectQuestion(q)"
             >
-              <Plus class="w-4 h-4 text-blue-500 flex-shrink-0 mt-1" />
-              <div class="flex-1 min-w-0 space-y-1">
-                <div class="flex items-center gap-1.5">
-                  <span class="text-[0.65rem] font-semibold px-1.5 py-0.5 rounded-full leading-none" :class="questionTypeBadgeClass(q)">{{ questionTypeLabel(q) }}</span>
-                  <span v-if="q.mark && q.mark > 0" class="text-[0.65rem] font-semibold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded-full leading-none">{{ q.mark }} pts</span>
-                </div>
-                <span class="block text-sm text-slate-700 line-clamp-2">{{ stripHtml(q.questionBlocks.find(b => b.type === 'text')?.content || '') || '(no text)' }}</span>
+              <Plus class="w-4 h-4 text-blue-500 flex-shrink-0" />
+              <div v-if="q.questionBlocks.find(b => b.type === 'image')" class="relative w-10 h-10 flex-shrink-0">
+                <img
+                  :src="`/api/files/${q.questionBlocks.find(b => b.type === 'image')!.content}`"
+                  class="w-10 h-10 rounded-lg object-cover border border-slate-200 bg-slate-100"
+                  alt=""
+                />
+                <span
+                  v-if="q.questionBlocks.filter(b => b.type === 'image').length > 1"
+                  class="absolute -bottom-1 -right-1 bg-slate-700 text-white text-[0.55rem] font-bold leading-none px-1 py-0.5 rounded-md"
+                >+{{ q.questionBlocks.filter(b => b.type === 'image').length - 1 }}</span>
               </div>
-              <img
-                v-if="q.questionBlocks.find(b => b.type === 'image')"
-                :src="`/api/files/${q.questionBlocks.find(b => b.type === 'image')!.content}`"
-                class="w-12 h-12 rounded-lg object-cover flex-shrink-0 border border-slate-100"
-                alt=""
-              />
-              <div v-else class="w-12 h-12 flex-shrink-0" />
+              <div v-else class="w-10 h-10 flex-shrink-0" />
+              <div class="flex-1 min-w-0">
+                <span class="block text-sm text-slate-800 leading-snug max-h-[2.5rem] overflow-hidden" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">{{ stripHtml(q.questionBlocks.find(b => b.type === 'text')?.content || '') || '(no text)' }}</span>
+                <div class="flex gap-1.5 mt-1 flex-wrap items-center">
+                  <span class="text-[0.65rem] font-semibold px-1.5 py-0.5 rounded-full leading-none" :class="questionTypeBadgeClass(q)">{{ questionTypeLabel(q) }}</span>
+                </div>
+              </div>
+              <div v-if="!q.isBriefing && q.mark != null && q.mark > 0" class="flex flex-col items-center justify-center w-9 flex-shrink-0">
+                <span class="text-sm font-bold text-slate-700 leading-none">{{ q.mark }}</span>
+                <span class="text-[0.6rem] font-medium text-slate-400 uppercase tracking-wide leading-none mt-0.5">pts</span>
+              </div>
+              <div v-else class="w-9 flex-shrink-0" />
             </button>
           </div>
         </div>
@@ -305,27 +314,36 @@
               <div
                 v-for="(q, i) in selectedQuestions"
                 :key="q.id"
-                class="flex items-start gap-2 px-3 py-3 border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors group"
+                class="flex items-center gap-3 px-3 py-3 border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors group"
               >
-                <button type="button" class="q-drag-handle cursor-grab mt-1 text-slate-300 hover:text-slate-400 active:cursor-grabbing flex-shrink-0">
+                <button type="button" class="q-drag-handle cursor-grab text-slate-300 hover:text-slate-400 active:cursor-grabbing flex-shrink-0">
                   <GripVertical class="w-4 h-4" />
                 </button>
-                <span class="text-xs font-bold text-slate-300 w-5 flex-shrink-0 mt-1">{{ i + 1 }}</span>
-                <div class="flex-1 min-w-0 space-y-1">
-                  <div class="flex items-center gap-1.5">
-                    <span class="text-[0.65rem] font-semibold px-1.5 py-0.5 rounded-full leading-none" :class="questionTypeBadgeClass(q)">{{ questionTypeLabel(q) }}</span>
-                    <span v-if="q.mark && q.mark > 0" class="text-[0.65rem] font-semibold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded-full leading-none">{{ q.mark }} pts</span>
-                  </div>
-                  <span class="block text-sm text-slate-700 line-clamp-2">{{ stripHtml(q.questionBlocks.find(b => b.type === 'text')?.content || '') || '(no text)' }}</span>
+                <span class="text-xs font-bold text-slate-300 w-5 flex-shrink-0 text-right">{{ i + 1 }}</span>
+                <div v-if="q.questionBlocks.find(b => b.type === 'image')" class="relative w-10 h-10 flex-shrink-0">
+                  <img
+                    :src="`/api/files/${q.questionBlocks.find(b => b.type === 'image')!.content}`"
+                    class="w-10 h-10 rounded-lg object-cover border border-slate-200 bg-slate-100"
+                    alt=""
+                  />
+                  <span
+                    v-if="q.questionBlocks.filter(b => b.type === 'image').length > 1"
+                    class="absolute -bottom-1 -right-1 bg-slate-700 text-white text-[0.55rem] font-bold leading-none px-1 py-0.5 rounded-md"
+                  >+{{ q.questionBlocks.filter(b => b.type === 'image').length - 1 }}</span>
                 </div>
-                <img
-                  v-if="q.questionBlocks.find(b => b.type === 'image')"
-                  :src="`/api/files/${q.questionBlocks.find(b => b.type === 'image')!.content}`"
-                  class="w-12 h-12 rounded-lg object-cover flex-shrink-0 border border-slate-100"
-                  alt=""
-                />
-                <div v-else class="w-12 h-12 flex-shrink-0" />
-                <button type="button" class="w-6 h-6 flex items-center justify-center rounded-md text-slate-300 hover:text-red-500 hover:bg-red-50 transition flex-shrink-0 mt-1 cursor-pointer" @click="deselectQuestion(q)">
+                <div v-else class="w-10 h-10 flex-shrink-0" />
+                <div class="flex-1 min-w-0">
+                  <span class="block text-sm text-slate-800 leading-snug max-h-[2.5rem] overflow-hidden" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">{{ stripHtml(q.questionBlocks.find(b => b.type === 'text')?.content || '') || '(no text)' }}</span>
+                  <div class="flex gap-1.5 mt-1 flex-wrap items-center">
+                    <span class="text-[0.65rem] font-semibold px-1.5 py-0.5 rounded-full leading-none" :class="questionTypeBadgeClass(q)">{{ questionTypeLabel(q) }}</span>
+                  </div>
+                </div>
+                <div v-if="!q.isBriefing && q.mark != null && q.mark > 0" class="flex flex-col items-center justify-center w-9 flex-shrink-0">
+                  <span class="text-sm font-bold text-slate-700 leading-none">{{ q.mark }}</span>
+                  <span class="text-[0.6rem] font-medium text-slate-400 uppercase tracking-wide leading-none mt-0.5">pts</span>
+                </div>
+                <div v-else class="w-9 flex-shrink-0" />
+                <button type="button" class="w-6 h-6 flex items-center justify-center rounded-md text-slate-300 hover:text-red-500 hover:bg-red-50 transition flex-shrink-0 cursor-pointer" @click="deselectQuestion(q)">
                   <X class="w-3.5 h-3.5" />
                 </button>
               </div>
@@ -390,21 +408,29 @@
             class="flex items-center gap-3 px-4 py-3"
           >
             <span class="text-xs font-bold text-slate-300 w-5 flex-shrink-0 text-right">{{ i + 1 }}</span>
-            <div class="flex-1 min-w-0 flex items-center gap-2">
-              <span class="text-[0.65rem] font-semibold px-1.5 py-0.5 rounded-full leading-none flex-shrink-0" :class="questionTypeBadgeClass(q)">{{ questionTypeLabel(q) }}</span>
-              <span class="text-sm text-slate-700 truncate">{{ stripHtml(q.questionBlocks.find(b => b.type === 'text')?.content || '') || '(no text)' }}</span>
-            </div>
-            <div class="flex items-center gap-2 flex-shrink-0">
-              <span v-if="q.mark && q.mark > 0" class="text-[0.65rem] font-semibold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded-full leading-none">{{ q.mark }} pts</span>
-              <div v-else class="h-5" />
+            <div v-if="q.questionBlocks.find(b => b.type === 'image')" class="relative w-8 h-8 flex-shrink-0">
               <img
-                v-if="q.questionBlocks.find(b => b.type === 'image')"
                 :src="`/api/files/${q.questionBlocks.find(b => b.type === 'image')!.content}`"
-                class="w-8 h-8 rounded-lg object-cover border border-slate-100"
+                class="w-8 h-8 rounded-lg object-cover border border-slate-200 bg-slate-100"
                 alt=""
               />
-              <div v-else class="w-8 h-8 flex-shrink-0" />
+              <span
+                v-if="q.questionBlocks.filter(b => b.type === 'image').length > 1"
+                class="absolute -bottom-1 -right-1 bg-slate-700 text-white text-[0.55rem] font-bold leading-none px-1 py-0.5 rounded-md"
+              >+{{ q.questionBlocks.filter(b => b.type === 'image').length - 1 }}</span>
             </div>
+            <div v-else class="w-8 h-8 flex-shrink-0" />
+            <div class="flex-1 min-w-0">
+              <span class="block text-sm text-slate-800 leading-snug max-h-[2.5rem] overflow-hidden" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">{{ stripHtml(q.questionBlocks.find(b => b.type === 'text')?.content || '') || '(no text)' }}</span>
+              <div class="flex gap-1.5 mt-1 flex-wrap items-center">
+                <span class="text-[0.65rem] font-semibold px-1.5 py-0.5 rounded-full leading-none" :class="questionTypeBadgeClass(q)">{{ questionTypeLabel(q) }}</span>
+              </div>
+            </div>
+            <div v-if="!q.isBriefing && q.mark != null && q.mark > 0" class="flex flex-col items-center justify-center w-9 flex-shrink-0">
+              <span class="text-sm font-bold text-slate-700 leading-none">{{ q.mark }}</span>
+              <span class="text-[0.6rem] font-medium text-slate-400 uppercase tracking-wide leading-none mt-0.5">pts</span>
+            </div>
+            <div v-else class="w-9 flex-shrink-0" />
           </div>
         </div>
       </div>
@@ -481,7 +507,7 @@ function stripHtml(html: string): string {
 function questionTypeLabel(q: Question): string {
   if (q.isBriefing) return 'Briefing'
   if (q.expectPhoto) return 'Photo'
-  if (q.expectsTextInput) return 'Text Input'
+  if (q.expectsTextInput) return 'Team Input'
   if (q.options && q.options.length > 0) return 'Multiple Choice'
   return 'Open'
 }

@@ -327,7 +327,7 @@ Frontend references image IDs as `content` values inside `ContentBlock` objects 
 ---
 
 ## Default Dev Credentials
-- **Admin login**: `localadmin` / `szR.ir=-:Un~}RYyxZ0c` (seeded on startup by `DataInitializer` with `ROLE_ADMIN`)
+- **Admin login**: `localadmin` / `password88` (seeded on startup by `DataInitializer` with `ROLE_ADMIN`)
 - **pgAdmin**: `admin@telegramquiz.com` / `admin`
 - **PostgreSQL**: host `localhost:5432`, db/user/pass `postgres`
 - **Redis**: `localhost:6379` (no auth in dev)

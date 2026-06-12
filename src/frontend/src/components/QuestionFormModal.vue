@@ -111,7 +111,7 @@
                       <span class="text-xs text-slate-500 leading-snug">Instructions + photo, then READY</span>
                     </button>
 
-                    <!-- Text Input -->
+                    <!-- Team Input -->
                     <button
                       type="button"
                       class="flex flex-col items-center gap-2 px-3 py-4 rounded-xl border-2 transition cursor-pointer text-center"
@@ -126,10 +126,10 @@
                           ? 'bg-emerald-600 text-white shadow-sm'
                           : 'bg-slate-100 text-slate-400'"
                       >
-                        <Type class="w-5 h-5" />
+                        <Users class="w-5 h-5" />
                       </div>
-                      <span class="text-sm font-bold leading-tight" :class="form.expectsTextInput ? 'text-emerald-700' : 'text-slate-700'">Text Input</span>
-                      <span class="text-xs text-slate-500 leading-snug">Players type a short answer like team name</span>
+                      <span class="text-sm font-bold leading-tight" :class="form.expectsTextInput ? 'text-emerald-700' : 'text-slate-700'">Team Input</span>
+                      <span class="text-xs text-slate-500 leading-snug">Players enter their team name</span>
                     </button>
 
                   </div>
@@ -427,10 +427,6 @@
                     >
                       <div class="flex items-center justify-between gap-3">
                         <div class="flex items-center gap-2">
-                          <div class="w-7 h-7 rounded-lg flex items-center justify-center transition"
-                            :class="form.showActionButton ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-400'">
-                            <CheckCircle2 class="w-4 h-4" />
-                          </div>
                           <div>
                             <h3 class="text-sm font-bold text-slate-900">Action Button</h3>
                             <p class="text-xs text-slate-500">Show a button after the reply so teams can proceed.</p>
@@ -526,13 +522,6 @@
                       <!-- Header row -->
                       <div class="flex items-center justify-between gap-3">
                         <div class="flex items-center gap-2">
-                          <div class="w-7 h-7 rounded-lg flex items-center justify-center transition"
-                            :class="form.showActionButton
-                              ? (form.briefingButtonType === 'start-timer' ? 'bg-amber-500 text-white' : 'bg-emerald-500 text-white')
-                              : 'bg-slate-100 text-slate-400'">
-                            <Timer v-if="form.briefingButtonType === 'start-timer'" class="w-4 h-4" />
-                            <CheckCircle2 v-else class="w-4 h-4" />
-                          </div>
                           <div>
                             <h3 class="text-sm font-bold text-slate-900">Action Button</h3>
                             <p class="text-xs text-slate-500">Show a button on the briefing slide.</p>
@@ -558,7 +547,6 @@
                               ? 'border-emerald-400 bg-emerald-50 text-emerald-700'
                               : 'border-slate-200 bg-white text-slate-500 hover:border-emerald-200'"
                             @click="form.briefingButtonType = 'advance'; if (!form.actionButtonText || form.actionButtonText === 'Start Timer') form.actionButtonText = 'READY'">
-                            <CheckCircle2 class="w-4 h-4 shrink-0" />
                             <div class="text-left">
                               <div class="text-xs font-semibold leading-tight">Advance</div>
                               <div class="text-[0.65rem] leading-tight opacity-70">Proceed to next</div>
@@ -570,7 +558,6 @@
                               ? 'border-amber-400 bg-amber-50 text-amber-700'
                               : 'border-slate-200 bg-white text-slate-500 hover:border-amber-200'"
                             @click="form.briefingButtonType = 'start-timer'; if (!form.actionButtonText || form.actionButtonText === 'READY') form.actionButtonText = 'Start Timer'">
-                            <Timer class="w-4 h-4 shrink-0" />
                             <div class="text-left">
                               <div class="text-xs font-semibold leading-tight">Start Timer</div>
                               <div class="text-[0.65rem] leading-tight opacity-70">Keeps slide visible</div>
@@ -664,12 +651,12 @@
                     <div class="tg-msg"><span class="text-slate-400 italic">Your instructions…</span><span class="tg-ts">12:00</span></div>
                   </div>
                   <div v-if="form.showActionButton" class="tg-keyboard">
-                    <div v-if="form.briefingButtonType === 'start-timer'" class="tg-kb-btn">⏱ {{ form.actionButtonText || 'Start Timer' }}</div>
-                    <div v-else class="tg-kb-btn tg-kb-ready">✅ {{ form.actionButtonText || 'READY' }}</div>
+                    <div v-if="form.briefingButtonType === 'start-timer'" class="tg-kb-btn">{{ form.actionButtonText || 'Start Timer' }}</div>
+                    <div v-else class="tg-kb-btn tg-kb-ready">{{ form.actionButtonText || 'READY' }}</div>
                   </div>
                 </template>
 
-                <!-- ── Question preview (Multiple Choice / Photo / Text Input) ── -->
+                <!-- ── Question preview (Multiple Choice / Photo / Team Input) ── -->
                 <template v-else>
 
                 <template v-if="form.expectsTextInput">
@@ -690,7 +677,7 @@
                     <div class="tg-msg"><span class="text-slate-400 italic">Ask the player to type something…</span><span class="tg-ts">12:00</span></div>
                   </div>
                   <div class="tg-row tg-row-user">
-                    <div class="tg-msg tg-msg-user"><span class="text-slate-500 italic">&#123;&#123;Player types a reply here&#125;&#125;</span><span class="tg-ts">12:01</span></div>
+                    <div class="tg-msg tg-msg-user"><span class="text-slate-500 italic">&#123;&#123;player_input&#125;&#125;</span><span class="tg-ts">12:01</span></div>
                   </div>
                 </template>
 
@@ -773,7 +760,7 @@
                   </template>
                   <div v-else-if="!form.showActionButton" class="tg-empty-explanation">No after answer content added yet…</div>
                   <div v-if="form.showActionButton" class="tg-keyboard">
-                    <div class="tg-kb-btn tg-kb-ready">✅ {{ form.actionButtonText || 'Next Question' }}</div>
+                    <div class="tg-kb-btn tg-kb-ready">{{ form.actionButtonText || 'Next Question' }}</div>
                   </div>
                 </template>
 
@@ -789,7 +776,7 @@
 
 <script setup lang="ts">
 import { ref, watch, computed, nextTick, onUnmounted } from 'vue'
-import { ListChecks, Camera, BookOpen, Type, CheckCircle2, Timer } from '@lucide/vue'
+import { ListChecks, Camera, BookOpen, Users } from '@lucide/vue'
 import { VueDraggable } from 'vue-draggable-plus'
 import type { Question, QuestionRequest, ContentBlock } from '@/types/question'
 import type { Folder } from '@/types/folder'
@@ -859,7 +846,7 @@ function blankForm() {
     showBriefingSecondaryButton: false,
     briefingButtonType: 'advance' as 'advance' | 'start-timer',
     showActionButton: false,
-    actionButtonText: 'READY',
+    actionButtonText: 'Next Question',
     afterAnswerButtonText: 'Next Question',
     showAfterAnswerButton: false,
     hintBlocks: [] as FormBlock[],
@@ -888,10 +875,8 @@ const tabs = computed(() => {
   }
   if (form.value.expectsTextInput) {
     return [
-      { value: 'question' as const, label: 'Question' },
-      { value: 'mark' as const, label: 'Points' },
-      { value: 'hint' as const, label: 'Hint' },
-      { value: 'explanation' as const, label: 'After Answer' },
+      { value: 'question' as const, label: 'Content' },
+      { value: 'explanation' as const, label: 'Confirmation' },
     ]
   }
   if (form.value.expectPhoto) {
@@ -1041,6 +1026,10 @@ function setQuestionType(expectPhoto: boolean, isBriefing: boolean, expectsTextI
     if (!form.value.actionButtonText || form.value.actionButtonText === 'Next Question') {
       form.value.actionButtonText = form.value.briefingButtonType === 'start-timer' ? 'Start Timer' : 'READY'
     }
+  } else if (expectsTextInput) {
+    if (!form.value.actionButtonText || form.value.actionButtonText === 'Next Question' || form.value.actionButtonText === 'READY') {
+      form.value.actionButtonText = 'Start Timer'
+    }
   } else {
     if (!form.value.actionButtonText || form.value.actionButtonText === 'READY' || form.value.actionButtonText === 'Start Timer') {
       form.value.actionButtonText = 'Next Question'
@@ -1152,7 +1141,7 @@ async function submit() {
     questionBlocks: toContentBlocks(form.value.questionBlocks),
     options: (form.value.expectPhoto || form.value.isBriefing || form.value.expectsTextInput) ? [] : form.value.options.filter(o => o.trim()),
     answer: (form.value.isBriefing || form.value.expectsTextInput) ? null : (form.value.answer || null),
-    mark: form.value.isBriefing ? null : (form.value.mark ?? 0),
+    mark: (form.value.isBriefing || form.value.expectsTextInput) ? null : (form.value.mark ?? 0),
     expectPhoto: form.value.expectPhoto,
     isBriefing: form.value.isBriefing,
     expectsTextInput: form.value.expectsTextInput,

@@ -145,7 +145,7 @@ src/frontend/src/
 - CORS is hardcoded to `http://localhost:5173` in both backend services and the gateway.
 - The gateway is a transparent proxy with no security — all auth is handled downstream.
 - File uploads (`/api/files/**`) are publicly accessible without auth.
-- Default admin account: `localadmin` / `szR.ir=-:Un~}RYyxZ0c` (seeded by `DataInitializer`).
+- Default admin account: `localadmin` / `password88` (seeded by `DataInitializer`).
 
 ## Deployment
 
@@ -160,9 +160,17 @@ Two deployment methods are supported:
 - Log files stored in Docker volumes (`auth-logs`, `main-logs`, `gateway-logs`)
 
 ### Render (Cloud)
-- `render.yaml` — Render blueprint for one-click deployment
+- `render.yaml` — Render blueprint for one-click deployments
 - Defines: 4 web services, 1 managed PostgreSQL, 1 managed Redis
 - Database credentials auto-injected via `fromDatabase` (individual properties: `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USERNAME`, `DB_PASSWORD`)
 - Redis connection auto-injected via `fromService`
 - JWT secret shared between auth and main services via direct `generateValue: true` in each service
 - Frontend `API_GATEWAY_URL` injected at runtime via `envsubst` in Nginx config
+
+## Deployment Config Maintenance
+
+Whenever adding a new library, dependency, service, port, environment variable, or infrastructure setup that affects how the application runs:
+- **Always review and update `docker-compose.yml`** if the change requires new containers, volumes, networks, ports, or environment variables
+- **Always review and update `render.yaml`** if the change requires new services, env vars, build commands, or resource allocations
+- **Always review and update any relevant `Dockerfile`** if the change affects how a service is built or run
+- **Always update `.env.example`** if new environment variables are introduced

@@ -319,13 +319,13 @@
             </div>
             <div v-else class="w-10 h-10 shrink-0" />
             <div class="flex-1 min-w-0">
-              <span class="block text-sm font-medium text-slate-900 truncate sm:whitespace-normal">{{ stripHtml(q.questionBlocks.find(b => b.type === 'text')?.content || '') || '(no text)' }}</span>
+              <span class="block text-sm text-slate-800 leading-snug max-h-[2.5rem] overflow-hidden" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">{{ stripHtml(q.questionBlocks.find(b => b.type === 'text')?.content || '') || '(no text)' }}</span>
               <div class="flex gap-1.5 mt-1 flex-wrap">
                 <span v-if="q.isBriefing" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-amber-100 text-amber-700">
                   <BookOpen class="w-3 h-3" />Briefing
                 </span>
                 <span v-else-if="q.expectsTextInput" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-700">
-                  <Type class="w-3 h-3" />Text Input
+                  <Users class="w-3 h-3" />Team Input
                 </span>
                 <span v-else-if="q.options.length" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-blue-100 text-blue-700">
                   <ListChecks class="w-3 h-3" />Multiple Choice
@@ -338,10 +338,10 @@
                   <FolderIcon class="w-3 h-3" />{{ folders.find(f => f.id === q.folderId)?.name }}
                 </span>
               </div>
-              <p v-if="q.updatedAt" class="text-[0.65rem] text-slate-400 mt-0.5 truncate">{{ formatRelative(q.updatedAt) }}<template v-if="q.updatedBy"> � {{ q.updatedBy }}</template></p>
+              <p v-if="q.updatedAt" class="text-[0.65rem] text-slate-400 mt-0.5 truncate">{{ formatRelative(q.updatedAt) }}<template v-if="q.updatedBy"> — {{ q.updatedBy }}</template></p>
             </div>
             <div class="flex items-center gap-1.5 flex-shrink-0">
-              <div v-if="!q.isBriefing && q.mark != null && q.mark > 0" class="flex flex-col items-center justify-center w-9 shrink-0">
+              <div v-if="!q.isBriefing && !q.expectsTextInput && q.mark != null && q.mark > 0" class="flex flex-col items-center justify-center w-9 shrink-0">
                 <span class="text-sm font-bold text-slate-700 leading-none">{{ q.mark }}</span>
                 <span class="text-[0.6rem] font-medium text-slate-400 uppercase tracking-wide leading-none mt-0.5">pts</span>
               </div>
@@ -395,13 +395,13 @@
               </div>
               <div v-else class="w-10 h-10 shrink-0" />
               <div class="flex-1 min-w-0">
-                <span class="block text-sm font-medium text-slate-900 truncate sm:whitespace-normal">{{ stripHtml(q.questionBlocks.find(b => b.type === 'text')?.content || '') || '(no text)' }}</span>
+                <span class="block text-sm text-slate-800 leading-snug max-h-[2.5rem] overflow-hidden" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">{{ stripHtml(q.questionBlocks.find(b => b.type === 'text')?.content || '') || '(no text)' }}</span>
                 <div class="flex gap-1.5 mt-1 flex-wrap">
                   <span v-if="q.isBriefing" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-amber-100 text-amber-700">
                     <BookOpen class="w-3 h-3" />Briefing
                   </span>
                   <span v-else-if="q.expectsTextInput" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-700">
-                    <Type class="w-3 h-3" />Text Input
+                    <Users class="w-3 h-3" />Team Input
                   </span>
                   <span v-else-if="q.options.length" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-blue-100 text-blue-700">
                     <ListChecks class="w-3 h-3" />Multiple Choice
@@ -414,7 +414,7 @@
                 <p v-if="q.updatedAt" class="text-[0.65rem] text-slate-400 mt-0.5 truncate">{{ formatRelative(q.updatedAt) }}<template v-if="q.updatedBy"> � {{ q.updatedBy }}</template></p>
               </div>
               <div class="flex items-center gap-1.5 flex-shrink-0">
-                <div v-if="!q.isBriefing && q.mark != null && q.mark > 0" class="flex flex-col items-center justify-center w-9 shrink-0">
+                <div v-if="!q.isBriefing && !q.expectsTextInput && q.mark != null && q.mark > 0" class="flex flex-col items-center justify-center w-9 shrink-0">
                   <span class="text-sm font-bold text-slate-700 leading-none">{{ q.mark }}</span>
                   <span class="text-[0.6rem] font-medium text-slate-400 uppercase tracking-wide leading-none mt-0.5">pts</span>
                 </div>
@@ -469,13 +469,13 @@
               </div>
               <div v-else class="w-10 h-10 shrink-0" />
               <div class="flex-1 min-w-0">
-                <span class="block text-sm font-medium text-slate-900 truncate sm:whitespace-normal">{{ stripHtml(q.questionBlocks.find(b => b.type === 'text')?.content || '') || '(no text)' }}</span>
+                <span class="block text-sm text-slate-800 leading-snug max-h-[2.5rem] overflow-hidden" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">{{ stripHtml(q.questionBlocks.find(b => b.type === 'text')?.content || '') || '(no text)' }}</span>
                 <div class="flex gap-1.5 mt-1 flex-wrap">
                   <span v-if="q.isBriefing" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-amber-100 text-amber-700">
                     <BookOpen class="w-3 h-3" />Briefing
                   </span>
                   <span v-else-if="q.expectsTextInput" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-700">
-                    <Type class="w-3 h-3" />Text Input
+                    <Users class="w-3 h-3" />Team Input
                   </span>
                   <span v-else-if="q.options.length" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-blue-100 text-blue-700">
                     <ListChecks class="w-3 h-3" />Multiple Choice
@@ -488,7 +488,7 @@
                 <p v-if="q.updatedAt" class="text-[0.65rem] text-slate-400 mt-0.5 truncate">{{ formatRelative(q.updatedAt) }}<template v-if="q.updatedBy"> � {{ q.updatedBy }}</template></p>
               </div>
               <div class="flex items-center gap-1.5 flex-shrink-0">
-                <div v-if="!q.isBriefing && q.mark != null && q.mark > 0" class="flex flex-col items-center justify-center w-9 shrink-0">
+                <div v-if="!q.isBriefing && !q.expectsTextInput && q.mark != null && q.mark > 0" class="flex flex-col items-center justify-center w-9 shrink-0">
                   <span class="text-sm font-bold text-slate-700 leading-none">{{ q.mark }}</span>
                   <span class="text-[0.6rem] font-medium text-slate-400 uppercase tracking-wide leading-none mt-0.5">pts</span>
                 </div>
@@ -549,7 +549,7 @@ import { ref, computed, watch, onMounted, nextTick } from 'vue'
 import { VueDraggable } from 'vue-draggable-plus'
 import {
   Plus, AlertCircle, BookOpen, GripVertical, Pencil, Trash2,
-  Type, ListChecks, Camera,
+  Users, ListChecks, Camera,
   Library, Inbox, FolderPlus, FolderOpen, Share2, Bell, ChevronDown, ChevronLeft, ChevronRight,
   Folder as FolderIcon, FolderSymlink, Search, Copy,
 } from '@lucide/vue'
@@ -633,11 +633,15 @@ async function acceptInvite(id: number) {
   try {
     await foldersService.acceptInvitation(id)
     pendingInvitations.value = pendingInvitations.value.filter(inv => inv.id !== id)
-    // Reload folders and questions to pick up the newly shared folder
     ;[folders.value, questions.value] = await Promise.all([
       foldersService.list(),
       questionsService.list(),
     ])
+    if (selectedFolderFilter.value === 'unfiled') {
+      unfiledQuestions.value = [...questions.value]
+        .filter(q => q.folderId == null)
+        .sort((a, b) => a.orderIndex - b.orderIndex)
+    }
   } catch {
     showAlert('Error', 'Failed to accept invitation.')
   }
@@ -727,9 +731,10 @@ const activeFolderId = computed(() =>
 // -- Per-folder question list (for drag reorder) ----------------------------
 const folderQuestions = ref<Question[]>([])
 
-watch([selectedFolderFilter, questions], () => {
-  if (typeof selectedFolderFilter.value === 'number') {
-    folderQuestions.value = questions.value.filter(q => q.folderId === selectedFolderFilter.value)
+watch(selectedFolderFilter, (newVal) => {
+  if (typeof newVal === 'number') {
+    folderQuestions.value = questions.value.filter(q => q.folderId === newVal)
+      .sort((a, b) => a.orderIndex - b.orderIndex)
   }
 }, { immediate: true })
 
@@ -744,18 +749,6 @@ watch(selectedFolderFilter, (newVal) => {
       .sort((a, b) => a.orderIndex - b.orderIndex)
   }
 }, { immediate: true })
-
-// Re-sync only when the unfiled count changes (add / delete / move to-from folder).
-// A same-count change means it was a drag reorder � preserve the user's order.
-watch(questions, (newVal) => {
-  if (selectedFolderFilter.value !== 'unfiled') return
-  const newCount = newVal.filter(q => q.folderId == null).length
-  if (newCount !== unfiledQuestions.value.length) {
-    unfiledQuestions.value = [...newVal]
-      .filter(q => q.folderId == null)
-      .sort((a, b) => a.orderIndex - b.orderIndex)
-  }
-})
 
 // -- Drag-to-folder ---------------------------------------------------------
 const draggingQuestion = ref<Question | null>(null)
@@ -804,6 +797,18 @@ async function onDrop(target: 'unfiled' | number) {
     const updated = await questionsService.assignFolder(q.id, newFolderId)
     const idx = questions.value.findIndex(x => x.id === q.id)
     if (idx >= 0) questions.value.splice(idx, 1, updated)
+
+    if (selectedFolderFilter.value === 'unfiled' && newFolderId !== null) {
+      const uIdx = unfiledQuestions.value.findIndex(x => x.id === q.id)
+      if (uIdx >= 0) unfiledQuestions.value.splice(uIdx, 1)
+    }
+    if (typeof selectedFolderFilter.value === 'number' && selectedFolderFilter.value !== newFolderId) {
+      const fIdx = folderQuestions.value.findIndex(x => x.id === q.id)
+      if (fIdx >= 0) folderQuestions.value.splice(fIdx, 1)
+    }
+    if (typeof selectedFolderFilter.value === 'number' && selectedFolderFilter.value === newFolderId) {
+      folderQuestions.value.push(updated)
+    }
   } catch {
     showAlert('Error', 'Failed to move question.')
   }
@@ -878,6 +883,11 @@ async function confirmDeleteFolder(folder: Folder) {
     await foldersService.delete(folder.id)
     folders.value = folders.value.filter(f => f.id !== folder.id)
     questions.value.forEach(q => { if (q.folderId === folder.id) q.folderId = null })
+    if (selectedFolderFilter.value === 'unfiled') {
+      unfiledQuestions.value = [...questions.value]
+        .filter(q => q.folderId == null)
+        .sort((a, b) => a.orderIndex - b.orderIndex)
+    }
     if (selectedFolderFilter.value === folder.id) selectedFolderFilter.value = null
   } catch {
     showAlert('Error', 'Failed to delete folder.')
@@ -902,9 +912,31 @@ function onSaved(q: Question) {
   const idx = questions.value.findIndex(x => x.id === q.id)
   if (idx >= 0) {
     questions.value = questions.value.map((x, i) => i === idx ? q : x)
+    if (selectedFolderFilter.value === 'unfiled') {
+      const uIdx = unfiledQuestions.value.findIndex(x => x.id === q.id)
+      if (q.folderId == null) {
+        if (uIdx >= 0) unfiledQuestions.value.splice(uIdx, 1, q)
+        else unfiledQuestions.value.push(q)
+      } else if (uIdx >= 0) {
+        unfiledQuestions.value.splice(uIdx, 1)
+      }
+    } else if (typeof selectedFolderFilter.value === 'number') {
+      const fIdx = folderQuestions.value.findIndex(x => x.id === q.id)
+      if (q.folderId === selectedFolderFilter.value) {
+        if (fIdx >= 0) folderQuestions.value.splice(fIdx, 1, q)
+        else folderQuestions.value.push(q)
+      } else if (fIdx >= 0) {
+        folderQuestions.value.splice(fIdx, 1)
+      }
+    }
     toast.success('Question updated')
   } else {
     questions.value = [...questions.value, q]
+    if (selectedFolderFilter.value === 'unfiled' && q.folderId == null) {
+      unfiledQuestions.value.push(q)
+    } else if (typeof selectedFolderFilter.value === 'number' && q.folderId === selectedFolderFilter.value) {
+      folderQuestions.value.push(q)
+    }
     toast.success('Question created')
   }
   modalVisible.value = false
@@ -921,6 +953,11 @@ async function duplicateQuestion(q: Question) {
       explanationBlocks: q.explanationBlocks,
     })
     questions.value.push(duplicated)
+    if (selectedFolderFilter.value === 'unfiled' && duplicated.folderId == null) {
+      unfiledQuestions.value.push(duplicated)
+    } else if (typeof selectedFolderFilter.value === 'number' && duplicated.folderId === selectedFolderFilter.value) {
+      folderQuestions.value.push(duplicated)
+    }
     toast.success('Question duplicated')
   } catch {
     toast.error('Failed to duplicate question')
@@ -986,6 +1023,11 @@ async function confirmDelete(q: Question) {
   try {
     await questionsService.delete(q.id)
     questions.value = questions.value.filter(x => x.id !== q.id)
+    if (selectedFolderFilter.value === 'unfiled') {
+      unfiledQuestions.value = unfiledQuestions.value.filter(x => x.id !== q.id)
+    } else if (typeof selectedFolderFilter.value === 'number') {
+      folderQuestions.value = folderQuestions.value.filter(x => x.id !== q.id)
+    }
     toast.success('Question deleted')
   } catch {
     showAlert('Delete failed', 'Could not delete the question. Please try again.')
