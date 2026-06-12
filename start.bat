@@ -14,12 +14,16 @@ if %errorlevel% neq 0 (
 )
 
 echo Checking if services are already running...
-docker compose ps --format json >nul 2>&1
+docker compose ps --format json 2>nul | findstr "running" >nul
 if %errorlevel% equ 0 (
+    echo.
     docker compose ps --format "table {{.Name}}\t{{.Status}}" 2>nul
     echo.
-    choice /M "Services may already be running. Restart?"
+    choice /M "Services are already running. Restart?"
     if errorlevel 2 goto :skip_restart
+    echo.
+    echo Stopping existing services...
+    docker compose down
 )
 
 echo.
