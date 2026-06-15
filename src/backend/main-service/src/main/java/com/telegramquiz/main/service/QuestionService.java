@@ -1,5 +1,6 @@
 package com.telegramquiz.main.service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -10,11 +11,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.telegramquiz.main.dto.ExportedQuestionDto;
+import com.telegramquiz.main.dto.ExportRequestDto;
+import com.telegramquiz.main.dto.ExportResponseDto;
+import com.telegramquiz.main.dto.ImportQuestionDto;
+import com.telegramquiz.main.dto.ImportRequestDto;
+import com.telegramquiz.main.dto.ImportResultDto;
 import com.telegramquiz.main.dto.QuestionRequestDto;
 import com.telegramquiz.main.dto.QuestionResponseDto;
 import com.telegramquiz.main.entity.FolderAccessLevel;
 import com.telegramquiz.main.entity.FolderMemberStatus;
 import com.telegramquiz.main.entity.Question;
+import com.telegramquiz.main.model.ContentBlock;
 import com.telegramquiz.main.repository.QuestionRepository;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -26,6 +34,7 @@ public class QuestionService {
 
     private final QuestionRepository questionRepository;
     private final FolderService folderService;
+    private final ImageBlobService imageBlobService;
 
     public List<QuestionResponseDto> findAll(String username) {
         return questionRepository.findAllAccessible(username, FolderMemberStatus.ACCEPTED)
@@ -151,6 +160,120 @@ public class QuestionService {
             if (q != null) q.setOrderIndex(i);
         }
         questionRepository.saveAll(questions);
+    }
+
+    public ExportResponseDto exportQuestions(ExportRequestDto dto, String username) {
+        List<Question> questions = questionRepository.findAllAccessibleByIds(
+                dto.questionIds(), username, FolderMemberStatus.ACCEPTED);
+
+        List<ExportedQuestionDto> exported = questions.stream()
+                .map(q -> toExportedDto(q, dto.includeImages()))
+                .toList();
+
+        return new ExportResponseDto(
+                "1.0",
+                LocalDateTime.now().toString(),
+                username,
+                "telegram-quiz",
+                exported
+        );
+    }
+
+    @Transactional
+    public ImportResultDto importQuestions(ImportRequestDto dto, String username) {
+        List<String> errors = new ArrayList<>();
+        int imported = 0;
+
+        for (int i = 0; i < dto.questions().size(); i++) {
+            ImportQuestionDto qDto = dto.questions().get(i);
+            try {
+                List<ContentBlock> questionBlocks = processImageBlocks(qDto.questionBlocks());
+                List<ContentBlock> hintBlocks = processImageBlocks(qDto.hintBlocks());
+                List<ContentBlock> explanationBlocks = processImageBlocks(qDto.explanationBlocks());
+
+                int nextOrder = (int) questionRepository.countByCreatedBy(username);
+
+                Question question = Question.builder()
+                        .createdBy(username)
+                        .questionBlocks(questionBlocks != null ? questionBlocks : new ArrayList<>())
+                        .orderIndex(nextOrder + i)
+                        .options(qDto.options() != null ? qDto.options() : new ArrayList<>())
+                        .answer(qDto.answer())
+                        .expectPhoto(Boolean.TRUE.equals(qDto.expectPhoto()))
+                        .isBriefing(Boolean.TRUE.equals(qDto.isBriefing()))
+                        .expectsTextInput(Boolean.TRUE.equals(qDto.expectsTextInput()))
+                        .briefingPrimaryButtonText(normalizeBriefingButtonText(qDto.briefingPrimaryButtonText(), "READY"))
+                        .showBriefingPrimaryButton(resolveBriefingButtonVisibility(qDto.showBriefingPrimaryButton(), true))
+                        .briefingSecondaryButtonText(normalizeBriefingButtonText(qDto.briefingSecondaryButtonText(), "Start Timer"))
+                        .showBriefingSecondaryButton(resolveBriefingButtonVisibility(qDto.showBriefingSecondaryButton(), true))
+                        .afterAnswerButtonText(normalizeOptionalButtonText(qDto.afterAnswerButtonText(), "Next Question"))
+                        .showAfterAnswerButton(resolveBriefingButtonVisibility(qDto.showAfterAnswerButton(), true))
+                        .hintBlocks(hintBlocks != null ? hintBlocks : new ArrayList<>())
+                        .explanationBlocks(explanationBlocks != null ? explanationBlocks : new ArrayList<>())
+                        .mark(qDto.mark())
+                        .folderId(null)
+                        .updatedBy(username)
+                        .build();
+
+                questionRepository.save(question);
+                imported++;
+            } catch (Exception e) {
+                errors.add("Question " + (i + 1) + ": " + e.getMessage());
+            }
+        }
+
+        return new ImportResultDto(imported, errors);
+    }
+
+    private ExportedQuestionDto toExportedDto(Question q, boolean includeImages) {
+        return new ExportedQuestionDto(
+                convertBlocks(q.getQuestionBlocks(), includeImages),
+                q.getOptions(),
+                q.getAnswer(),
+                q.isExpectPhoto(),
+                q.isBriefing(),
+                q.isExpectsTextInput(),
+                q.getBriefingPrimaryButtonText(),
+                q.isShowBriefingPrimaryButton(),
+                q.getBriefingSecondaryButtonText(),
+                q.isShowBriefingSecondaryButton(),
+                q.getAfterAnswerButtonText(),
+                q.isShowAfterAnswerButton(),
+                convertBlocks(q.getHintBlocks(), includeImages),
+                convertBlocks(q.getExplanationBlocks(), includeImages),
+                q.getMark()
+        );
+    }
+
+    private List<ContentBlock> convertBlocks(List<ContentBlock> blocks, boolean includeImages) {
+        if (blocks == null) return new ArrayList<>();
+        return blocks.stream()
+                .map(b -> {
+                    if ("image".equals(b.type()) && includeImages) {
+                        try {
+                            Long blobId = Long.parseLong(b.content());
+                            String dataUri = imageBlobService.toBase64DataUri(blobId);
+                            return new ContentBlock(b.type(), dataUri);
+                        } catch (Exception e) {
+                            return b;
+                        }
+                    }
+                    return b;
+                })
+                .toList();
+    }
+
+    private List<ContentBlock> processImageBlocks(List<ContentBlock> blocks) {
+        if (blocks == null) return new ArrayList<>();
+        return blocks.stream()
+                .map(b -> {
+                    if ("image".equals(b.type()) && b.content() != null && b.content().startsWith("data:")) {
+                        Long newId = imageBlobService.storeFromBase64DataUri(b.content());
+                        return new ContentBlock(b.type(), newId.toString());
+                    }
+                    return b;
+                })
+                .toList();
     }
 
     private Question getOrThrowForView(Long id, String username) {

@@ -27,6 +27,13 @@
             />
           </div>
           <button
+            class="inline-flex items-center gap-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm font-semibold px-4 py-2 rounded-xl transition cursor-pointer"
+            @click="importModalVisible = true"
+          >
+            <Upload class="w-4 h-4" />
+            Import
+          </button>
+          <button
             class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2 rounded-xl transition cursor-pointer"
             @click="openCreate"
           >
@@ -34,6 +41,53 @@
             Add Question
           </button>
         </div>
+      </div>
+
+      <!-- Selection action bar -->
+      <div
+        v-if="someSelected"
+        class="flex items-center gap-3 mb-4 px-4 py-3 rounded-xl bg-blue-50 border border-blue-200"
+      >
+        <button
+          class="w-5 h-5 rounded flex items-center justify-center text-blue-600 cursor-pointer"
+          @click="toggleSelectAll"
+        >
+          <CheckSquare v-if="allVisibleSelected" class="w-5 h-5" />
+          <Square v-else class="w-5 h-5" />
+        </button>
+        <span class="text-sm font-medium text-blue-900">
+          {{ selectedQuestionIds.size }} of {{ visibleQuestions.length }} selected
+        </span>
+        <div class="flex-1" />
+        <button
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-blue-700 bg-white border border-blue-200 hover:bg-blue-100 rounded-lg transition cursor-pointer"
+          @click="exportModalVisible = true"
+        >
+          <Download class="w-4 h-4" />
+          Export
+        </button>
+        <button
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-blue-700 bg-white border border-blue-200 hover:bg-blue-100 rounded-lg transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+          :disabled="duplicatingInProgress"
+          @click="duplicateSelectedQuestions"
+        >
+          <Copy class="w-4 h-4" />
+          Duplicate
+        </button>
+        <button
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-blue-700 bg-white border border-blue-200 hover:bg-blue-100 rounded-lg transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+          :disabled="movingInProgress"
+          @click="openMoveToFolderModal"
+        >
+          <FolderPlus class="w-4 h-4" />
+          Move to Folder
+        </button>
+        <button
+          class="px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-white rounded-lg transition cursor-pointer"
+          @click="clearSelection"
+        >
+          Clear
+        </button>
       </div>
 
       <div class="flex gap-5 items-start">
@@ -305,6 +359,14 @@
           <div v-for="(q, i) in questions" :key="q.id"
             class="flex items-center gap-3 px-5 py-3.5 border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors"
           >
+            <button
+              class="w-5 h-5 rounded flex items-center justify-center flex-shrink-0 cursor-pointer"
+              :class="selectedQuestionIds.has(q.id) ? 'text-blue-600' : 'text-slate-300 hover:text-slate-400'"
+              @click.stop="toggleSelect(q.id)"
+            >
+              <CheckSquare v-if="selectedQuestionIds.has(q.id)" class="w-5 h-5" />
+              <Square v-else class="w-5 h-5" />
+            </button>
             <span class="text-[0.8125rem] font-bold text-slate-300 w-[22px] shrink-0 text-right">{{ i + 1 }}</span>
             <div v-if="q.questionBlocks.some(b => b.type === 'image')" class="relative w-10 h-10 shrink-0">
               <img
@@ -370,11 +432,19 @@
           >
             <div v-for="(q, i) in unfiledQuestions" :key="q.id"
               class="flex items-center gap-3 px-5 py-3.5 border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors select-none"
-              :class="{ 'opacity-50': draggingQuestion?.id === q.id }"
+              :class="{ 'opacity-50': draggingQuestions.some(dq => dq.id === q.id) }"
               draggable="true"
               @dragstart="onDragStartFolder(q, $event)"
               @dragend="onDragEnd"
             >
+              <button
+                class="w-5 h-5 rounded flex items-center justify-center flex-shrink-0 cursor-pointer z-10"
+                :class="selectedQuestionIds.has(q.id) ? 'text-blue-600' : 'text-slate-300 hover:text-slate-400'"
+                @click.stop="toggleSelect(q.id)"
+              >
+                <CheckSquare v-if="selectedQuestionIds.has(q.id)" class="w-5 h-5" />
+                <Square v-else class="w-5 h-5" />
+              </button>
               <button
                 class="drag-handle bg-transparent border-0 cursor-grab p-1 rounded flex shrink-0 text-slate-300 hover:text-slate-400 active:cursor-grabbing transition-colors"
                 title="Drag to reorder" aria-label="Drag"
@@ -444,11 +514,19 @@
           >
             <div v-for="(q, i) in folderQuestions" :key="q.id"
               class="flex items-center gap-3 px-5 py-3.5 border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors select-none"
-              :class="{ 'opacity-50': draggingQuestion?.id === q.id }"
+              :class="{ 'opacity-50': draggingQuestions.some(dq => dq.id === q.id) }"
               draggable="true"
               @dragstart="onDragStartFolder(q, $event)"
               @dragend="onDragEnd"
             >
+              <button
+                class="w-5 h-5 rounded flex items-center justify-center flex-shrink-0 cursor-pointer z-10"
+                :class="selectedQuestionIds.has(q.id) ? 'text-blue-600' : 'text-slate-300 hover:text-slate-400'"
+                @click.stop="toggleSelect(q.id)"
+              >
+                <CheckSquare v-if="selectedQuestionIds.has(q.id)" class="w-5 h-5" />
+                <Square v-else class="w-5 h-5" />
+              </button>
               <button
                 class="drag-handle bg-transparent border-0 cursor-grab p-1 rounded flex shrink-0 text-slate-300 hover:text-slate-400 active:cursor-grabbing transition-colors"
                 title="Drag to reorder" aria-label="Drag"
@@ -540,6 +618,72 @@
       :readonly="shareModalReadonly"
       @close="closeShareModal"
     />
+
+    <!-- Export modal -->
+    <ExportModal
+      :visible="exportModalVisible"
+      :selected-count="selectedQuestionIds.size"
+      :question-ids="Array.from(selectedQuestionIds)"
+      @close="exportModalVisible = false"
+      @exported="clearSelection"
+    />
+
+    <!-- Import modal -->
+    <ImportModal
+      :visible="importModalVisible"
+      @close="importModalVisible = false"
+      @imported="onImported"
+    />
+
+    <!-- Move to folder modal -->
+    <teleport to="body">
+      <div v-if="moveToFolderModalVisible" class="fixed inset-0 z-50 flex items-center justify-center">
+        <div class="fixed inset-0 bg-black/40" />
+        <div class="relative bg-white rounded-xl shadow-xl w-full max-w-sm mx-4 overflow-hidden">
+          <div class="flex items-center justify-between px-5 py-4 border-b border-slate-200">
+            <h3 class="text-lg font-bold text-slate-900">Move to Folder</h3>
+            <button class="w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition cursor-pointer" @click="moveToFolderModalVisible = false">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+          </div>
+          <div class="px-5 py-4">
+            <p class="text-sm text-slate-600 mb-3">Move {{ selectedQuestionIds.size }} question(s) to:</p>
+            <select
+              v-model="moveToFolderTarget"
+              class="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 bg-white text-slate-700"
+            >
+              <option :value="null">Unfiled</option>
+              <option v-for="f in folders" :key="f.id" :value="f.id">{{ f.name }}</option>
+            </select>
+            <div v-if="movingInProgress || duplicatingInProgress" class="mt-3">
+              <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+                <div
+                  class="h-full bg-blue-600 rounded-full transition-all duration-300"
+                  :style="{ width: `${progressPercent}%` }"
+                />
+              </div>
+              <p class="text-xs text-slate-500 mt-1.5">{{ progressLabel }}</p>
+            </div>
+          </div>
+          <div class="flex items-center justify-end gap-2 px-5 py-3 bg-slate-50 border-t border-slate-200">
+            <button
+              class="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg transition cursor-pointer"
+              @click="moveToFolderModalVisible = false"
+              :disabled="movingInProgress || duplicatingInProgress"
+            >
+              Cancel
+            </button>
+            <button
+              class="px-4 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              @click="moveSelectedToFolder"
+              :disabled="movingInProgress"
+            >
+              Move
+            </button>
+          </div>
+        </div>
+      </div>
+    </teleport>
     </div>
   </AppLayout>
 </template>
@@ -552,11 +696,14 @@ import {
   Users, ListChecks, Camera,
   Library, Inbox, FolderPlus, FolderOpen, Share2, Bell, ChevronDown, ChevronLeft, ChevronRight,
   Folder as FolderIcon, FolderSymlink, Search, Copy,
+  Download, Upload, CheckSquare, Square,
 } from '@lucide/vue'
 import AppLayout from '@/components/AppLayout.vue'
 import QuestionFormModal from '@/components/QuestionFormModal.vue'
 import AppDialog from '@/components/AppDialog.vue'
 import FolderMembersModal from '@/components/FolderMembersModal.vue'
+import ExportModal from '@/components/ExportModal.vue'
+import ImportModal from '@/components/ImportModal.vue'
 import { questionsService } from '@/services/questionsService'
 import { foldersService } from '@/services/foldersService'
 import { useAuthStore } from '@/stores/auth'
@@ -567,6 +714,151 @@ import type { Folder, FolderMember } from '@/types/folder'
 const authStore = useAuthStore()
 const toast = useToast()
 const currentUsername = computed(() => authStore.username ?? '')
+
+// -- Selection --------------------------------------------------------------
+const selectedQuestionIds = ref<Set<number>>(new Set())
+
+const allVisibleSelected = computed(() =>
+  visibleQuestions.value.length > 0 &&
+  visibleQuestions.value.every(q => selectedQuestionIds.value.has(q.id))
+)
+
+const someSelected = computed(() => selectedQuestionIds.value.size > 0)
+
+function toggleSelectAll() {
+  if (allVisibleSelected.value) {
+    selectedQuestionIds.value = new Set()
+  } else {
+    selectedQuestionIds.value = new Set(visibleQuestions.value.map(q => q.id))
+  }
+}
+
+function toggleSelect(id: number) {
+  const newSet = new Set(selectedQuestionIds.value)
+  if (newSet.has(id)) {
+    newSet.delete(id)
+  } else {
+    newSet.add(id)
+  }
+  selectedQuestionIds.value = newSet
+}
+
+function clearSelection() {
+  selectedQuestionIds.value = new Set()
+}
+
+// -- Export/Import modals ---------------------------------------------------
+const exportModalVisible = ref(false)
+const importModalVisible = ref(false)
+
+// -- Mass operations --------------------------------------------------------
+const duplicatingInProgress = ref(false)
+const movingInProgress = ref(false)
+const progressCurrent = ref(0)
+const progressTotal = ref(0)
+const progressLabel = ref('')
+const progressPercent = computed(() => progressTotal.value > 0 ? Math.round((progressCurrent.value / progressTotal.value) * 100) : 0)
+
+const moveToFolderModalVisible = ref(false)
+const moveToFolderTarget = ref<number | null>(null)
+
+function openMoveToFolderModal() {
+  moveToFolderTarget.value = null
+  moveToFolderModalVisible.value = true
+}
+
+async function duplicateSelectedQuestions() {
+  const ids = Array.from(selectedQuestionIds.value)
+  if (!ids.length) return
+  duplicatingInProgress.value = true
+  progressCurrent.value = 0
+  progressTotal.value = ids.length
+  let successCount = 0
+  for (const id of ids) {
+    const q = questions.value.find(q => q.id === id)
+    if (q) {
+      try {
+        const { id: _id, createdAt, updatedAt, createdBy, ...rest } = q
+        await questionsService.create({
+          ...rest,
+          questionBlocks: q.questionBlocks,
+          options: q.options,
+          hintBlocks: q.hintBlocks,
+          explanationBlocks: q.explanationBlocks,
+        })
+        successCount++
+      } catch {
+        // continue
+      }
+    }
+    progressCurrent.value++
+    progressLabel.value = `Duplicating ${progressCurrent.value}/${progressTotal.value}...`
+  }
+  duplicatingInProgress.value = false
+  try {
+    ;[questions.value, folders.value] = await Promise.all([
+      questionsService.list(),
+      foldersService.list(),
+    ])
+    if (selectedFolderFilter.value === 'unfiled') {
+      unfiledQuestions.value = [...questions.value]
+        .filter(q => q.folderId == null)
+        .sort((a, b) => a.orderIndex - b.orderIndex)
+    } else if (typeof selectedFolderFilter.value === 'number') {
+      folderQuestions.value = questions.value.filter(q => q.folderId === selectedFolderFilter.value)
+        .sort((a, b) => a.orderIndex - b.orderIndex)
+    }
+  } catch {
+    // ignore
+  }
+  clearSelection()
+  if (successCount > 0) {
+    toast.success(`${successCount} question(s) duplicated`)
+  } else {
+    toast.error('Failed to duplicate questions')
+  }
+}
+
+async function moveSelectedToFolder() {
+  const ids = Array.from(selectedQuestionIds.value)
+  if (!ids.length) return
+  movingInProgress.value = true
+  progressCurrent.value = 0
+  progressTotal.value = ids.length
+  let successCount = 0
+  const targetFolderId = moveToFolderTarget.value
+  for (const id of ids) {
+    try {
+      await questionsService.assignFolder(id, targetFolderId)
+      const q = questions.value.find(q => q.id === id)
+      if (q) q.folderId = targetFolderId
+      successCount++
+    } catch {
+      // continue
+    }
+    progressCurrent.value++
+    progressLabel.value = `Moving ${progressCurrent.value}/${progressTotal.value}...`
+  }
+  movingInProgress.value = false
+  if (selectedFolderFilter.value === 'unfiled' && targetFolderId !== null) {
+    unfiledQuestions.value = [...questions.value]
+      .filter(q => q.folderId == null)
+      .sort((a, b) => a.orderIndex - b.orderIndex)
+  } else if (typeof selectedFolderFilter.value === 'number' && selectedFolderFilter.value !== targetFolderId) {
+    folderQuestions.value = questions.value.filter(q => q.folderId === selectedFolderFilter.value)
+      .sort((a, b) => a.orderIndex - b.orderIndex)
+  } else if (typeof selectedFolderFilter.value === 'number' && selectedFolderFilter.value === targetFolderId) {
+    folderQuestions.value = questions.value.filter(q => q.folderId === targetFolderId)
+      .sort((a, b) => a.orderIndex - b.orderIndex)
+  }
+  moveToFolderModalVisible.value = false
+  clearSelection()
+  if (successCount > 0) {
+    toast.success(`${successCount} question(s) moved`)
+  } else {
+    toast.error('Failed to move questions')
+  }
+}
 
 // -- Utilities --------------------------------------------------------------
 function stripHtml(html: string): string {
@@ -751,34 +1043,43 @@ watch(selectedFolderFilter, (newVal) => {
 }, { immediate: true })
 
 // -- Drag-to-folder ---------------------------------------------------------
-const draggingQuestion = ref<Question | null>(null)
+const draggingQuestions = ref<Question[]>([])
 const dropTarget = ref<'unfiled' | number | null>(null)
 
-function onDragStart(q: Question, e: DragEvent) {
-  draggingQuestion.value = q
-  e.dataTransfer?.setData('text/plain', String(q.id))
+function getDraggableQuestions(q: Question): Question[] {
+  if (selectedQuestionIds.value.has(q.id) && selectedQuestionIds.value.size > 1) {
+    return visibleQuestions.value.filter(vq => selectedQuestionIds.value.has(vq.id))
+  }
+  return [q]
+}
+
+function onDragStart(qs: Question[], e: DragEvent) {
+  draggingQuestions.value = qs
+  e.dataTransfer?.setData('text/plain', qs.map(q => q.id).join(','))
   if (e.dataTransfer) e.dataTransfer.effectAllowed = 'move'
+  if (qs.length > 1 && e.dataTransfer) {
+    const img = new Image()
+    e.dataTransfer.setDragImage(img, 0, 0)
+  }
 }
 
 function onDragEnd() {
-  draggingQuestion.value = null
+  draggingQuestions.value = []
   dropTarget.value = null
 }
 
 function onDragStartFolder(q: Question, e: DragEvent) {
   const path = e.composedPath() as Element[]
   if (path.some(el => (el as HTMLElement).classList?.contains('drag-handle'))) {
-    // Drag from grip handle � SortableJS handles reordering.
-    // Suppress the browser's ghost image so it doesn't double-up with SortableJS's clone.
     const img = new Image()
     e.dataTransfer?.setDragImage(img, 0, 0)
-    return  // Don't set draggingQuestion; sidebar drop zones stay inactive
+    return
   }
-  onDragStart(q, e)
+  onDragStart(getDraggableQuestions(q), e)
 }
 
 function onDragOver(target: 'unfiled' | number) {
-  if (!draggingQuestion.value) return
+  if (!draggingQuestions.value.length) return
   dropTarget.value = target
 }
 
@@ -787,30 +1088,38 @@ function onDragLeave() {
 }
 
 async function onDrop(target: 'unfiled' | number) {
-  const q = draggingQuestion.value
-  draggingQuestion.value = null
+  const questionsToMove = [...draggingQuestions.value]
+  draggingQuestions.value = []
   dropTarget.value = null
-  if (!q) return
+  if (!questionsToMove.length) return
   const newFolderId = target === 'unfiled' ? null : (target as number)
-  if (q.folderId === newFolderId) return
-  try {
-    const updated = await questionsService.assignFolder(q.id, newFolderId)
-    const idx = questions.value.findIndex(x => x.id === q.id)
-    if (idx >= 0) questions.value.splice(idx, 1, updated)
-
-    if (selectedFolderFilter.value === 'unfiled' && newFolderId !== null) {
-      const uIdx = unfiledQuestions.value.findIndex(x => x.id === q.id)
-      if (uIdx >= 0) unfiledQuestions.value.splice(uIdx, 1)
+  const toMove = questionsToMove.filter(q => q.folderId !== newFolderId)
+  if (!toMove.length) return
+  let movedCount = 0
+  for (const q of toMove) {
+    try {
+      const updated = await questionsService.assignFolder(q.id, newFolderId)
+      const idx = questions.value.findIndex(x => x.id === q.id)
+      if (idx >= 0) questions.value.splice(idx, 1, updated)
+      movedCount++
+    } catch {
+      // continue
     }
-    if (typeof selectedFolderFilter.value === 'number' && selectedFolderFilter.value !== newFolderId) {
-      const fIdx = folderQuestions.value.findIndex(x => x.id === q.id)
-      if (fIdx >= 0) folderQuestions.value.splice(fIdx, 1)
-    }
-    if (typeof selectedFolderFilter.value === 'number' && selectedFolderFilter.value === newFolderId) {
-      folderQuestions.value.push(updated)
-    }
-  } catch {
-    showAlert('Error', 'Failed to move question.')
+  }
+  if (selectedFolderFilter.value === 'unfiled' && newFolderId !== null) {
+    unfiledQuestions.value = unfiledQuestions.value.filter(x => !toMove.some(m => m.id === x.id))
+  }
+  if (typeof selectedFolderFilter.value === 'number' && selectedFolderFilter.value !== newFolderId) {
+    folderQuestions.value = folderQuestions.value.filter(x => !toMove.some(m => m.id === x.id))
+  }
+  if (typeof selectedFolderFilter.value === 'number' && selectedFolderFilter.value === newFolderId) {
+    const newlyMoved = questions.value.filter(q => toMove.some(m => m.id === q.id))
+    folderQuestions.value.push(...newlyMoved)
+  }
+  if (movedCount > 0) {
+    toast.success(`${movedCount} question(s) moved`)
+  } else {
+    showAlert('Error', 'Failed to move questions.')
   }
 }
 
@@ -1078,7 +1387,25 @@ async function persistFolderReorder() {
   try {
     await foldersService.reorder(ownedFoldersModel.value.map(f => f.id))
   } catch {
-    /* order is cosmetic � silently ignore network failures */
+    /* order is cosmetic – silently ignore network failures */
+  }
+}
+
+// -- Import handler ---------------------------------------------------------
+async function onImported() {
+  importModalVisible.value = false
+  try {
+    ;[questions.value, folders.value] = await Promise.all([
+      questionsService.list(),
+      foldersService.list(),
+    ])
+    if (selectedFolderFilter.value === 'unfiled') {
+      unfiledQuestions.value = [...questions.value]
+        .filter(q => q.folderId == null)
+        .sort((a, b) => a.orderIndex - b.orderIndex)
+    }
+  } catch {
+    toast.error('Failed to refresh questions')
   }
 }
 </script>

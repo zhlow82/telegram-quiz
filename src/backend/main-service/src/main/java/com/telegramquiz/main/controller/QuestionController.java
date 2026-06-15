@@ -15,7 +15,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.telegramquiz.main.dto.ExportRequestDto;
+import com.telegramquiz.main.dto.ExportResponseDto;
 import com.telegramquiz.main.dto.FolderAssignRequestDto;
+import com.telegramquiz.main.dto.ImportRequestDto;
+import com.telegramquiz.main.dto.ImportResultDto;
 import com.telegramquiz.main.dto.QuestionRequestDto;
 import com.telegramquiz.main.dto.QuestionResponseDto;
 import com.telegramquiz.main.dto.ReorderRequestDto;
@@ -80,5 +84,19 @@ public class QuestionController {
             @AuthenticationPrincipal String username) {
         questionService.reorder(dto.orderedIds(), username);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/export")
+    public ResponseEntity<ExportResponseDto> export(
+            @Valid @RequestBody ExportRequestDto dto,
+            @AuthenticationPrincipal String username) {
+        return ResponseEntity.ok(questionService.exportQuestions(dto, username));
+    }
+
+    @PostMapping("/import")
+    public ResponseEntity<ImportResultDto> importQuestions(
+            @Valid @RequestBody ImportRequestDto dto,
+            @AuthenticationPrincipal String username) {
+        return ResponseEntity.ok(questionService.importQuestions(dto, username));
     }
 }

@@ -1,5 +1,5 @@
 import api from './api'
-import type { Question, QuestionRequest } from '@/types/question'
+import type { Question, QuestionRequest, ExportData, ImportResult } from '@/types/question'
 
 export const questionsService = {
   list: (): Promise<Question[]> =>
@@ -29,5 +29,11 @@ export const questionsService = {
     return api.post<{ path: string }>('/api/files/upload', formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     }).then(r => r.data.path)
-  }
+  },
+
+  exportQuestions: (questionIds: number[], includeImages: boolean): Promise<ExportData> =>
+    api.post<ExportData>('/api/questions/export', { questionIds, includeImages }).then(r => r.data),
+
+  importQuestions: (data: ExportData): Promise<ImportResult> =>
+    api.post<ImportResult>('/api/questions/import', data).then(r => r.data)
 }
