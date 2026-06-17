@@ -160,7 +160,7 @@ npm run dev
 
 ### 4. Open the app
 
-Navigate to http://localhost:5173/tg-quiz/
+Navigate to http://localhost:5173/
 
 Login with:
 - **Username**: `localadmin`
@@ -369,7 +369,7 @@ Deploy the entire stack on a Linux VPS (DigitalOcean, Hetzner, Linode, etc.) usi
 **Services included:**
 | Service | Port | Description |
 |---|---|---|
-| Frontend (Nginx) | 80 | Vue 3 SPA served at `/tg-quiz/` |
+| Frontend (Nginx) | 80 | Vue 3 SPA served at `/tg-quiz/` (configurable via `VITE_BASE_URL`) |
 | API Gateway | 8080 | Spring Cloud Gateway |
 | Auth Service | 8081 | JWT authentication |
 | Main Service | 8082 | Business logic |

@@ -124,14 +124,16 @@ src/frontend/src/
 - **Store**: Composition API pattern `defineStore('name', () => { ... })`.
 - **Props/Emits**: `defineProps<{...}>()` and `defineEmits<{...}>()` with generic type parameters.
 - **Path alias**: `@/` maps to `./src/`. Use it consistently for all imports.
-- **Styling**: Tailwind utility classes inline in templates. `slate-*` neutrals, `blue-600` primary, `red-500/600` destructive, `green-*` success, `amber-*` warnings.
+- **Styling**: Tailwind utility classes inline in templates. `slate-*` neutrals, `primary` (sky-500) for primary actions, `red-500/600` destructive, `green-*` success, `amber-*` warnings.
+- **Sidebar**: Light background (`bg-white`) with pill-shaped active nav items (`bg-primary text-white rounded-full`).
+- **Buttons**: Primary CTAs use `bg-primary hover:bg-primary-hover rounded-full`.
 - **Modals**: `<teleport to="body">` for z-index isolation. **NEVER** add a click handler to the backdrop (overlay). Users must explicitly click the X or Cancel button to dismiss.
 - **Layout**: All authenticated views wrap in `<AppLayout>` component.
 - **Drag-and-drop**: `vue-draggable-plus` for list reordering, native HTML5 DnD for cross-container moves.
 
 ### Router
 
-- Base path: `/tg-quiz/`
+- Base path: `/` (local dev), configurable via `VITE_BASE_URL` env var for production
 - Route meta: `requiresAuth`, `requiresGuest`, `requiresAdmin`
 - Guards redirect to `/login` or `/home` based on auth state.
 

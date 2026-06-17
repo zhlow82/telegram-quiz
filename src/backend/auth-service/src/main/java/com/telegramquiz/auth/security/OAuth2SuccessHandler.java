@@ -25,7 +25,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
     private static final String REDIS_PREFIX = "oauth2:pending:";
 
-    @org.springframework.beans.factory.annotation.Value("${app.frontend-url:http://localhost:5173/tg-quiz}")
+    @org.springframework.beans.factory.annotation.Value("${app.frontend-url:http://localhost:5173}")
     private String frontendUrl;
 
     private final UserRepository userRepository;

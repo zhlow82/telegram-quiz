@@ -5,7 +5,7 @@
     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 w-full max-w-sm p-8">
       <!-- Logo -->
       <div class="flex justify-center mb-6">
-        <div class="w-12 h-12 rounded-2xl bg-blue-600 flex items-center justify-center">
+        <div class="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center">
           <Zap class="w-6 h-6 text-white" />
         </div>
       </div>
@@ -29,7 +29,7 @@
         </div>
         <p v-if="error" class="text-xs text-red-500">{{ error }}</p>
         <button
-          class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition-colors cursor-pointer disabled:opacity-50"
+          class="w-full py-2.5 bg-primary hover:bg-primary-hover text-white text-sm font-semibold rounded-full transition-colors cursor-pointer disabled:opacity-50"
           :disabled="loading"
           @click="submit"
         >
@@ -39,7 +39,7 @@
 
       <p class="mt-4 text-xs text-center text-slate-400">
         Wrong account?
-        <a href="/tg-quiz/login" class="text-blue-600 hover:underline">Go back</a>
+        <a :href="`${baseUrl}login`" class="text-blue-600 hover:underline">Go back</a>
       </p>
     </div>
   </div>
@@ -55,6 +55,8 @@ import api from '@/services/api'
 const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
+
+const baseUrl = import.meta.env.BASE_URL
 
 const code = ref('')
 const loading = ref(false)

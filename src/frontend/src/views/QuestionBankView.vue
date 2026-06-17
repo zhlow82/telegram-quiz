@@ -5,7 +5,7 @@
       <!-- Page header (full width, above sidebar) -->
       <div class="flex items-center justify-between gap-4 pb-6 mb-6 border-b border-slate-200 flex-wrap">
         <div class="flex items-center gap-4">
-          <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center flex-shrink-0">
+          <div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center flex-shrink-0">
             <BookOpen class="w-5 h-5 text-white" />
           </div>
           <div>
@@ -34,7 +34,7 @@
             Import
           </button>
           <button
-            class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2 rounded-xl transition cursor-pointer"
+            class="inline-flex items-center gap-2 bg-primary hover:bg-primary-hover text-white text-sm font-semibold px-4 py-2 rounded-full transition cursor-pointer"
             @click="openCreate"
           >
             <Plus class="w-4 h-4" />
@@ -276,11 +276,11 @@
                 >
                   <p class="text-xs font-semibold text-slate-800 mb-0.5 truncate">{{ inv.folderName }}</p>
                   <p class="text-[0.65rem] text-slate-500 mb-1.5">
-                    {{ inv.invitedBy }} � {{ inv.role === 'CO_OWNER' ? 'Co-owner' : 'Contributor' }}
+                    {{ inv.invitedBy }} — {{ inv.role === 'CO_OWNER' ? 'Co-owner' : 'Contributor' }}
                   </p>
                   <div class="flex gap-1.5">
                     <button
-                      class="flex-1 text-[0.65rem] font-semibold bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded-md transition cursor-pointer"
+                      class="flex-1 text-[0.65rem] font-semibold bg-primary hover:bg-primary-hover text-white px-2 py-1 rounded-full transition cursor-pointer"
                       @click="acceptInvite(inv.id)"
                     >Accept</button>
                     <button
@@ -354,7 +354,7 @@
             <p class="text-sm text-slate-500">Add your first question to get started</p>
           </div>
           <button
-            class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2 rounded-xl transition cursor-pointer"
+            class="inline-flex items-center gap-2 bg-primary hover:bg-primary-hover text-white text-sm font-semibold px-4 py-2 rounded-full transition cursor-pointer"
             @click="openCreate"
           >
             <Plus class="w-4 h-4" />
@@ -362,7 +362,7 @@
           </button>
         </div>
 
-        <!-- Question list (All view � read only) -->
+        <!-- Question list (All view — read only) -->
         <div v-else-if="selectedFolderFilter === null" class="bg-white rounded-xl border border-slate-200 overflow-hidden">
           <div v-for="(q, i) in questions" :key="q.id"
             class="flex items-center gap-3 px-5 py-3.5 border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors"
@@ -397,7 +397,7 @@
                 <span v-else-if="q.expectsTextInput" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-700">
                   <Users class="w-3 h-3" />Team Input
                 </span>
-                <span v-else-if="q.options.length" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-blue-100 text-blue-700">
+                <span v-else-if="!q.expectPhoto && !q.isBriefing && !q.expectsTextInput" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-blue-100 text-blue-700">
                   <ListChecks class="w-3 h-3" />Multiple Choice
                 </span>
                 <span v-else-if="q.expectPhoto" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-violet-100 text-violet-700">
@@ -429,7 +429,7 @@
           </div>
         </div>
 
-        <!-- Question list (Unfiled view � draggable to reorder + draggable to sidebar folders) -->
+        <!-- Question list (Unfiled view — draggable to reorder + draggable to sidebar folders) -->
         <div v-else-if="selectedFolderFilter === 'unfiled'" class="bg-white rounded-xl border border-slate-200 overflow-hidden">
           <VueDraggable
             v-model="unfiledQuestions"
@@ -481,7 +481,7 @@
                   <span v-else-if="q.expectsTextInput" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-700">
                     <Users class="w-3 h-3" />Team Input
                   </span>
-                  <span v-else-if="q.options.length" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-blue-100 text-blue-700">
+                  <span v-else-if="!q.expectPhoto && !q.isBriefing && !q.expectsTextInput" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-blue-100 text-blue-700">
                     <ListChecks class="w-3 h-3" />Multiple Choice
                   </span>
                   <span v-else-if="q.expectPhoto" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-violet-100 text-violet-700">
@@ -489,7 +489,7 @@
                   </span>
                   <span v-if="!q.isBriefing && q.options.length" class="inline-flex items-center text-[0.6875rem] font-medium px-2 py-0.5 rounded-md bg-slate-100 text-slate-500">{{ q.options.length }} options</span>
                 </div>
-                <p v-if="q.updatedAt" class="text-[0.65rem] text-slate-400 mt-0.5 truncate">{{ formatRelative(q.updatedAt) }}<template v-if="q.updatedBy"> � {{ q.updatedBy }}</template></p>
+                <p v-if="q.updatedAt" class="text-[0.65rem] text-slate-400 mt-0.5 truncate">{{ formatRelative(q.updatedAt) }}<template v-if="q.updatedBy"> — {{ q.updatedBy }}</template></p>
               </div>
               <div class="flex items-center gap-1.5 flex-shrink-0">
                 <div v-if="!q.isBriefing && !q.expectsTextInput && q.mark != null && q.mark > 0" class="flex flex-col items-center justify-center w-9 shrink-0">
@@ -511,7 +511,7 @@
           </VueDraggable>
         </div>
 
-        <!-- Question list (Folder view � draggable to reorder within folder) -->
+        <!-- Question list (Folder view — draggable to reorder within folder) -->
         <div v-else class="bg-white rounded-xl border border-slate-200 overflow-hidden">
           <VueDraggable
             v-model="folderQuestions"
@@ -563,7 +563,7 @@
                   <span v-else-if="q.expectsTextInput" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-700">
                     <Users class="w-3 h-3" />Team Input
                   </span>
-                  <span v-else-if="q.options.length" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-blue-100 text-blue-700">
+                  <span v-else-if="!q.expectPhoto && !q.isBriefing && !q.expectsTextInput" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-blue-100 text-blue-700">
                     <ListChecks class="w-3 h-3" />Multiple Choice
                   </span>
                   <span v-else-if="q.expectPhoto" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-violet-100 text-violet-700">
@@ -571,7 +571,7 @@
                   </span>
                   <span v-if="!q.isBriefing && q.options.length" class="inline-flex items-center text-[0.6875rem] font-medium px-2 py-0.5 rounded-md bg-slate-100 text-slate-500">{{ q.options.length }} options</span>
                 </div>
-                <p v-if="q.updatedAt" class="text-[0.65rem] text-slate-400 mt-0.5 truncate">{{ formatRelative(q.updatedAt) }}<template v-if="q.updatedBy"> � {{ q.updatedBy }}</template></p>
+                <p v-if="q.updatedAt" class="text-[0.65rem] text-slate-400 mt-0.5 truncate">{{ formatRelative(q.updatedAt) }}<template v-if="q.updatedBy"> — {{ q.updatedBy }}</template></p>
               </div>
               <div class="flex items-center gap-1.5 flex-shrink-0">
                 <div v-if="!q.isBriefing && !q.expectsTextInput && q.mark != null && q.mark > 0" class="flex flex-col items-center justify-center w-9 shrink-0">
@@ -682,7 +682,7 @@
               Cancel
             </button>
             <button
-              class="px-4 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              class="px-4 py-2 text-sm font-semibold text-white bg-primary hover:bg-primary-hover rounded-full transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               @click="moveSelectedToFolder"
               :disabled="movingInProgress"
             >

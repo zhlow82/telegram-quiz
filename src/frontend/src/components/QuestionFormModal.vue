@@ -27,7 +27,7 @@
             <!-- Header -->
             <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0">
               <div class="flex items-center gap-3">
-                <div class="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold text-base shrink-0">
+                <div class="w-9 h-9 rounded-xl bg-primary flex items-center justify-center text-white font-bold text-base shrink-0">
                   <Pencil v-if="isEdit" class="w-4 h-4" />
                   <Plus v-else class="w-4 h-4" />
                 </div>
@@ -604,7 +604,7 @@
               >Cancel</button>
               <button
                 type="button"
-                class="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition disabled:opacity-60 cursor-pointer disabled:cursor-not-allowed inline-flex items-center gap-2"
+                class="px-5 py-2 rounded-full bg-primary hover:bg-primary-hover text-white text-sm font-semibold transition disabled:opacity-60 cursor-pointer disabled:cursor-not-allowed inline-flex items-center gap-2"
                 :disabled="saving"
                 @click="submit"
               >

@@ -4,7 +4,7 @@
       <!-- Header -->
       <div class="flex items-center justify-between gap-4 pb-6 mb-6 border-b border-slate-200 flex-wrap">
         <div class="flex items-center gap-4">
-          <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center flex-shrink-0">
+          <div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center flex-shrink-0">
             <ScrollText class="w-5 h-5 text-white" />
           </div>
           <div>

@@ -1,7 +1,7 @@
 <template>
   <AppLayout>
     <div class="flex items-center gap-4 pb-6 mb-6 border-b border-slate-200">
-      <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center flex-shrink-0">
+      <div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center flex-shrink-0">
         <KeyRound class="w-5 h-5 text-white" />
       </div>
       <div class="flex-1 min-w-0">
@@ -9,7 +9,7 @@
         <p class="text-sm text-slate-500 mt-0.5">Generate codes for new Google sign-ups</p>
       </div>
       <button
-        class="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition-colors cursor-pointer disabled:opacity-50"
+        class="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary-hover text-white text-sm font-semibold rounded-full transition-colors cursor-pointer disabled:opacity-50"
         :disabled="generating"
         @click="generate"
       >

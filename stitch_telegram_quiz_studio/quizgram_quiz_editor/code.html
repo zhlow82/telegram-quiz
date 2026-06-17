@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>QuizGram - Create Quiz</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "tertiary": "#006397",
+                      "primary": "#00658f",
+                      "surface-container-high": "#e8e8e9",
+                      "outline": "#6f7881",
+                      "secondary-fixed": "#d3e4ff",
+                      "surface-tint": "#00658f",
+                      "background": "#f9f9fa",
+                      "on-tertiary-container": "#003350",
+                      "on-tertiary-fixed-variant": "#004b73",
+                      "on-secondary-container": "#003663",
+                      "on-primary-fixed-variant": "#004c6d",
+                      "outline-variant": "#bec8d1",
+                      "primary-fixed-dim": "#86cfff",
+                      "on-secondary": "#ffffff",
+                      "error-container": "#ffdad6",
+                      "surface-container": "#eeeeef",
+                      "on-error-container": "#93000a",
+                      "error": "#ba1a1a",
+                      "surface-bright": "#f9f9fa",
+                      "secondary": "#0060a9",
+                      "surface-container-low": "#f3f3f4",
+                      "surface-variant": "#e2e2e3",
+                      "primary-fixed": "#c8e6ff",
+                      "secondary-fixed-dim": "#a2c9ff",
+                      "on-surface-variant": "#3e4850",
+                      "on-tertiary-fixed": "#001d31",
+                      "on-primary-fixed": "#001e2e",
+                      "primary-container": "#24a1de",
+                      "tertiary-fixed": "#cce5ff",
+                      "on-background": "#1a1c1d",
+                      "secondary-container": "#4aa1fe",
+                      "surface": "#f9f9fa",
+                      "on-surface": "#1a1c1d",
+                      "on-primary": "#ffffff",
+                      "on-error": "#ffffff",
+                      "inverse-on-surface": "#f0f1f2",
+                      "on-secondary-fixed": "#001c38",
+                      "inverse-surface": "#2f3132",
+                      "tertiary-container": "#4e9eda",
+                      "inverse-primary": "#86cfff",
+                      "on-primary-container": "#00344c",
+                      "surface-container-lowest": "#ffffff",
+                      "tertiary-fixed-dim": "#92ccff",
+                      "surface-container-highest": "#e2e2e3",
+                      "on-tertiary": "#ffffff",
+                      "surface-dim": "#dadadb",
+                      "on-secondary-fixed-variant": "#004881"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "xl": "32px",
+                      "container-max": "1200px",
+                      "gutter": "16px",
+                      "base": "4px",
+                      "lg": "24px",
+                      "sm": "12px",
+                      "xs": "8px",
+                      "md": "16px"
+              },
+              "fontFamily": {
+                      "display-lg": ["Inter"],
+                      "headline-lg-mobile": ["Inter"],
+                      "body-md": ["Inter"],
+                      "body-lg": ["Inter"],
+                      "label-md": ["Inter"],
+                      "headline-md": ["Inter"],
+                      "headline-sm": ["Inter"]
+              },
+              "fontSize": {
+                      "display-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                      "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                      "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                      "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+          font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .icon-fill {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex flex-col font-body-md text-body-md">
+<!-- TopAppBar -->
+<header class="w-full sticky top-0 z-50 bg-surface shadow-sm border-b border-outline-variant">
+<div class="flex justify-between items-center h-16 px-gutter max-w-container-max mx-auto">
+<div class="flex items-center gap-md">
+<span class="font-display-lg text-display-lg text-primary">QuizGram</span>
+</div>
+<nav class="hidden md:flex gap-lg items-center">
+<a class="font-headline-sm text-headline-sm text-on-surface-variant hover:text-primary transition-colors duration-200 py-4" href="#">Explore</a>
+<a class="font-headline-sm text-headline-sm text-on-surface-variant hover:text-primary transition-colors duration-200 py-4" href="#">My Quizzes</a>
+<a class="font-headline-sm text-headline-sm text-primary font-bold border-b-2 border-primary py-4" href="#">Host</a>
+<a class="font-headline-sm text-headline-sm text-on-surface-variant hover:text-primary transition-colors duration-200 py-4" href="#">Leaderboard</a>
+</nav>
+<div class="flex items-center gap-md">
+<button class="hidden md:flex items-center justify-center bg-primary-container text-on-primary rounded-full px-lg py-sm font-label-md text-label-md active:scale-95 transition-transform">Create Quiz</button>
+<div class="w-10 h-10 rounded-full bg-surface-variant overflow-hidden cursor-pointer active:scale-95 transition-transform">
+<img alt="User profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAn8rQOrnDimUPzsnmyekj3tO4rZ3-DcQDUm64Pq6Rsjh-3oePt_4aXn0weL2IGb_n6C3aXi-rIaGmn5DHnDgq7bhtnewE_OpH7rWUZBFEKPrtIsnEPFLLVlHzfOAhRvOE7dtq0S6h8Hysz7XNjgTTImIAX8uYB2rkG2FaNWDYNh7qe4TFFcXwpDgEVQPoKweq9oIQHZX7q-9b7r9UzSCej1VXSasakq5mDggofJ9QZeID4EV5Dxlth6zG4UhI9A7kdP4HajuJL9bY"/>
+</div>
+</div>
+</div>
+</header>
+<div class="flex flex-1 overflow-hidden relative">
+<!-- SideNavBar (Desktop) -->
+<aside class="h-[calc(100vh-64px)] w-64 sticky top-16 hidden lg:flex flex-col bg-surface-container-low py-lg space-y-sm shrink-0 border-r border-outline-variant">
+<div class="px-lg pb-md mb-md border-b border-outline-variant">
+<div class="flex items-center gap-sm mb-xs">
+<div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-on-primary font-bold">C</div>
+<span class="font-headline-md text-headline-md text-primary">Creator Studio</span>
+</div>
+<span class="font-label-md text-label-md text-on-surface-variant">Pro Account</span>
+</div>
+<nav class="flex-1 overflow-y-auto space-y-base px-sm">
+<a class="flex items-center gap-md px-md py-sm font-label-md text-label-md text-on-surface-variant hover:bg-surface-variant mx-2 rounded-full transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+                    Dashboard
+                </a>
+<a class="flex items-center gap-md px-md py-sm font-label-md text-label-md text-on-surface-variant hover:bg-surface-variant mx-2 rounded-full transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="bolt">bolt</span>
+                    Active Quizzes
+                </a>
+<a class="flex items-center gap-md px-md py-sm font-label-md text-label-md bg-secondary-container text-on-secondary-container rounded-full mx-2 transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined icon-fill" data-icon="edit_note">edit_note</span>
+                    Drafts
+                </a>
+<a class="flex items-center gap-md px-md py-sm font-label-md text-label-md text-on-surface-variant hover:bg-surface-variant mx-2 rounded-full transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="monitoring">monitoring</span>
+                    Analytics
+                </a>
+<a class="flex items-center gap-md px-md py-sm font-label-md text-label-md text-on-surface-variant hover:bg-surface-variant mx-2 rounded-full transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+                    Settings
+                </a>
+</nav>
+<div class="px-lg mt-auto">
+<button class="w-full py-sm bg-primary-container text-on-primary rounded-full font-label-md text-label-md active:scale-95 transition-transform mb-md">Go Live Now</button>
+</div>
+<div class="mt-auto px-sm border-t border-outline-variant pt-sm">
+<a class="flex items-center gap-md px-md py-sm font-label-md text-label-md text-on-surface-variant hover:bg-surface-variant mx-2 rounded-full transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+                    Help
+                </a>
+<a class="flex items-center gap-md px-md py-sm font-label-md text-label-md text-on-surface-variant hover:bg-surface-variant mx-2 rounded-full transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="contact_support">contact_support</span>
+                    Support
+                </a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-1 flex flex-col md:flex-row h-[calc(100vh-64px)] overflow-hidden">
+<!-- Question List Sidebar (Secondary Sidebar) -->
+<div class="w-full md:w-80 bg-surface-bright border-r border-outline-variant flex flex-col h-full shrink-0">
+<div class="p-lg border-b border-outline-variant flex justify-between items-center bg-surface">
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Questions</h2>
+<button class="text-primary hover:bg-primary-fixed rounded-full p-xs transition-colors">
+<span class="material-symbols-outlined">add</span>
+</button>
+</div>
+<div class="flex-1 overflow-y-auto p-sm space-y-base">
+<!-- Active Question Item -->
+<div class="p-sm bg-primary-fixed rounded-lg border border-primary-container cursor-pointer flex gap-sm items-start relative group">
+<div class="w-6 h-6 rounded-full bg-primary text-on-primary flex items-center justify-center font-label-md text-label-md shrink-0">1</div>
+<div class="flex-1 min-w-0">
+<p class="font-body-md text-body-md text-on-primary-container truncate font-medium">What year was Telegram launched?</p>
+<p class="font-label-md text-label-md text-primary opacity-80 mt-xs">Multiple Choice • 15s</p>
+</div>
+<button class="opacity-0 group-hover:opacity-100 text-outline hover:text-error transition-opacity absolute right-sm top-sm">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+<!-- Inactive Question Item -->
+<div class="p-sm bg-surface rounded-lg border border-outline-variant hover:border-outline cursor-pointer flex gap-sm items-start transition-colors group">
+<div class="w-6 h-6 rounded-full bg-surface-variant text-on-surface-variant flex items-center justify-center font-label-md text-label-md shrink-0">2</div>
+<div class="flex-1 min-w-0">
+<p class="font-body-md text-body-md text-on-surface truncate">Which encryption protocol does it use?</p>
+<p class="font-label-md text-label-md text-on-surface-variant mt-xs">Multiple Choice • 30s</p>
+</div>
+<button class="opacity-0 group-hover:opacity-100 text-outline hover:text-error transition-opacity">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+<!-- Inactive Question Item -->
+<div class="p-sm bg-surface rounded-lg border border-outline-variant hover:border-outline cursor-pointer flex gap-sm items-start transition-colors group">
+<div class="w-6 h-6 rounded-full bg-surface-variant text-on-surface-variant flex items-center justify-center font-label-md text-label-md shrink-0">3</div>
+<div class="flex-1 min-w-0">
+<p class="font-body-md text-body-md text-outline italic truncate">New Question...</p>
+</div>
+</div>
+</div>
+<div class="p-md border-t border-outline-variant bg-surface">
+<button class="w-full py-sm bg-surface-variant text-on-surface rounded-full font-label-md text-label-md hover:bg-surface-container-high transition-colors flex items-center justify-center gap-xs">
+<span class="material-symbols-outlined text-[18px]">add_circle</span> Add Question
+                    </button>
+</div>
+</div>
+<!-- Editor Area -->
+<div class="flex-1 overflow-y-auto bg-background p-lg lg:p-xl scroll-smooth">
+<div class="max-w-3xl mx-auto space-y-xl pb-24 md:pb-0">
+<!-- Quiz Settings Header Card -->
+<div class="bg-surface rounded-xl shadow-[0px_2px_8px_rgba(0,0,0,0.05)] p-lg">
+<div class="flex justify-between items-center mb-md border-b border-outline-variant pb-sm">
+<h1 class="font-headline-md text-headline-md text-on-surface">Quiz Configuration</h1>
+<span class="px-sm py-xs bg-surface-container-high rounded-full font-label-md text-label-md text-on-surface-variant flex items-center gap-xs">
+<span class="w-2 h-2 rounded-full bg-outline"></span> Draft
+                            </span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
+<div class="space-y-sm">
+<label class="font-label-md text-label-md text-on-surface block">Quiz Title</label>
+<input class="w-full bg-surface-container-low border-0 rounded-lg px-md py-sm font-body-lg text-body-lg text-on-surface focus:ring-1 focus:ring-primary focus:bg-surface transition-colors" placeholder="Enter quiz title..." type="text" value="Telegram History Trivia"/>
+</div>
+<div class="space-y-sm">
+<label class="font-label-md text-label-md text-on-surface block">Telegram Bot Token (Optional)</label>
+<input class="w-full bg-surface-container-low border-0 rounded-lg px-md py-sm font-body-lg text-body-lg text-on-surface focus:ring-1 focus:ring-primary focus:bg-surface transition-colors" placeholder="Bot token for live hosting..." type="password" value="123456789:ABCdefGHIjklmNOPQrsTUVwxyZ"/>
+</div>
+</div>
+</div>
+<!-- Question Editor Card -->
+<div class="bg-surface rounded-xl shadow-[0px_2px_8px_rgba(0,0,0,0.05)] p-lg">
+<div class="flex justify-between items-start mb-lg">
+<div class="flex-1 mr-lg">
+<label class="font-label-md text-label-md text-on-surface block mb-sm">Question 1</label>
+<textarea class="w-full bg-surface-container-low border-0 rounded-lg px-md py-sm font-body-lg text-body-lg text-on-surface focus:ring-1 focus:ring-primary focus:bg-surface transition-colors resize-none h-24" placeholder="Type your question here...">What year was Telegram officially launched?</textarea>
+</div>
+<div class="w-32 shrink-0 space-y-sm">
+<label class="font-label-md text-label-md text-on-surface block">Time Limit</label>
+<select class="w-full bg-surface-container-low border-0 rounded-lg px-md py-sm font-body-md text-body-md text-on-surface focus:ring-1 focus:ring-primary focus:bg-surface appearance-none cursor-pointer">
+<option>10 seconds</option>
+<option selected="">15 seconds</option>
+<option>30 seconds</option>
+<option>1 minute</option>
+</select>
+</div>
+</div>
+<!-- Options List -->
+<div class="space-y-sm">
+<label class="font-label-md text-label-md text-on-surface block mb-sm">Answers (Select correct one)</label>
+<!-- Option 1 -->
+<div class="flex items-center gap-md p-sm rounded-lg border border-outline-variant hover:border-outline transition-colors bg-surface">
+<label class="relative flex items-center justify-center cursor-pointer p-xs">
+<input class="peer sr-only" name="q1_answer" type="radio"/>
+<div class="w-6 h-6 rounded-full border-2 border-outline peer-checked:border-primary peer-checked:bg-primary transition-all flex items-center justify-center">
+<div class="w-2.5 h-2.5 rounded-full bg-white opacity-0 peer-checked:opacity-100 transition-opacity"></div>
+</div>
+</label>
+<input class="flex-1 bg-transparent border-0 font-body-md text-body-md text-on-surface focus:ring-0 p-0 placeholder-outline" placeholder="Add answer option..." type="text" value="2010"/>
+<button class="text-outline hover:text-error transition-colors p-xs"><span class="material-symbols-outlined text-[20px]">close</span></button>
+</div>
+<!-- Option 2 (Correct) -->
+<div class="flex items-center gap-md p-sm rounded-lg border-2 border-primary bg-primary-fixed/20 transition-colors">
+<label class="relative flex items-center justify-center cursor-pointer p-xs">
+<input checked="" class="peer sr-only" name="q1_answer" type="radio"/>
+<div class="w-6 h-6 rounded-full border-2 border-outline peer-checked:border-primary peer-checked:bg-primary transition-all flex items-center justify-center">
+<div class="w-2.5 h-2.5 rounded-full bg-white opacity-0 peer-checked:opacity-100 transition-opacity"></div>
+</div>
+</label>
+<input class="flex-1 bg-transparent border-0 font-body-md text-body-md text-on-surface focus:ring-0 p-0 placeholder-outline" placeholder="Add answer option..." type="text" value="2013"/>
+<button class="text-outline hover:text-error transition-colors p-xs"><span class="material-symbols-outlined text-[20px]">close</span></button>
+</div>
+<!-- Option 3 -->
+<div class="flex items-center gap-md p-sm rounded-lg border border-outline-variant hover:border-outline transition-colors bg-surface">
+<label class="relative flex items-center justify-center cursor-pointer p-xs">
+<input class="peer sr-only" name="q1_answer" type="radio"/>
+<div class="w-6 h-6 rounded-full border-2 border-outline peer-checked:border-primary peer-checked:bg-primary transition-all flex items-center justify-center">
+<div class="w-2.5 h-2.5 rounded-full bg-white opacity-0 peer-checked:opacity-100 transition-opacity"></div>
+</div>
+</label>
+<input class="flex-1 bg-transparent border-0 font-body-md text-body-md text-on-surface focus:ring-0 p-0 placeholder-outline" placeholder="Add answer option..." type="text" value="2015"/>
+<button class="text-outline hover:text-error transition-colors p-xs"><span class="material-symbols-outlined text-[20px]">close</span></button>
+</div>
+<button class="mt-md text-primary font-label-md text-label-md hover:underline flex items-center gap-xs px-sm py-xs">
+<span class="material-symbols-outlined text-[18px]">add</span> Add Option
+                            </button>
+</div>
+</div>
+<!-- Action Buttons -->
+<div class="flex justify-end gap-md pt-lg border-t border-outline-variant">
+<button class="px-lg py-sm rounded-full border border-primary text-primary font-label-md text-label-md hover:bg-primary-fixed transition-colors">Preview</button>
+<button class="px-lg py-sm rounded-full bg-primary text-on-primary font-label-md text-label-md hover:bg-primary-container transition-colors shadow-sm">Save &amp; Continue</button>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="fixed bottom-0 w-full lg:hidden z-50 border-t border-outline-variant bg-surface/90 backdrop-blur-md shadow-lg">
+<div class="flex justify-around items-center h-16 pb-safe">
+<a class="flex flex-col items-center justify-center text-on-surface-variant scale-95 active:scale-90 transition-all w-16" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-label-md text-label-md-mobile mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant scale-95 active:scale-90 transition-all w-16" href="#">
+<span class="material-symbols-outlined" data-icon="quiz">quiz</span>
+<span class="font-label-md text-label-md-mobile mt-1">Quizzes</span>
+</a>
+<a class="flex flex-col items-center justify-center text-primary font-medium scale-95 active:scale-90 transition-all w-16" href="#">
+<span class="material-symbols-outlined icon-fill" data-icon="sensors">sensors</span>
+<span class="font-label-md text-label-md-mobile mt-1">Host</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant scale-95 active:scale-90 transition-all w-16" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-label-md text-label-md-mobile mt-1">Profile</span>
+</a>
+</div>
+</nav>
+<!-- Footer (Only visible on specific large screen contexts, usually hidden in editor view but included per spec) -->
+<footer class="w-full py-xl mt-auto bg-surface-container-highest max-w-container-max mx-auto px-gutter flex flex-col md:flex-row justify-between items-center gap-md hidden">
+<div class="flex flex-col items-center md:items-start gap-xs">
+<span class="font-headline-sm text-headline-sm text-primary">QuizGram</span>
+<p class="font-body-md text-body-md text-on-surface-variant opacity-80 hover:opacity-100 transition-opacity">© 2024 QuizGram. Fast, secure, and intuitive.</p>
+</div>
+<div class="flex flex-wrap justify-center gap-md">
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors opacity-80 hover:opacity-100" href="#">Privacy Policy</a>
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors opacity-80 hover:opacity-100" href="#">Terms of Service</a>
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors opacity-80 hover:opacity-100" href="#">API Docs</a>
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors opacity-80 hover:opacity-100" href="#">Contact</a>
+</div>
+</footer>
+</body></html>

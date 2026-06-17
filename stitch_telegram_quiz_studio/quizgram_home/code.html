@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>QuizGram - Host Quizzes on Telegram</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary": "#006397",
+                    "primary": "#00658f",
+                    "surface-container-high": "#e8e8e9",
+                    "outline": "#6f7881",
+                    "secondary-fixed": "#d3e4ff",
+                    "surface-tint": "#00658f",
+                    "background": "#f9f9fa",
+                    "on-tertiary-container": "#003350",
+                    "on-tertiary-fixed-variant": "#004b73",
+                    "on-secondary-container": "#003663",
+                    "on-primary-fixed-variant": "#004c6d",
+                    "outline-variant": "#bec8d1",
+                    "primary-fixed-dim": "#86cfff",
+                    "on-secondary": "#ffffff",
+                    "error-container": "#ffdad6",
+                    "surface-container": "#eeeeef",
+                    "on-error-container": "#93000a",
+                    "error": "#ba1a1a",
+                    "surface-bright": "#f9f9fa",
+                    "secondary": "#0060a9",
+                    "surface-container-low": "#f3f3f4",
+                    "surface-variant": "#e2e2e3",
+                    "primary-fixed": "#c8e6ff",
+                    "secondary-fixed-dim": "#a2c9ff",
+                    "on-surface-variant": "#3e4850",
+                    "on-tertiary-fixed": "#001d31",
+                    "on-primary-fixed": "#001e2e",
+                    "primary-container": "#24a1de",
+                    "tertiary-fixed": "#cce5ff",
+                    "on-background": "#1a1c1d",
+                    "secondary-container": "#4aa1fe",
+                    "surface": "#f9f9fa",
+                    "on-surface": "#1a1c1d",
+                    "on-primary": "#ffffff",
+                    "on-error": "#ffffff",
+                    "inverse-on-surface": "#f0f1f2",
+                    "on-secondary-fixed": "#001c38",
+                    "inverse-surface": "#2f3132",
+                    "tertiary-container": "#4e9eda",
+                    "inverse-primary": "#86cfff",
+                    "on-primary-container": "#00344c",
+                    "surface-container-lowest": "#ffffff",
+                    "tertiary-fixed-dim": "#92ccff",
+                    "surface-container-highest": "#e2e2e3",
+                    "on-tertiary": "#ffffff",
+                    "surface-dim": "#dadadb",
+                    "on-secondary-fixed-variant": "#004881"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "xl": "32px",
+                    "container-max": "1200px",
+                    "gutter": "16px",
+                    "base": "4px",
+                    "lg": "24px",
+                    "sm": "12px",
+                    "xs": "8px",
+                    "md": "16px"
+            },
+            "fontFamily": {
+                    "display-lg": [
+                            "Inter"
+                    ],
+                    "headline-lg-mobile": [
+                            "Inter"
+                    ],
+                    "body-md": [
+                            "Inter"
+                    ],
+                    "body-lg": [
+                            "Inter"
+                    ],
+                    "label-md": [
+                            "Inter"
+                    ],
+                    "headline-md": [
+                            "Inter"
+                    ],
+                    "headline-sm": [
+                            "Inter"
+                    ]
+            },
+            "fontSize": {
+                    "display-lg": [
+                            "32px",
+                            {
+                                    "lineHeight": "40px",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "headline-lg-mobile": [
+                            "28px",
+                            {
+                                    "lineHeight": "36px",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "body-md": [
+                            "14px",
+                            {
+                                    "lineHeight": "20px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "body-lg": [
+                            "16px",
+                            {
+                                    "lineHeight": "24px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "label-md": [
+                            "12px",
+                            {
+                                    "lineHeight": "16px",
+                                    "letterSpacing": "0.01em",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "headline-md": [
+                            "24px",
+                            {
+                                    "lineHeight": "32px",
+                                    "letterSpacing": "-0.01em",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "headline-sm": [
+                            "20px",
+                            {
+                                    "lineHeight": "28px",
+                                    "fontWeight": "600"
+                            }
+                    ]
+            }
+    },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: theme('colors.background');
+            color: theme('colors.on-background');
+        }
+        
+        .hero-pattern {
+            background-image: radial-gradient(theme('colors.primary-container') 1px, transparent 1px);
+            background-size: 24px 24px;
+            opacity: 0.1;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col font-body-lg text-body-lg">
+<!-- TopAppBar -->
+<header class="w-full sticky top-0 z-50 bg-surface border-b border-outline-variant shadow-sm transition-all duration-300" id="top-nav">
+<div class="flex justify-between items-center h-16 px-gutter max-w-container-max mx-auto">
+<div class="flex items-center">
+<a class="font-display-lg text-display-lg text-primary flex items-center gap-2" href="#">
+<span class="material-symbols-outlined" data-weight="fill" style="font-variation-settings: 'FILL' 1;">quiz</span>
+                    QuizGram
+                </a>
+</div>
+<nav class="hidden md:flex items-center space-x-lg font-headline-sm text-headline-sm">
+<a class="text-primary font-bold border-b-2 border-primary pb-1" href="#">Explore</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors duration-200 pb-1 border-b-2 border-transparent hover:border-primary-fixed-dim" href="#">My Quizzes</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors duration-200 pb-1 border-b-2 border-transparent hover:border-primary-fixed-dim" href="#">Host</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors duration-200 pb-1 border-b-2 border-transparent hover:border-primary-fixed-dim" href="#">Leaderboard</a>
+</nav>
+<div class="flex items-center space-x-sm">
+<button class="hidden md:block px-4 py-2 rounded-full border border-primary text-primary font-label-md text-label-md hover:bg-primary-fixed transition-colors active:scale-95">Login</button>
+<button class="px-4 py-2 rounded-full bg-primary-container text-on-primary font-label-md text-label-md hover:opacity-90 transition-opacity shadow-sm active:scale-95">Create Quiz</button>
+</div>
+</div>
+</header>
+<main class="flex-grow">
+<!-- Hero Section -->
+<section class="relative pt-xl pb-24 md:pt-24 md:pb-32 overflow-hidden flex flex-col items-center justify-center min-h-[716px]">
+<div class="absolute inset-0 hero-pattern z-0"></div>
+<div class="relative z-10 max-w-container-max mx-auto px-gutter text-center flex flex-col items-center">
+<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary-fixed text-on-primary-fixed font-label-md text-label-md mb-lg border border-primary-fixed-dim">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+</span>
+                    Now live on Telegram
+                </div>
+<h1 class="font-display-lg text-[40px] md:text-[56px] leading-[1.1] text-on-background mb-sm max-w-3xl tracking-tight">
+                    Quiz your Telegram community <span class="text-primary-container">instantly.</span>
+</h1>
+<p class="font-body-lg text-lg md:text-xl text-on-surface-variant mb-xl max-w-2xl">
+                    Create, host, and automate engaging quizzes effortlessly directly within your Telegram groups and channels. No extra apps needed.
+                </p>
+<div class="flex flex-col sm:flex-row gap-sm w-full sm:w-auto">
+<button class="px-8 py-4 rounded-full bg-primary-container text-on-primary font-headline-sm text-headline-sm hover:shadow-md hover:-translate-y-0.5 transition-all active:scale-95 w-full sm:w-auto">
+                        Get Started for Free
+                    </button>
+<button class="px-8 py-4 rounded-full border-2 border-outline-variant text-on-surface bg-surface hover:bg-surface-variant font-headline-sm text-headline-sm transition-all active:scale-95 w-full sm:w-auto flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">play_circle</span>
+                        See Demo
+                    </button>
+</div>
+</div>
+<!-- Hero Image/Preview -->
+<div class="relative z-10 mt-16 w-full max-w-4xl px-gutter mx-auto">
+<div class="glass-card rounded-xl overflow-hidden border border-surface-variant shadow-lg aspect-video relative flex items-center justify-center bg-surface-container-lowest">
+<img alt="Telegram App Interface Preview" class="w-full h-full object-cover opacity-90" data-alt="A clean, modern smartphone mockup displaying a generic chat interface similar to Telegram, floating slightly in a pristine white environment with soft, ambient lighting. The screen shows a vibrant, highly engaging multiple-choice quiz interface with bright blue accent colors and clear typography. The overall aesthetic is tech-forward, efficient, and corporate modern, utilizing a soft light mode color palette with subtle drop shadows to create a layered, accessible feel." src="https://lh3.googleusercontent.com/aida-public/AB6AXuACIs9o92jpQsdeHVrhwylT8ocFtTuX1mCAwE6aO__J_jHmHyV4enA_fhlLNeetVy87tGeWnHJgh2kadzXhTgYOl6q2MKT9NENTqpKGgRLGP8GkO13ofUgpcljeV7iyAB7ykYe_Ycsj74aIAbYR9qNh07fysVq-4NFLTJCguZc412i6vmuh4EXxFQxZQEqsvbRcJeQ81WYX6--JKAMLGga3_llXV3ES4bab0E5irpEqUgNR5NMBKdyKr8ahHP2hVobQt5XZV7dPML4"/>
+<!-- Decorative floating elements -->
+<div class="absolute -left-4 top-1/4 bg-surface p-sm rounded-lg shadow-md border border-outline-variant flex items-center gap-3 animate-pulse" style="animation-duration: 3s;">
+<div class="w-10 h-10 rounded-full bg-secondary-fixed flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">emoji_events</span>
+</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface">Alex scored 95!</p>
+<p class="text-xs text-on-surface-variant">Just now</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Features Bento Grid -->
+<section class="py-xl bg-surface-container-low">
+<div class="max-w-container-max mx-auto px-gutter">
+<div class="text-center mb-16">
+<h2 class="font-display-lg text-display-lg text-on-background mb-sm">Everything you need to host</h2>
+<p class="font-body-lg text-on-surface-variant max-w-2xl mx-auto">Powerful tools designed specifically for Telegram group admins and channel owners.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-md">
+<!-- Feature 1: Large -->
+<div class="md:col-span-2 glass-card rounded-xl p-lg flex flex-col justify-between group hover:border-primary-fixed-dim transition-colors">
+<div>
+<div class="w-12 h-12 rounded-lg bg-primary-fixed text-primary flex items-center justify-center mb-md group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-2xl">smart_toy</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-xs">Native Telegram Bot Integration</h3>
+<p class="font-body-md text-on-surface-variant max-w-md">Our bot lives directly in your groups. Members never have to leave the app to participate, ensuring maximum engagement rates.</p>
+</div>
+<div class="mt-lg h-48 rounded-lg bg-surface-container-highest border border-outline-variant overflow-hidden relative">
+<img alt="Data Visualization" class="w-full h-full object-cover opacity-50 grayscale hover:grayscale-0 transition-all" data-alt="A macro shot of a modern, sleek mobile screen displaying data analytics and user engagement graphs in a bright, clean light-mode interface. The charts feature precise lines and soft gradients using shades of professional corporate blue against a crisp white background. The lighting is soft and diffused, emphasizing the high-quality typography and clear structural layout typical of premium tech dashboards." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC4Qjv7SQTRrS-TW0-fRVGqVqpId1IgXZI0HVD3oRw7oNc5rc_ed6xehPjb4Sd9GfC33qs1sJT7LM_i7iA-EfWcA1GiH470ETO8Dd73ps3edrPHArYNihx8t1iZ4Aszv_k2crzPeP90Vqkb_Ykl20IAnMlukuRfzT4BLU_McsyEI4vk3B1SGOc2Z4n8p2jdV_H0258cmZwD7OWQ5f2hO70T5wr4SUB6-T9ObNUN69Ant5OpRDTOivDlgMJN6T0egB0lzPySTvZ79b8"/>
+</div>
+</div>
+<!-- Feature 2: Small -->
+<div class="glass-card rounded-xl p-lg flex flex-col group hover:border-primary-fixed-dim transition-colors">
+<div class="w-12 h-12 rounded-lg bg-tertiary-fixed text-tertiary flex items-center justify-center mb-md group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-2xl">leaderboard</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-xs">Real-time Leaderboards</h3>
+<p class="font-body-md text-on-surface-variant mb-auto">Instantly generate and share leaderboards at the end of each round to fuel friendly competition.</p>
+</div>
+<!-- Feature 3: Small -->
+<div class="glass-card rounded-xl p-lg flex flex-col group hover:border-primary-fixed-dim transition-colors">
+<div class="w-12 h-12 rounded-lg bg-secondary-fixed text-secondary flex items-center justify-center mb-md group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-2xl">draw</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-xs">Easy Creation Studio</h3>
+<p class="font-body-md text-on-surface-variant mb-auto">Drag-and-drop web interface to build your quizzes before scheduling them on Telegram.</p>
+</div>
+<!-- Feature 4: Large -->
+<div class="md:col-span-2 glass-card rounded-xl p-lg flex flex-col sm:flex-row gap-lg items-center group hover:border-primary-fixed-dim transition-colors">
+<div class="flex-1">
+<div class="w-12 h-12 rounded-lg bg-error-container text-on-error-container flex items-center justify-center mb-md group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-2xl">schedule</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-xs">Automated Scheduling</h3>
+<p class="font-body-md text-on-surface-variant">Set it and forget it. Schedule daily trivia or weekly grand quizzes to run automatically without manual intervention.</p>
+</div>
+<div class="flex-1 w-full bg-surface-container rounded-lg p-sm border border-outline-variant">
+<div class="flex items-center justify-between p-xs border-b border-outline-variant mb-xs">
+<span class="font-label-md text-label-md text-on-surface font-semibold">Daily Tech Trivia</span>
+<span class="text-xs text-primary bg-primary-fixed px-2 py-0.5 rounded-full">Active</span>
+</div>
+<div class="space-y-2">
+<div class="h-2 bg-surface-variant rounded w-3/4"></div>
+<div class="h-2 bg-surface-variant rounded w-1/2"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- How It Works Section -->
+<section class="py-xl bg-surface">
+<div class="max-w-container-max mx-auto px-gutter">
+<div class="text-center mb-16">
+<h2 class="font-display-lg text-display-lg text-on-background mb-sm">How it works</h2>
+<p class="font-body-lg text-on-surface-variant max-w-2xl mx-auto">Three simple steps to start engaging your audience.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-lg relative">
+<!-- Connecting line for desktop -->
+<div class="hidden md:block absolute top-1/4 left-1/6 right-1/6 h-0.5 bg-outline-variant z-0"></div>
+<!-- Step 1 -->
+<div class="relative z-10 flex flex-col items-center text-center">
+<div class="w-16 h-16 rounded-full bg-primary text-on-primary flex items-center justify-center font-headline-md text-headline-md mb-md shadow-md border-4 border-surface">
+                            1
+                        </div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-xs">Add the Bot</h3>
+<p class="font-body-md text-on-surface-variant px-sm">Invite @QuizGramBot to your Telegram group or channel and grant it basic admin rights to post polls.</p>
+</div>
+<!-- Step 2 -->
+<div class="relative z-10 flex flex-col items-center text-center mt-lg md:mt-0">
+<div class="w-16 h-16 rounded-full bg-surface-container-highest text-on-surface flex items-center justify-center font-headline-md text-headline-md mb-md shadow-sm border-4 border-surface">
+                            2
+                        </div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-xs">Create your Quiz</h3>
+<p class="font-body-md text-on-surface-variant px-sm">Use our web dashboard to write questions, set timers, and define the correct answers effortlessly.</p>
+</div>
+<!-- Step 3 -->
+<div class="relative z-10 flex flex-col items-center text-center mt-lg md:mt-0">
+<div class="w-16 h-16 rounded-full bg-surface-container-highest text-on-surface flex items-center justify-center font-headline-md text-headline-md mb-md shadow-sm border-4 border-surface">
+                            3
+                        </div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-xs">Go Live</h3>
+<p class="font-body-md text-on-surface-variant px-sm">Hit start. The bot will automatically post questions sequentially, track scores, and announce the winner.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- CTA Section -->
+<section class="py-24 bg-primary-container text-on-primary text-center relative overflow-hidden">
+<!-- Abstract background shapes -->
+<div class="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none flex justify-between items-center px-12">
+<span class="material-symbols-outlined text-[200px]" style="font-variation-settings: 'FILL' 1;">help</span>
+<span class="material-symbols-outlined text-[250px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<div class="relative z-10 max-w-2xl mx-auto px-gutter">
+<h2 class="font-display-lg text-[32px] md:text-[40px] font-bold mb-sm">Ready to host your first quiz?</h2>
+<p class="font-body-lg text-primary-fixed mb-xl">Join thousands of community managers making their Telegram groups more interactive.</p>
+<button class="px-8 py-4 rounded-full bg-surface text-primary font-headline-sm text-headline-sm hover:shadow-lg hover:-translate-y-0.5 transition-all active:scale-95">
+                    Create Free Account
+                </button>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="w-full py-xl mt-auto bg-surface-container-highest max-w-container-max mx-auto px-gutter flex flex-col md:flex-row justify-between items-center gap-md">
+<div class="font-headline-sm text-headline-sm text-primary flex items-center gap-2">
+<span class="material-symbols-outlined" data-weight="fill" style="font-variation-settings: 'FILL' 1;">quiz</span>
+            QuizGram
+        </div>
+<nav class="flex flex-wrap justify-center gap-md font-body-md text-body-md">
+<a class="text-on-surface-variant hover:text-primary hover:opacity-100 opacity-80 transition-colors" href="#">Privacy Policy</a>
+<a class="text-on-surface-variant hover:text-primary hover:opacity-100 opacity-80 transition-colors" href="#">Terms of Service</a>
+<a class="text-on-surface-variant hover:text-primary hover:opacity-100 opacity-80 transition-colors" href="#">API Docs</a>
+<a class="text-on-surface-variant hover:text-primary hover:opacity-100 opacity-80 transition-colors" href="#">Contact</a>
+</nav>
+<div class="text-on-surface-variant font-body-md text-body-md opacity-80">
+            © 2024 QuizGram. Fast, secure, and intuitive.
+        </div>
+</footer>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="fixed bottom-0 w-full lg:hidden z-50 border-t border-outline-variant bg-surface/80 backdrop-blur-md shadow-lg flex justify-around items-center h-16 pb-safe pt-1">
+<a class="flex flex-col items-center justify-center text-on-surface-variant scale-95 active:scale-90 transition-all active:bg-surface-container-high rounded-lg p-1 w-16" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-label-md text-label-md-mobile mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-primary dark:text-primary-fixed-dim scale-95 active:scale-90 transition-all active:bg-surface-container-high rounded-lg p-1 w-16" href="#">
+<span class="material-symbols-outlined" data-icon="quiz" data-weight="fill" style="font-variation-settings: 'FILL' 1;">quiz</span>
+<span class="font-label-md text-label-md-mobile mt-1 font-bold">Quizzes</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant scale-95 active:scale-90 transition-all active:bg-surface-container-high rounded-lg p-1 w-16" href="#">
+<span class="material-symbols-outlined" data-icon="sensors">sensors</span>
+<span class="font-label-md text-label-md-mobile mt-1">Host</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant scale-95 active:scale-90 transition-all active:bg-surface-container-high rounded-lg p-1 w-16" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-label-md text-label-md-mobile mt-1">Profile</span>
+</a>
+</nav>
+<script>
+        // Simple scroll effect for TopAppBar
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('top-nav');
+            if (window.scrollY > 10) {
+                nav.classList.add('shadow-md');
+                nav.classList.remove('shadow-sm');
+            } else {
+                nav.classList.remove('shadow-md');
+                nav.classList.add('shadow-sm');
+            }
+        });
+    </script>
+</body></html>

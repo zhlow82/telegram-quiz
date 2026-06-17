@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>QuizGram - Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary": "#006397",
+                    "primary": "#00658f",
+                    "surface-container-high": "#e8e8e9",
+                    "outline": "#6f7881",
+                    "secondary-fixed": "#d3e4ff",
+                    "surface-tint": "#00658f",
+                    "background": "#f9f9fa",
+                    "on-tertiary-container": "#003350",
+                    "on-tertiary-fixed-variant": "#004b73",
+                    "on-secondary-container": "#003663",
+                    "on-primary-fixed-variant": "#004c6d",
+                    "outline-variant": "#bec8d1",
+                    "primary-fixed-dim": "#86cfff",
+                    "on-secondary": "#ffffff",
+                    "error-container": "#ffdad6",
+                    "surface-container": "#eeeeef",
+                    "on-error-container": "#93000a",
+                    "error": "#ba1a1a",
+                    "surface-bright": "#f9f9fa",
+                    "secondary": "#0060a9",
+                    "surface-container-low": "#f3f3f4",
+                    "surface-variant": "#e2e2e3",
+                    "primary-fixed": "#c8e6ff",
+                    "secondary-fixed-dim": "#a2c9ff",
+                    "on-surface-variant": "#3e4850",
+                    "on-tertiary-fixed": "#001d31",
+                    "on-primary-fixed": "#001e2e",
+                    "primary-container": "#24a1de",
+                    "tertiary-fixed": "#cce5ff",
+                    "on-background": "#1a1c1d",
+                    "secondary-container": "#4aa1fe",
+                    "surface": "#f9f9fa",
+                    "on-surface": "#1a1c1d",
+                    "on-primary": "#ffffff",
+                    "on-error": "#ffffff",
+                    "inverse-on-surface": "#f0f1f2",
+                    "on-secondary-fixed": "#001c38",
+                    "inverse-surface": "#2f3132",
+                    "tertiary-container": "#4e9eda",
+                    "inverse-primary": "#86cfff",
+                    "on-primary-container": "#00344c",
+                    "surface-container-lowest": "#ffffff",
+                    "tertiary-fixed-dim": "#92ccff",
+                    "surface-container-highest": "#e2e2e3",
+                    "on-tertiary": "#ffffff",
+                    "surface-dim": "#dadadb",
+                    "on-secondary-fixed-variant": "#004881"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "xl": "32px",
+                    "container-max": "1200px",
+                    "gutter": "16px",
+                    "base": "4px",
+                    "lg": "24px",
+                    "sm": "12px",
+                    "xs": "8px",
+                    "md": "16px"
+            },
+            "fontFamily": {
+                    "display-lg": [
+                            "Inter"
+                    ],
+                    "headline-lg-mobile": [
+                            "Inter"
+                    ],
+                    "body-md": [
+                            "Inter"
+                    ],
+                    "body-lg": [
+                            "Inter"
+                    ],
+                    "label-md": [
+                            "Inter"
+                    ],
+                    "headline-md": [
+                            "Inter"
+                    ],
+                    "headline-sm": [
+                            "Inter"
+                    ]
+            },
+            "fontSize": {
+                    "display-lg": [
+                            "32px",
+                            {
+                                    "lineHeight": "40px",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "headline-lg-mobile": [
+                            "28px",
+                            {
+                                    "lineHeight": "36px",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "body-md": [
+                            "14px",
+                            {
+                                    "lineHeight": "20px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "body-lg": [
+                            "16px",
+                            {
+                                    "lineHeight": "24px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "label-md": [
+                            "12px",
+                            {
+                                    "lineHeight": "16px",
+                                    "letterSpacing": "0.01em",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "headline-md": [
+                            "24px",
+                            {
+                                    "lineHeight": "32px",
+                                    "letterSpacing": "-0.01em",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "headline-sm": [
+                            "20px",
+                            {
+                                    "lineHeight": "28px",
+                                    "fontWeight": "600"
+                            }
+                    ]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #f9f9fa;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.filled {
+            font-variation-settings: 'FILL' 1;
+        }
+        
+        /* Subtle pulse for live status */
+        @keyframes pulse-ring {
+            0% { transform: scale(0.8); opacity: 0.5; }
+            100% { transform: scale(1.5); opacity: 0; }
+        }
+        .live-dot {
+            position: relative;
+        }
+        .live-dot::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            display: block;
+            width: 100%;
+            height: 100%;
+            background-color: #22c55e;
+            border-radius: 50%;
+            z-index: -1;
+            animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+        }
+    </style>
+</head>
+<body class="text-on-background font-body-lg flex h-screen overflow-hidden bg-background">
+<!-- SideNavBar (Desktop) -->
+<nav class="h-screen w-64 fixed left-0 top-0 hidden lg:flex flex-col bg-surface-container-low dark:bg-surface-container-high z-40 border-r border-outline-variant dark:border-outline">
+<div class="flex flex-col py-lg space-y-sm px-4 h-full">
+<!-- Header -->
+<div class="flex items-center gap-sm mb-lg px-2">
+<img alt="Organization Logo" class="w-10 h-10 rounded-lg object-cover" data-alt="A stylized geometric organization logo featuring overlapping translucent shapes in blue and teal hues, rendered in a modern vector style against a crisp white background. Professional, tech-forward, and clean aesthetic fitting a modern web application." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB7MeBNEgNTXZWm5IBm-R65V-hfF1vHtoSZVvAurEIuset8QpxQWSl_9-S_phoHftAz16o2GBS4R12FetUIHK1R76LwXG6k4bdqe-IE_qnuUWDLvocZXkmeMnSIc2vKz5nDbCQgtzurXvY--KnGDzE1G7ZiHVRZ-2lNFRHr-80A-pHEzcPNX20gTYQiT7KvIZT_XJlM2Z7IWiBWG8AJPinVZtOvmX9GuO0w79NHQNawxGz41tlTd4hqcER_cS0rs4qUd_JGOUDHvsk"/>
+<div>
+<h1 class="font-headline-md text-headline-md text-primary">Creator Studio</h1>
+<p class="font-label-md text-label-md text-on-surface-variant">Pro Account</p>
+</div>
+</div>
+<!-- Tabs -->
+<div class="flex-1 space-y-1">
+<!-- Dashboard (Active) -->
+<a class="flex items-center gap-3 px-4 py-3 bg-secondary-container dark:bg-secondary text-on-secondary-container dark:text-on-secondary rounded-full mx-2 transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined filled text-xl">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<!-- Active Quizzes -->
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-surface-variant hover:bg-surface-variant dark:hover:bg-outline-variant mx-2 rounded-full transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-xl">bolt</span>
+<span class="font-label-md text-label-md">Active Quizzes</span>
+</a>
+<!-- Drafts -->
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-surface-variant hover:bg-surface-variant dark:hover:bg-outline-variant mx-2 rounded-full transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-xl">edit_note</span>
+<span class="font-label-md text-label-md">Drafts</span>
+</a>
+<!-- Analytics -->
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-surface-variant hover:bg-surface-variant dark:hover:bg-outline-variant mx-2 rounded-full transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-xl">monitoring</span>
+<span class="font-label-md text-label-md">Analytics</span>
+</a>
+<!-- Settings -->
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-surface-variant hover:bg-surface-variant dark:hover:bg-outline-variant mx-2 rounded-full transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-xl">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+</div>
+<!-- CTA -->
+<div class="mt-auto mb-sm px-2">
+<button class="w-full flex items-center justify-center gap-2 bg-primary-container text-on-primary hover:bg-tertiary-container transition-colors py-3 rounded-full font-label-md text-label-md font-bold shadow-sm">
+<span class="material-symbols-outlined text-lg">podcasts</span>
+                    Go Live Now
+                </button>
+</div>
+<!-- Footer Tabs -->
+<div class="space-y-1 pt-sm border-t border-outline-variant dark:border-outline">
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant dark:text-surface-variant hover:bg-surface-variant dark:hover:bg-outline-variant mx-2 rounded-full transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-lg">help</span>
+<span class="font-label-md text-label-md">Help</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant dark:text-surface-variant hover:bg-surface-variant dark:hover:bg-outline-variant mx-2 rounded-full transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-lg">contact_support</span>
+<span class="font-label-md text-label-md">Support</span>
+</a>
+</div>
+</div>
+</nav>
+<!-- TopAppBar (Mobile & Tablet) -->
+<header class="w-full sticky top-0 z-50 bg-surface dark:bg-surface-dim shadow-sm flex lg:hidden border-b border-outline-variant dark:border-outline">
+<div class="flex justify-between items-center h-16 px-gutter w-full">
+<div class="flex items-center gap-2">
+<span class="font-display-lg text-display-lg text-primary dark:text-primary-fixed">QuizGram</span>
+</div>
+<div class="flex items-center gap-sm">
+<!-- Navigation Links (Tablet only) -->
+<nav class="hidden md:flex items-center gap-md mr-md">
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-colors duration-200 font-headline-sm text-headline-sm" href="#">Explore</a>
+<a class="text-primary dark:text-primary-fixed-dim font-bold border-b-2 border-primary font-headline-sm text-headline-sm" href="#">My Quizzes</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-colors duration-200 font-headline-sm text-headline-sm" href="#">Host</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-colors duration-200 font-headline-sm text-headline-sm" href="#">Leaderboard</a>
+</nav>
+<button class="bg-primary-container text-on-primary hover:bg-tertiary-container px-4 py-2 rounded-full font-label-md text-label-md font-bold transition-transform active:scale-95 shadow-sm hidden sm:block">
+                    Create Quiz
+                </button>
+<img alt="User profile" class="w-8 h-8 rounded-full border border-outline-variant" data-alt="A clean, professional headshot of a young male professional wearing a simple blue button-down shirt against a soft, light gray background. Bright, natural lighting highlights his approachable expression. Corporate modern style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCz_rwXAYE-L1msfFm2oU7CIIPGpudJzN7bXL_YBWjHEo9HYHYfGc1X49hszy0XbbeEbQMEdzIuTGqcLMiPX4EnruDwRlEfgeUPuvu9oTJ8vHsHwHFNpUJbivhGsMQfr-kuUKRXM2zEfAuxDsjNlikZU1Z4IDO6nStAG9eAcQpo9mcz8kzrYWLMh9di3PpXNRDtkOnGnMr21-JY_rAJlVtGL_ZEQesodZe-qdWWZ1eQE3nwGIavGYZUQnPK87dst9GPuBMk0swS2jY"/>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-1 h-screen overflow-y-auto lg:ml-64 flex flex-col relative w-full">
+<!-- Dashboard Header Area -->
+<div class="bg-surface border-b border-outline-variant px-gutter lg:px-xl py-lg pt-24 lg:pt-lg sticky top-0 z-30">
+<div class="max-w-container-max mx-auto flex flex-col md:flex-row md:items-end justify-between gap-md">
+<div>
+<h2 class="font-display-lg text-display-lg text-on-surface mb-2">Welcome back, Alex</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Here's what's happening with your quizzes today.</p>
+</div>
+<div class="flex gap-sm">
+<button class="flex items-center gap-2 bg-transparent border-[1.5px] border-primary-container text-primary-container hover:bg-primary-container/10 px-6 py-3 rounded-full font-label-md text-label-md font-bold transition-colors">
+<span class="material-symbols-outlined text-sm">qr_code_scanner</span>
+                         Join Code
+                     </button>
+<button class="flex items-center gap-2 bg-primary-container text-on-primary hover:bg-tertiary-container px-6 py-3 rounded-full font-label-md text-label-md font-bold shadow-md transition-transform active:scale-95">
+<span class="material-symbols-outlined text-sm">add</span>
+                         Create New Quiz
+                     </button>
+</div>
+</div>
+</div>
+<!-- Scrollable Canvas -->
+<div class="flex-1 p-gutter lg:p-xl max-w-container-max mx-auto w-full">
+<!-- Key Metrics Grid -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-lg mb-xl">
+<!-- Metric Card 1 -->
+<div class="bg-surface rounded-xl p-md border border-outline-variant shadow-sm hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between mb-sm">
+<h3 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Total Participants</h3>
+<div class="p-2 bg-tertiary-container/10 rounded-full text-tertiary-container">
+<span class="material-symbols-outlined">group</span>
+</div>
+</div>
+<div class="flex items-end gap-2">
+<span class="font-display-lg text-display-lg text-on-surface">12,450</span>
+<span class="font-label-md text-label-md text-green-600 mb-2 flex items-center"><span class="material-symbols-outlined text-[14px]">arrow_upward</span> 14%</span>
+</div>
+</div>
+<!-- Metric Card 2 -->
+<div class="bg-surface rounded-xl p-md border border-outline-variant shadow-sm hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between mb-sm">
+<h3 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Active Quizzes</h3>
+<div class="p-2 bg-secondary-container/10 rounded-full text-secondary-container">
+<span class="material-symbols-outlined">bolt</span>
+</div>
+</div>
+<div class="flex items-end gap-2">
+<span class="font-display-lg text-display-lg text-on-surface">3</span>
+<span class="font-label-md text-label-md text-on-surface-variant mb-2">Live right now</span>
+</div>
+</div>
+<!-- Metric Card 3 -->
+<div class="bg-surface rounded-xl p-md border border-outline-variant shadow-sm hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between mb-sm">
+<h3 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Drafts Pending</h3>
+<div class="p-2 bg-outline-variant/30 rounded-full text-outline">
+<span class="material-symbols-outlined">edit_document</span>
+</div>
+</div>
+<div class="flex items-end gap-2">
+<span class="font-display-lg text-display-lg text-on-surface">8</span>
+<span class="font-label-md text-label-md text-on-surface-variant mb-2">Needs completion</span>
+</div>
+</div>
+</div>
+<!-- Bento Grid Content Area -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-lg pb-24 lg:pb-0">
+<!-- Main Column: My Quizzes -->
+<div class="lg:col-span-2 flex flex-col gap-md">
+<div class="flex items-center justify-between mb-2">
+<h3 class="font-headline-md text-headline-md text-on-surface">My Quizzes</h3>
+<button class="text-primary hover:text-tertiary-container font-label-md text-label-md font-medium transition-colors">View All</button>
+</div>
+<!-- Quiz Card 1 (Live) -->
+<div class="bg-surface rounded-lg border border-outline-variant p-4 shadow-sm hover:shadow-md transition-all group flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
+<div class="flex gap-4 items-start w-full sm:w-auto">
+<div class="w-16 h-16 rounded-md bg-secondary-container/20 flex items-center justify-center shrink-0 overflow-hidden relative">
+<img alt="Tech Quiz" class="w-full h-full object-cover" data-alt="A macro shot of glowing fiber optic cables illuminated in vibrant cyan and magenta tones against a dark background. High contrast, modern technology aesthetic, sharp focus. Fast-paced and tech-forward mood." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBOXxmVOJbPTSI5qXaGT8VcTkmCZiiMvwSHhbWkhrVkIP9U9I90DHTNCGosDLGr1dY3gL5dMXFw4FjRbusfgLCugx_wdQIjwtwHGbzFGnr0QLsDgqjl43Ch2Mq1S9iRv0z3QsQ5iurDxOeW6RqaQspfqgKTSI5XsgtXx_XkGasw1ngEowujs5sMBNkVzIV0gkyNj_PNzSRwNKhMA5UAdsjtFW8arnq2ZovPsUUBgfMQ9aV-Tga6htsSenlv8dCV7c8MlEWBIzeLNhE"/>
+</div>
+<div class="flex-1">
+<div class="flex items-center gap-2 mb-1">
+<h4 class="font-headline-sm text-headline-sm text-on-surface group-hover:text-primary transition-colors">Weekly Tech Trivia</h4>
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-green-100 text-green-800 font-label-md text-[10px] font-bold border border-green-200">
+<span class="w-1.5 h-1.5 rounded-full bg-green-500 live-dot"></span> LIVE
+                                    </span>
+</div>
+<div class="flex items-center gap-3 text-on-surface-variant font-body-md text-body-md">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">format_list_bulleted</span> 20 Qs</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">group</span> 842 playing</span>
+</div>
+</div>
+</div>
+<button class="w-full sm:w-auto px-6 py-2.5 bg-secondary-container text-on-secondary hover:bg-secondary transition-colors rounded-full font-label-md text-label-md font-bold shadow-sm whitespace-nowrap">
+                            Manage Event
+                        </button>
+</div>
+<!-- Quiz Card 2 (Ready) -->
+<div class="bg-surface rounded-lg border border-outline-variant p-4 shadow-sm hover:shadow-md transition-all group flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
+<div class="flex gap-4 items-start w-full sm:w-auto">
+<div class="w-16 h-16 rounded-md bg-tertiary-container/20 flex items-center justify-center shrink-0 overflow-hidden relative">
+<span class="material-symbols-outlined text-tertiary text-3xl">public</span>
+</div>
+<div class="flex-1">
+<div class="flex items-center gap-2 mb-1">
+<h4 class="font-headline-sm text-headline-sm text-on-surface group-hover:text-primary transition-colors">Global Geography Challenge</h4>
+</div>
+<div class="flex items-center gap-3 text-on-surface-variant font-body-md text-body-md">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">format_list_bulleted</span> 15 Qs</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">calendar_today</span> Oct 24, 2024</span>
+</div>
+</div>
+</div>
+<div class="flex gap-2 w-full sm:w-auto">
+<button class="flex-1 sm:flex-none p-2.5 text-outline hover:text-primary hover:bg-surface-variant rounded-full transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined">edit</span>
+</button>
+<button class="flex-1 sm:flex-none px-6 py-2.5 bg-transparent border-[1.5px] border-primary-container text-primary-container hover:bg-primary-container/10 transition-colors rounded-full font-label-md text-label-md font-bold whitespace-nowrap">
+                                Launch
+                            </button>
+</div>
+</div>
+<!-- Quiz Card 3 (Ready) -->
+<div class="bg-surface rounded-lg border border-outline-variant p-4 shadow-sm hover:shadow-md transition-all group flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
+<div class="flex gap-4 items-start w-full sm:w-auto">
+<div class="w-16 h-16 rounded-md bg-surface-variant flex items-center justify-center shrink-0 overflow-hidden relative">
+<span class="material-symbols-outlined text-outline text-3xl">movie</span>
+</div>
+<div class="flex-1">
+<div class="flex items-center gap-2 mb-1">
+<h4 class="font-headline-sm text-headline-sm text-on-surface group-hover:text-primary transition-colors">90s Movie Masters</h4>
+</div>
+<div class="flex items-center gap-3 text-on-surface-variant font-body-md text-body-md">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">format_list_bulleted</span> 30 Qs</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">calendar_today</span> Oct 20, 2024</span>
+</div>
+</div>
+</div>
+<div class="flex gap-2 w-full sm:w-auto">
+<button class="flex-1 sm:flex-none p-2.5 text-outline hover:text-primary hover:bg-surface-variant rounded-full transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined">edit</span>
+</button>
+<button class="flex-1 sm:flex-none px-6 py-2.5 bg-transparent border-[1.5px] border-primary-container text-primary-container hover:bg-primary-container/10 transition-colors rounded-full font-label-md text-label-md font-bold whitespace-nowrap">
+                                Launch
+                            </button>
+</div>
+</div>
+</div>
+<!-- Secondary Column: Recent Drafts & Quick Actions -->
+<div class="flex flex-col gap-lg">
+<!-- Quick Join Card -->
+<div class="bg-primary-container rounded-xl p-md text-on-primary shadow-md relative overflow-hidden">
+<div class="absolute -right-10 -top-10 opacity-20">
+<span class="material-symbols-outlined text-[120px]">hub</span>
+</div>
+<div class="relative z-10">
+<h3 class="font-headline-md text-headline-md mb-2">Host an impromptu?</h3>
+<p class="font-body-md text-body-md mb-4 text-on-primary/90">Generate a 10-question AI quiz instantly based on any topic.</p>
+<div class="flex items-center bg-surface/20 rounded-full p-1 border border-surface/30 focus-within:border-surface transition-colors">
+<input class="bg-transparent border-none text-on-primary placeholder-on-primary/60 font-body-md w-full focus:ring-0 px-3 outline-none" placeholder="Topic e.g. 'Space'" type="text"/>
+<button class="bg-surface text-primary-container rounded-full w-8 h-8 flex items-center justify-center shrink-0 hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Recent Drafts List -->
+<div class="bg-surface rounded-xl border border-outline-variant p-md shadow-sm">
+<div class="flex items-center justify-between mb-4">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Recent Drafts</h3>
+</div>
+<div class="flex flex-col gap-0 divide-y divide-surface-variant">
+<!-- Draft 1 -->
+<a class="py-3 flex items-center justify-between group hover:bg-surface-container-low px-2 -mx-2 rounded-md transition-colors" href="#">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-outline-variant group-hover:text-primary transition-colors">description</span>
+<div>
+<p class="font-body-md text-body-md text-on-surface font-medium">Q4 All-Hands Trivia</p>
+<p class="font-label-md text-label-md text-on-surface-variant">Edited 2 hours ago</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline group-hover:text-primary text-sm opacity-0 group-hover:opacity-100 transition-all transform translate-x-[-10px] group-hover:translate-x-0">chevron_right</span>
+</a>
+<!-- Draft 2 -->
+<a class="py-3 flex items-center justify-between group hover:bg-surface-container-low px-2 -mx-2 rounded-md transition-colors" href="#">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-outline-variant group-hover:text-primary transition-colors">description</span>
+<div>
+<p class="font-body-md text-body-md text-on-surface font-medium">Pop Culture 2024</p>
+<p class="font-label-md text-label-md text-on-surface-variant">Edited yesterday</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline group-hover:text-primary text-sm opacity-0 group-hover:opacity-100 transition-all transform translate-x-[-10px] group-hover:translate-x-0">chevron_right</span>
+</a>
+<!-- Draft 3 -->
+<a class="py-3 flex items-center justify-between group hover:bg-surface-container-low px-2 -mx-2 rounded-md transition-colors" href="#">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-outline-variant group-hover:text-primary transition-colors">description</span>
+<div>
+<p class="font-body-md text-body-md text-on-surface font-medium">New Hire Onboarding</p>
+<p class="font-label-md text-label-md text-on-surface-variant">Edited Oct 18</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline group-hover:text-primary text-sm opacity-0 group-hover:opacity-100 transition-all transform translate-x-[-10px] group-hover:translate-x-0">chevron_right</span>
+</a>
+</div>
+</div>
+</div>
+</div>
+<!-- Footer Footer (Inside main canvas area to stay within scroll) -->
+<footer class="w-full py-xl mt-auto max-w-container-max mx-auto border-t border-outline-variant mt-xl">
+<div class="flex flex-col md:flex-row justify-between items-center gap-md text-on-surface-variant">
+<div class="font-headline-sm text-headline-sm text-primary">QuizGram</div>
+<div class="flex gap-md font-body-md text-body-md">
+<a class="hover:text-primary transition-colors" href="#">Privacy Policy</a>
+<a class="hover:text-primary transition-colors" href="#">Terms of Service</a>
+<a class="hover:text-primary transition-colors" href="#">API Docs</a>
+<a class="hover:text-primary transition-colors" href="#">Contact</a>
+</div>
+<div class="font-body-md text-body-md opacity-80 hover:opacity-100 transition-opacity">
+                        © 2024 QuizGram. Fast, secure, and intuitive.
+                    </div>
+</div>
+</footer>
+</div>
+</main>
+<!-- BottomNavBar (Mobile only) -->
+<nav class="fixed bottom-0 w-full lg:hidden z-50 border-t border-outline-variant bg-surface/80 backdrop-blur-md shadow-lg">
+<div class="flex justify-around items-center h-16 pb-safe px-2">
+<!-- Home (Active via Intent mapping to Dashboard) -->
+<a class="flex flex-col items-center justify-center text-primary dark:text-primary-fixed-dim scale-95 active:scale-90 transition-all w-16 h-full active:bg-surface-container-high rounded-lg" href="#">
+<span class="material-symbols-outlined filled mb-1">home</span>
+<span class="font-label-md text-label-md-mobile">Home</span>
+</a>
+<!-- Quizzes (Mapped to My Quizzes) -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant scale-95 active:scale-90 transition-all w-16 h-full active:bg-surface-container-high rounded-lg" href="#">
+<span class="material-symbols-outlined mb-1">quiz</span>
+<span class="font-label-md text-label-md-mobile">Quizzes</span>
+</a>
+<!-- Host -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant scale-95 active:scale-90 transition-all w-16 h-full active:bg-surface-container-high rounded-lg" href="#">
+<span class="material-symbols-outlined mb-1">sensors</span>
+<span class="font-label-md text-label-md-mobile">Host</span>
+</a>
+<!-- Profile -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant scale-95 active:scale-90 transition-all w-16 h-full active:bg-surface-container-high rounded-lg" href="#">
+<span class="material-symbols-outlined mb-1">person</span>
+<span class="font-label-md text-label-md-mobile">Profile</span>
+</a>
+</div>
+</nav>
+<!-- Mobile FAB for primary action (Create Quiz) -->
+<button class="lg:hidden fixed bottom-20 right-4 z-40 bg-primary-container text-on-primary w-14 h-14 rounded-full shadow-lg flex items-center justify-center hover:bg-tertiary-container transition-all active:scale-90">
+<span class="material-symbols-outlined text-2xl">add</span>
+</button>
+</body></html>

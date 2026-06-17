@@ -4,7 +4,7 @@
     <!-- Skip navigation link -->
     <a
       href="#main-content"
-      class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[100] focus:px-4 focus:py-2 focus:bg-blue-600 focus:text-white focus:rounded-lg focus:text-sm focus:font-semibold focus:outline-none"
+      class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[100] focus:px-4 focus:py-2 focus:bg-primary focus:text-white focus:rounded-full focus:text-sm focus:font-semibold focus:outline-none"
     >
       Skip to content
     </a>
@@ -28,7 +28,7 @@
     <!-- Sidebar -->
     <aside
       :class="[
-        'fixed inset-y-0 left-0 z-40 flex-shrink-0 bg-slate-900 flex flex-col transition-all duration-200 ease-in-out',
+        'fixed inset-y-0 left-0 z-40 flex-shrink-0 bg-white border-r border-slate-200 flex flex-col transition-all duration-200 ease-in-out',
         sidebarCollapsed ? 'w-16' : 'w-64',
         'md:static md:z-auto md:translate-x-0',
         drawerOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0',
@@ -36,14 +36,14 @@
     >
       <!-- Brand -->
       <div class="flex items-center gap-3 px-4 py-5 flex-shrink-0">
-        <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden bg-blue-600">
+        <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden bg-primary">
           <img v-if="brandingStore.appLogoUrl" :src="brandingStore.appLogoUrl" class="w-full h-full object-cover" alt="" />
           <Zap v-else class="w-4 h-4 text-white" />
         </div>
-        <span v-if="!sidebarCollapsed" class="text-white font-bold text-sm">{{ brandingStore.appName }}</span>
+        <span v-if="!sidebarCollapsed" class="text-slate-900 font-bold text-sm">{{ brandingStore.appName }}</span>
         <button
           v-if="!sidebarCollapsed"
-          class="hidden md:flex ml-auto w-6 h-6 rounded-lg items-center justify-center text-slate-500 hover:text-white hover:bg-white/10 transition cursor-pointer"
+          class="hidden md:flex ml-auto w-6 h-6 rounded-lg items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition cursor-pointer"
           @click="sidebarCollapsed = true"
         >
           <ChevronLeft class="w-4 h-4" />
@@ -52,29 +52,33 @@
 
       <button
         v-if="sidebarCollapsed"
-        class="mx-auto mb-3 w-8 h-8 rounded-lg flex items-center justify-center text-slate-500 hover:text-white hover:bg-white/10 transition cursor-pointer"
+        class="mx-auto mb-3 w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition cursor-pointer"
         @click="sidebarCollapsed = false"
         title="Expand sidebar"
       >
         <ChevronRight class="w-4 h-4" />
       </button>
 
-      <div class="border-t border-white/5" />
+      <div class="border-t border-slate-100" />
 
       <!-- Nav -->
       <nav class="flex-1 px-3 pt-4 overflow-y-auto">
         <p
           v-if="!sidebarCollapsed"
-          class="px-3 mb-2 text-xs font-semibold uppercase"
-          style="color: rgba(148,163,184,0.6); letter-spacing: 0.08em"
+          class="px-3 mb-2 text-xs font-semibold uppercase text-slate-400"
+          style="letter-spacing: 0.08em"
         >Main</p>
         <router-link
           v-for="item in navItems"
           :key="item.to"
           :to="item.to"
-          class="flex items-center gap-3 px-3 py-2 rounded-lg mb-1 text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-colors no-underline"
-          :class="sidebarCollapsed ? 'justify-center' : ''"
-          active-class="!text-white !bg-white/10"
+          class="flex items-center gap-3 px-3 py-2 mb-1 text-sm font-medium transition-colors no-underline"
+          :class="[
+            $route.path === item.to
+              ? 'bg-primary text-white rounded-full'
+              : 'text-slate-600 hover:bg-slate-100 rounded-lg',
+            sidebarCollapsed ? 'justify-center' : ''
+          ]"
           :title="sidebarCollapsed ? item.label : ''"
           @click="drawerOpen = false"
         >
@@ -83,19 +87,23 @@
         </router-link>
 
         <template v-if="authStore.isAdmin">
-          <div class="border-t border-white/5 my-3" />
+          <div class="border-t border-slate-100 my-3" />
           <p
             v-if="!sidebarCollapsed"
-            class="px-3 mb-2 text-xs font-semibold uppercase"
-            style="color: rgba(148,163,184,0.6); letter-spacing: 0.08em"
+            class="px-3 mb-2 text-xs font-semibold uppercase text-slate-400"
+            style="letter-spacing: 0.08em"
           >Admin</p>
           <router-link
             v-for="item in adminNavItems"
             :key="item.to"
             :to="item.to"
-            class="flex items-center gap-3 px-3 py-2 rounded-lg mb-1 text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-colors no-underline"
-            :class="sidebarCollapsed ? 'justify-center' : ''"
-            active-class="!text-white !bg-white/10"
+            class="flex items-center gap-3 px-3 py-2 mb-1 text-sm font-medium transition-colors no-underline"
+            :class="[
+              $route.path === item.to
+                ? 'bg-primary text-white rounded-full'
+                : 'text-slate-600 hover:bg-slate-100 rounded-lg',
+              sidebarCollapsed ? 'justify-center' : ''
+            ]"
             :title="sidebarCollapsed ? item.label : ''"
             @click="drawerOpen = false"
           >
@@ -106,27 +114,27 @@
       </nav>
 
       <!-- User section -->
-      <div class="flex-shrink-0 border-t border-white/5 p-3">
+      <div class="flex-shrink-0 border-t border-slate-100 p-3">
         <button
-          class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl mb-2 text-left transition-colors hover:bg-white/10 cursor-pointer"
+          class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl mb-2 text-left transition-colors hover:bg-slate-100 cursor-pointer"
           :class="sidebarCollapsed ? 'justify-center px-0' : ''"
-          style="background: rgba(255,255,255,0.06)"
+          style="background: #f8fafc"
           title="My Profile"
           @click="openProfile"
         >
-          <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+          <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
             {{ userInitial }}
           </div>
           <template v-if="!sidebarCollapsed">
             <div class="min-w-0 flex-1">
-              <div class="text-white text-sm font-semibold truncate">{{ authStore.firstName || authStore.username }}</div>
-              <div class="text-xs text-slate-400">{{ authStore.isAdmin ? 'Admin' : 'Member' }}</div>
+              <div class="text-slate-900 text-sm font-semibold truncate">{{ authStore.firstName || authStore.username }}</div>
+              <div class="text-xs text-slate-500">{{ authStore.isAdmin ? 'Admin' : 'Member' }}</div>
             </div>
-            <Pencil class="w-3.5 h-3.5 text-slate-500 flex-shrink-0" />
+            <Pencil class="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
           </template>
         </button>
         <button
-          class="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-sm text-slate-400 hover:text-white hover:bg-white/5 transition-colors disabled:opacity-50 cursor-pointer"
+          class="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-sm text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition-colors disabled:opacity-50 cursor-pointer"
           :disabled="loading"
           @click="handleLogout"
         >
@@ -182,7 +190,7 @@
               @click="closeProfile"
             >Cancel</button>
             <button
-              class="flex-1 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold transition-colors cursor-pointer disabled:opacity-50"
+              class="flex-1 py-2 bg-primary hover:bg-primary-hover text-white rounded-full text-sm font-semibold transition-colors cursor-pointer disabled:opacity-50"
               :disabled="profileLoading"
               @click="saveProfile"
             >{{ profileLoading ? 'Saving…' : 'Save' }}</button>
@@ -243,7 +251,7 @@
                 <p v-if="cpSuccess" class="text-xs text-green-600">Password changed!</p>
               </div>
               <button
-                class="w-full mt-4 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-lg text-sm font-semibold transition-colors cursor-pointer disabled:opacity-50"
+                class="w-full mt-4 py-2 bg-primary hover:bg-primary-hover text-white rounded-full text-sm font-semibold transition-colors cursor-pointer disabled:opacity-50"
                 :disabled="cpLoading"
                 @click="submitChangePassword"
               >{{ cpLoading ? 'Saving…' : 'Change Password' }}</button>

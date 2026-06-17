@@ -45,6 +45,7 @@ services:
       - DB_PASSWORD=${POSTGRES_PASSWORD:-postgres}
       - REDIS_HOST=redis
       - JWT_SECRET=${JWT_SECRET:-dGVsZWdyYW1xdWl6LWp3dC1zZWNyZXQta2V5LWZvci1kZXZlbG9wbWVudC11c2Utb25seS0yMDI2}
+      - FRONTEND_URL=http://localhost/tg-quiz
     volumes:
       - auth-logs:/app/logs
     depends_on:

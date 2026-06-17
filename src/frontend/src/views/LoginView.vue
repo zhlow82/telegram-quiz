@@ -3,31 +3,37 @@
 
     <!-- Brand panel (desktop only) -->
     <div
-      class="hidden md:flex flex-col items-center justify-center flex-[0_0_42%] relative overflow-hidden px-12 bg-slate-900"
+      class="hidden md:flex flex-col items-center justify-center flex-[0_0_42%] relative overflow-hidden px-12 bg-primary"
     >
-      <!-- Decorative circles -->
-      <div class="absolute w-96 h-96 rounded-full -top-36 -right-36" style="background: rgba(255,255,255,0.03)"></div>
-      <div class="absolute w-72 h-72 rounded-full -bottom-24 -left-24" style="background: rgba(255,255,255,0.03)"></div>
+      <!-- Watermark icons -->
+      <Zap class="absolute -top-8 -left-8 w-72 h-72 text-white/10 pointer-events-none" />
+      <Trophy class="absolute -bottom-12 -right-12 w-80 h-80 text-white/10 pointer-events-none" />
 
       <div class="relative z-10 max-w-sm w-full">
         <!-- Logo -->
         <div
-          class="w-16 h-16 rounded-2xl flex items-center justify-center mb-6 overflow-hidden bg-blue-600"
+          class="w-16 h-16 rounded-2xl flex items-center justify-center mb-6 overflow-hidden bg-white/20"
         >
           <img v-if="brandingStore.appLogoUrl" :src="brandingStore.appLogoUrl" class="w-full h-full object-cover" alt="" />
           <Zap v-else class="w-8 h-8 text-white" />
         </div>
 
-        <h1 class="text-3xl font-black text-white mb-3">{{ brandingStore.appName }}</h1>
-        <p class="text-base mb-8 text-slate-400">
+        <!-- Badge -->
+        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 text-white text-xs font-semibold mb-4">
+          <Shield class="w-3.5 h-3.5" />
+          Secure Login
+        </div>
+
+        <h1 class="text-4xl font-black text-white mb-3">{{ brandingStore.appName }}</h1>
+        <p class="text-base mb-8 text-white/70">
           {{ brandingStore.loginWelcomeText || 'Create and manage engaging quiz games for your Telegram community.' }}
         </p>
 
         <!-- Feature list -->
         <div class="flex flex-col gap-3">
           <div v-for="f in features" :key="f" class="flex items-center gap-2">
-            <CheckCircle class="w-4 h-4 flex-shrink-0 text-blue-500" />
-            <span class="text-sm text-slate-300">{{ f }}</span>
+            <CheckCircle class="w-4 h-4 flex-shrink-0 text-white" />
+            <span class="text-sm text-white/80">{{ f }}</span>
           </div>
         </div>
       </div>
@@ -39,7 +45,7 @@
 
         <!-- Mobile logo -->
         <div class="flex md:hidden items-center gap-2 mb-8">
-          <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden bg-blue-600">
+          <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden bg-primary">
             <img v-if="brandingStore.appLogoUrl" :src="brandingStore.appLogoUrl" class="w-full h-full object-cover" alt="" />
             <Zap v-else class="w-4 h-4 text-white" />
           </div>
@@ -58,7 +64,7 @@
               type="text"
               placeholder="Username"
               autocomplete="username"
-              class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+              class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
             />
           </div>
 
@@ -70,7 +76,7 @@
               :type="showPassword ? 'text' : 'password'"
               placeholder="Password"
               autocomplete="current-password"
-              class="w-full pl-10 pr-10 py-2.5 rounded-xl border border-slate-200 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+              class="w-full pl-10 pr-10 py-2.5 rounded-xl border border-slate-200 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
             />
             <button
               type="button"
@@ -85,7 +91,7 @@
           <!-- Remember me / forgot -->
           <div class="flex items-center mb-5">
             <label class="flex items-center gap-2 text-sm text-slate-600 cursor-pointer select-none">
-              <input v-model="remember" type="checkbox" class="rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
+              <input v-model="remember" type="checkbox" class="rounded border-slate-300 text-primary focus:ring-primary" />
               Remember me
             </label>
           </div>
@@ -102,7 +108,7 @@
           <!-- Submit -->
           <button
             type="submit"
-            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-xl text-sm transition mb-3 disabled:opacity-60 cursor-pointer disabled:cursor-not-allowed"
+            class="w-full bg-primary hover:bg-primary-hover text-white font-semibold py-2.5 rounded-full text-sm transition mb-3 disabled:opacity-60 cursor-pointer disabled:cursor-not-allowed"
             :disabled="loading"
           >
             <span v-if="loading" class="inline-flex items-center gap-2">
@@ -144,7 +150,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { Zap, User, Lock, CheckCircle, AlertCircle, Eye, EyeOff } from '@lucide/vue'
+import { Zap, User, Lock, CheckCircle, AlertCircle, Eye, EyeOff, Shield, Trophy } from '@lucide/vue'
 import { useAuthStore } from '@/stores/auth'
 import { useBrandingStore } from '@/stores/branding'
 import api from '@/services/api'

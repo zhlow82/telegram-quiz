@@ -5,7 +5,7 @@
       <!-- Page heading -->
       <div class="flex items-center justify-between gap-4 pb-6 mb-6 border-b border-slate-200 flex-wrap">
         <div class="flex items-center gap-4">
-          <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center flex-shrink-0">
+          <div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center flex-shrink-0">
             <LayoutDashboard class="w-5 h-5 text-white" />
           </div>
           <div>
@@ -15,33 +15,11 @@
         </div>
         <router-link
           to="/quizzes/new"
-          class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2 rounded-xl transition no-underline"
+          class="inline-flex items-center gap-2 bg-primary hover:bg-primary-hover text-white text-sm font-semibold px-4 py-2 rounded-full transition no-underline"
         >
           <Plus class="w-4 h-4" />
           Create Quiz
         </router-link>
-      </div>
-
-      <!-- Welcome banner -->
-      <div
-        class="rounded-xl p-6 mb-5"
-        style="background: linear-gradient(145deg, #1e3a8a 0%, #2563eb 55%, #3b82f6 100%)"
-      >
-        <div class="flex items-center justify-between gap-4 flex-wrap">
-          <div>
-            <p class="text-sm mb-1" style="color: rgba(255,255,255,0.72)">Good to see you,</p>
-            <h2 class="text-xl font-black text-white mb-1">{{ authStore.firstName || authStore.username }} 👋</h2>
-            <p class="text-sm" style="color: rgba(255,255,255,0.72)">
-              {{ activeQuizCount }} quiz{{ activeQuizCount !== 1 ? 'zes' : '' }} running · {{ totalParticipants }} total participants
-            </p>
-          </div>
-          <div
-            class="w-14 h-14 rounded-full flex items-center justify-center text-white text-2xl font-extrabold flex-shrink-0 border-2"
-            style="background: rgba(255,255,255,0.18); border-color: rgba(255,255,255,0.25); backdrop-filter: blur(8px)"
-          >
-            {{ userInitial }}
-          </div>
-        </div>
       </div>
 
       <!-- Loading state -->
@@ -290,17 +268,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { LayoutDashboard, BookOpen, Zap, Folder as FolderIcon, Users, Trophy, Plus, Pencil, Square, Lightbulb, CheckCircle, XCircle, Minus } from '@lucide/vue'
 import AppLayout from '@/components/AppLayout.vue'
-import { useAuthStore } from '@/stores/auth'
 import { quizService } from '@/services/quizService'
 import { questionsService } from '@/services/questionsService'
 import { foldersService } from '@/services/foldersService'
 import { useToast } from '@/composables/useToast'
 import type { QuizSummary, QuizSessionSummary } from '@/types/quiz'
 
-const authStore = useAuthStore()
 const toast = useToast()
 
 const statsLoading = ref(true)
@@ -324,10 +300,6 @@ const recentParticipants = ref<Array<{
 }>>([])
 
 const quizSessionsMap = ref<Map<number, QuizSessionSummary[]>>(new Map())
-
-const userInitial = computed(() =>
-  authStore.username ? authStore.username.charAt(0).toUpperCase() : '?'
-)
 
 function getQuizParticipantCount(quizId: number): number {
   return quizSessionsMap.value.get(quizId)?.length ?? 0

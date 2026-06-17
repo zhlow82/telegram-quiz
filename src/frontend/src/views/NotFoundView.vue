@@ -8,7 +8,7 @@
       <p class="text-lg text-slate-500 mb-8">The page you're looking for doesn't exist.</p>
       <router-link
         to="/home"
-        class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition no-underline"
+        class="inline-flex items-center gap-2 bg-primary hover:bg-primary-hover text-white text-sm font-semibold px-5 py-2.5 rounded-full transition no-underline"
       >
         <ArrowLeft class="w-4 h-4" />
         Back to Dashboard

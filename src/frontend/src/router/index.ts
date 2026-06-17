@@ -31,7 +31,7 @@ const routeTitles: Record<string, string> = {
 }
 
 const router = createRouter({
-  history: createWebHistory('/tg-quiz/'),
+  history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',

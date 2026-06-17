@@ -6,7 +6,7 @@
 
         <!-- Header -->
         <div class="px-6 py-4 border-b border-slate-200 flex items-center gap-3">
-          <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center flex-shrink-0">
+          <div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center flex-shrink-0">
             <Users class="w-4 h-4 text-white" />
           </div>
           <div class="flex-1 min-w-0">
@@ -64,7 +64,7 @@
               <option value="CO_OWNER">Co-owner</option>
             </select>
             <button
-              class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              class="bg-primary hover:bg-primary-hover text-white text-sm font-semibold px-4 py-2 rounded-full transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               :disabled="!inviteUsername.trim() || inviting"
               @click="submitInvite"
             >

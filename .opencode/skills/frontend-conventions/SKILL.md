@@ -162,7 +162,7 @@ const emit = defineEmits<{
           <button @click="close" class="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg">
             Cancel
           </button>
-          <button @click="confirm" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+          <button @click="confirm" class="px-4 py-2 bg-primary text-white rounded-full hover:bg-primary-hover">
             Confirm
           </button>
         </div>
@@ -176,7 +176,7 @@ const emit = defineEmits<{
 
 **Color palette:**
 - Neutrals: `slate-50` to `slate-900`
-- Primary: `blue-600` (hover: `blue-700`)
+- Primary: `primary` (sky-500, hover: sky-600 via `bg-primary` / `bg-primary-hover`)
 - Destructive: `red-500` / `red-600`
 - Success: `green-500` / `green-600`
 - Warning: `amber-500` / `amber-600`
@@ -187,13 +187,13 @@ const emit = defineEmits<{
 <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
 
 <!-- Button (primary) -->
-<button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium">
+<button class="px-4 py-2 bg-primary text-white rounded-full hover:bg-primary-hover font-medium">
 
 <!-- Button (secondary) -->
 <button class="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg font-medium">
 
 <!-- Input -->
-<input class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+<input class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
 
 <!-- Badge -->
 <span class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-700">

@@ -149,7 +149,7 @@
             </button>
             <button
               v-if="step === 2 && !importResult"
-              class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-primary hover:bg-primary-hover rounded-full transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               :disabled="importing"
               @click="handleImport"
             >

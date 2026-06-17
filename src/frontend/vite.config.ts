@@ -3,7 +3,7 @@ import vue from '@vitejs/plugin-vue'
 import { fileURLToPath, URL } from 'node:url'
 
 export default defineConfig({
-  base: '/tg-quiz/',
+  base: process.env.VITE_BASE_URL || '/',
   plugins: [
     vue(),
   ],

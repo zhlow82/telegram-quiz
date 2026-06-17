@@ -1,4 +1,6 @@
 FROM node:20-alpine AS build
+ARG VITE_BASE_URL=/tg-quiz/
+ENV VITE_BASE_URL=$VITE_BASE_URL
 WORKDIR /app
 COPY package*.json ./
 RUN npm install

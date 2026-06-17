@@ -3,7 +3,7 @@
     <!-- Header -->
     <div class="flex items-center justify-between gap-4 pb-6 mb-6 border-b border-slate-200 flex-wrap">
       <div class="flex items-center gap-4">
-        <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center flex-shrink-0">
+        <div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center flex-shrink-0">
           <Zap class="w-5 h-5 text-white" />
         </div>
         <div>
@@ -25,7 +25,7 @@
         </div>
         <router-link
           to="/quizzes/new"
-          class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2 rounded-xl transition no-underline"
+          class="inline-flex items-center gap-2 bg-primary hover:bg-primary-hover text-white text-sm font-semibold px-4 py-2 rounded-full transition no-underline"
         >
           <Plus class="w-4 h-4" />
           Create Quiz
@@ -63,7 +63,7 @@
       </div>
       <router-link
         to="/quizzes/new"
-        class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2 rounded-xl transition no-underline"
+        class="inline-flex items-center gap-2 bg-primary hover:bg-primary-hover text-white text-sm font-semibold px-4 py-2 rounded-full transition no-underline"
       >
         <Plus class="w-4 h-4" />
         Create Quiz
@@ -219,7 +219,7 @@
             :href="`https://t.me/${qrQuiz.botUsername}`"
             target="_blank"
             rel="noopener"
-            class="block w-full text-center bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition no-underline mb-2"
+            class="block w-full text-center bg-primary hover:bg-primary-hover text-white text-sm font-semibold px-4 py-2.5 rounded-full transition no-underline mb-2"
           >
             Open in Telegram
           </a>

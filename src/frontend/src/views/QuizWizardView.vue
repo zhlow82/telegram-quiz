@@ -29,7 +29,7 @@
     <div v-if="step === 1" key="step1" class="max-w-2xl space-y-5">
       <div class="bg-blue-50 border border-blue-200 rounded-2xl p-6">
         <div class="flex items-center gap-3 mb-4">
-          <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center flex-shrink-0">
+          <div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center flex-shrink-0">
             <Bot class="w-5 h-5 text-white" />
           </div>
           <div>
@@ -87,7 +87,7 @@
             @keydown.enter="validateToken"
           />
           <button
-            class="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition disabled:opacity-60 cursor-pointer disabled:cursor-not-allowed flex items-center gap-2"
+            class="px-4 py-2.5 rounded-full bg-primary hover:bg-primary-hover text-white text-sm font-semibold transition disabled:opacity-60 cursor-pointer disabled:cursor-not-allowed flex items-center gap-2"
             :disabled="!botToken.trim() || validating"
             @click="validateToken"
           >
@@ -471,7 +471,7 @@
         >
           <button
             type="button"
-            class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition disabled:opacity-60 disabled:cursor-not-allowed"
+            class="px-5 py-2.5 rounded-full bg-primary hover:bg-primary-hover text-white text-sm font-semibold transition disabled:opacity-60 disabled:cursor-not-allowed"
             :class="canProceed ? 'cursor-pointer' : 'pointer-events-none'"
             :disabled="!canProceed"
           >
@@ -481,7 +481,7 @@
         <button
           v-if="step === TOTAL_STEPS"
           type="button"
-          class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center gap-2"
+          class="px-5 py-2.5 rounded-full bg-primary hover:bg-primary-hover text-white text-sm font-semibold transition cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center gap-2"
           :disabled="submitting"
           @click="isEditMode ? updateQuiz() : createQuiz()"
         >
