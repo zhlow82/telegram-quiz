@@ -85,9 +85,8 @@ public class InMemoryLogAppender extends AppenderBase<ILoggingEvent> {
         Logger rootLogger = context.getLogger(Logger.ROOT_LOGGER_NAME);
 
         // Remove existing IN_MEMORY appender if present
-        AppenderBase<ILoggingEvent> existing = (AppenderBase<ILoggingEvent>) rootLogger.getAppender("IN_MEMORY");
-        if (existing != null) {
-            rootLogger.detachAppender(existing);
+        if (rootLogger.getAppender("IN_MEMORY") != null) {
+            rootLogger.detachAppender("IN_MEMORY");
         }
 
         setName("IN_MEMORY");
