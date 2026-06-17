@@ -83,6 +83,14 @@
           Move to Folder
         </button>
         <button
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-red-700 bg-white border border-red-200 hover:bg-red-100 rounded-lg transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+          :disabled="deletingInProgress"
+          @click="deleteSelectedQuestions"
+        >
+          <Trash2 class="w-4 h-4" />
+          Delete
+        </button>
+        <button
           class="px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-white rounded-lg transition cursor-pointer"
           @click="clearSelection"
         >
@@ -655,7 +663,7 @@
               <option :value="null">Unfiled</option>
               <option v-for="f in folders" :key="f.id" :value="f.id">{{ f.name }}</option>
             </select>
-            <div v-if="movingInProgress || duplicatingInProgress" class="mt-3">
+            <div v-if="movingInProgress || duplicatingInProgress || deletingInProgress" class="mt-3">
               <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
                 <div
                   class="h-full bg-blue-600 rounded-full transition-all duration-300"
@@ -669,7 +677,7 @@
             <button
               class="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg transition cursor-pointer"
               @click="moveToFolderModalVisible = false"
-              :disabled="movingInProgress || duplicatingInProgress"
+              :disabled="movingInProgress || duplicatingInProgress || deletingInProgress"
             >
               Cancel
             </button>
@@ -754,6 +762,7 @@ const importModalVisible = ref(false)
 // -- Mass operations --------------------------------------------------------
 const duplicatingInProgress = ref(false)
 const movingInProgress = ref(false)
+const deletingInProgress = ref(false)
 const progressCurrent = ref(0)
 const progressTotal = ref(0)
 const progressLabel = ref('')
@@ -857,6 +866,62 @@ async function moveSelectedToFolder() {
     toast.success(`${successCount} question(s) moved`)
   } else {
     toast.error('Failed to move questions')
+  }
+}
+
+async function deleteSelectedQuestions() {
+  const ids = Array.from(selectedQuestionIds.value)
+  if (!ids.length) return
+  
+  // Filter to only questions the user can delete
+  const deletableIds = ids.filter(id => {
+    const q = questions.value.find(q => q.id === id)
+    return q && canDeleteQuestion(q)
+  })
+  
+  if (!deletableIds.length) {
+    toast.error('No deletable questions selected')
+    return
+  }
+  
+  const ok = await showConfirm(
+    'Delete questions?',
+    `${deletableIds.length} question(s) will be permanently deleted. This action cannot be undone.`
+  )
+  if (!ok) return
+  
+  deletingInProgress.value = true
+  progressCurrent.value = 0
+  progressTotal.value = deletableIds.length
+  let successCount = 0
+  
+  for (const id of deletableIds) {
+    try {
+      await questionsService.delete(id)
+      questions.value = questions.value.filter(q => q.id !== id)
+      successCount++
+    } catch {
+      // continue with next
+    }
+    progressCurrent.value++
+    progressLabel.value = `Deleting ${progressCurrent.value}/${progressTotal.value}...`
+  }
+  
+  deletingInProgress.value = false
+  
+  // Update filtered views
+  if (selectedFolderFilter.value === 'unfiled') {
+    unfiledQuestions.value = unfiledQuestions.value.filter(q => !deletableIds.includes(q.id))
+  } else if (typeof selectedFolderFilter.value === 'number') {
+    folderQuestions.value = folderQuestions.value.filter(q => !deletableIds.includes(q.id))
+  }
+  
+  clearSelection()
+  
+  if (successCount > 0) {
+    toast.success(`${successCount} question(s) deleted`)
+  } else {
+    toast.error('Failed to delete questions')
   }
 }
 
