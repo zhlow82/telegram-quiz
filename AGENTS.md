@@ -51,6 +51,8 @@ cd src/frontend && npm run build
 docker compose up -d --build
 ```
 
+**Important:** The user starts backend services manually via VS Code `launch.json`. If you start any server yourself for testing, **always stop it after testing is complete**.
+
 ## Logging Profiles
 
 | Profile | Output | Use Case |
@@ -86,6 +88,7 @@ All profiles include an **in-memory circular buffer** (last 1000 entries) access
 - **main-service**: `src/backend/main-service/src/main/resources/db/migration/` — history table: `flyway_schema_history_main`
 - **Naming**: `V{YYYYMMDDHHMMSS}__{verb}_{object}.sql` using current local datetime
 - **Rules**: Never edit or delete applied migrations. Always use a new timestamp.
+- **Execution**: After creating migration files, **do NOT execute them automatically**. Wait for the user to start the server, which will trigger Flyway migrations on startup. Only execute manually if explicitly asked.
 - **JPA**: `ddl-auto: validate` — Flyway owns the schema. Always update the Java entity to match new migrations.
 
 ### Security
