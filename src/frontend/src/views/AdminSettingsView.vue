@@ -187,12 +187,12 @@ const brandingError = ref('')
 const brandingSaved = ref(false)
 
 async function loadBranding() {
-  const res = await adminService.getBrandingSettings()
-  branding.value.appName = res.data.appName || ''
-  branding.value.loginWelcomeText = res.data.loginWelcomeText || ''
-  branding.value.logoPreviewUrl = res.data.appLogoUrl || null
-  if (res.data.appLogoUrl) {
-    branding.value.logoBlobId = res.data.appLogoUrl.split('/').pop() ?? null
+  const data = await adminService.getBrandingSettings()
+  branding.value.appName = data.appName || ''
+  branding.value.loginWelcomeText = data.loginWelcomeText || ''
+  branding.value.logoPreviewUrl = data.appLogoUrl || null
+  if (data.appLogoUrl) {
+    branding.value.logoBlobId = data.appLogoUrl.split('/').pop() ?? null
   }
 }
 
@@ -249,9 +249,9 @@ const googleError = ref('')
 const form = ref({ clientId: '', clientSecret: '' })
 
 async function loadGoogle() {
-  const res = await adminService.getGoogleSettings()
-  configured.value = res.data.secretConfigured
-  form.value.clientId = res.data.clientId ?? ''
+  const data = await adminService.getGoogleSettings()
+  configured.value = data.secretConfigured
+  form.value.clientId = data.clientId ?? ''
 }
 
 async function save() {

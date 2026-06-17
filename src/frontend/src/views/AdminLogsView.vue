@@ -149,8 +149,8 @@ async function loadLogs() {
     ])
 
     const allLogs: LogEntry[] = []
-    if (authRes.status === 'fulfilled') allLogs.push(...authRes.value.data)
-    if (mainRes.status === 'fulfilled') allLogs.push(...mainRes.value.data)
+    if (authRes.status === 'fulfilled') allLogs.push(...authRes.value)
+    if (mainRes.status === 'fulfilled') allLogs.push(...mainRes.value)
 
     allLogs.sort((a, b) => b.timestamp - a.timestamp)
     logs.value = allLogs.slice(0, 1000)

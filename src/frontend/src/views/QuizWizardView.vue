@@ -498,7 +498,7 @@ import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { VueDraggable } from 'vue-draggable-plus'
 import {
-  ChevronLeft, Plus, X, GripVertical, Bot, Zap, BookOpen, Clock,
+  ChevronLeft, Plus, X, GripVertical, Bot, Zap, Clock,
   CheckCircle, AlertTriangle, Search, TimerOff, Timer, FolderOpen, Trophy
 } from '@lucide/vue'
 import AppLayout from '@/components/AppLayout.vue'

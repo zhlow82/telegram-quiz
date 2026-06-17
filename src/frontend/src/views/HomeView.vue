@@ -291,7 +291,6 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
 import { LayoutDashboard, BookOpen, Zap, Folder as FolderIcon, Users, Trophy, Plus, Pencil, Square, Lightbulb, CheckCircle, XCircle, Minus } from '@lucide/vue'
 import AppLayout from '@/components/AppLayout.vue'
 import { useAuthStore } from '@/stores/auth'
@@ -303,7 +302,6 @@ import type { QuizSummary, QuizSessionSummary } from '@/types/quiz'
 
 const authStore = useAuthStore()
 const toast = useToast()
-const router = useRouter()
 
 const statsLoading = ref(true)
 const questionCount = ref(0)

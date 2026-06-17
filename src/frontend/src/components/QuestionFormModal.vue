@@ -905,21 +905,10 @@ const tabs = computed(() => {
 const filledOptions = computed(() => form.value.options.filter(o => o.trim()))
 const hasFilledHintBlocks = computed(() => form.value.hintBlocks.some(b => b.content.trim()))
 const hasFilledExplanationBlocks = computed(() => form.value.explanationBlocks.some(b => b.content.trim()))
-const briefingPrimaryButtonLabel = computed(() => normalizeBriefingButtonText(form.value.briefingPrimaryButtonText, 'READY'))
-const briefingSecondaryButtonLabel = computed(() => normalizeBriefingButtonText(form.value.briefingSecondaryButtonText, 'Start Timer'))
-const showAnyBriefingButton = computed(() => form.value.showBriefingPrimaryButton || form.value.showBriefingSecondaryButton)
-const afterAnswerButtonLabel = computed(() => normalizeBriefingButtonText(form.value.afterAnswerButtonText, 'Next Question'))
 const lastFilledQTextId = computed(() => {
   const filled = form.value.questionBlocks.filter(b => b.type === 'text' && b.content.trim())
   return filled.length ? filled[filled.length - 1]._id : null
 })
-
-function normalizeBriefingButtonText(value: string | null | undefined, fallback: string): string {
-  if (!value || !value.trim()) {
-    return fallback
-  }
-  return value.trim()
-}
 
 // ── Rich text formatting ───────────────────────────────────────────────────
 const questionTextareas = ref<Record<string, HTMLTextAreaElement | null>>({})

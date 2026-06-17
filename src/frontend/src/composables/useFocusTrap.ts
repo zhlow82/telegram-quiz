@@ -1,6 +1,6 @@
-import { watch, type Ref } from 'vue'
+import { watch, isRef, type Ref, type ComputedRef } from 'vue'
 
-export function useFocusTrap(isActive: Ref<boolean>, containerRef: Ref<HTMLElement | null>) {
+export function useFocusTrap(isActive: Ref<boolean> | ComputedRef<boolean> | (() => boolean), containerRef: Ref<HTMLElement | null>) {
   function getFocusableElements(container: HTMLElement): HTMLElement[] {
     const selectors = [
       'button:not([disabled])',
@@ -35,7 +35,9 @@ export function useFocusTrap(isActive: Ref<boolean>, containerRef: Ref<HTMLEleme
     }
   }
 
-  watch(isActive, (active) => {
+  const getter = isRef(isActive) ? isActive : (typeof isActive === 'function' ? isActive : () => false)
+
+  watch(getter, (active) => {
     if (active && containerRef.value) {
       const focusable = getFocusableElements(containerRef.value)
       if (focusable.length > 0) {
@@ -45,5 +47,5 @@ export function useFocusTrap(isActive: Ref<boolean>, containerRef: Ref<HTMLEleme
     } else {
       document.removeEventListener('keydown', handleKeydown)
     }
-  })
+  }, { immediate: true })
 }

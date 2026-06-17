@@ -142,8 +142,7 @@ async function doDelete() {
 async function loadCodes() {
   loading.value = true
   try {
-    const res = await adminService.listCodes()
-    codes.value = res.data
+    codes.value = await adminService.listCodes()
   } finally {
     loading.value = false
   }
@@ -152,8 +151,8 @@ async function loadCodes() {
 async function generate() {
   generating.value = true
   try {
-    const res = await adminService.generateCode()
-    codes.value.unshift(res.data)
+    const newCode = await adminService.generateCode()
+    codes.value.unshift(newCode)
     toast.success('Invitation code generated')
   } finally {
     generating.value = false

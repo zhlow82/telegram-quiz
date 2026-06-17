@@ -557,8 +557,7 @@ function showAlert(title: string, message?: string) {
 async function loadUsers() {
   loading.value = true
   try {
-    const res = await adminService.listUsers()
-    users.value = res.data
+    users.value = await adminService.listUsers()
   } finally {
     loading.value = false
   }
@@ -567,9 +566,9 @@ async function loadUsers() {
 async function toggleRole(user: UserResponse) {
   const newRole = user.role === 'ROLE_ADMIN' ? 'ROLE_MEMBER' : 'ROLE_ADMIN'
   try {
-    const res = await adminService.updateRole(user.id, newRole)
+    const updatedUser = await adminService.updateRole(user.id, newRole)
     const idx = users.value.findIndex(u => u.id === user.id)
-    if (idx !== -1) users.value[idx] = res.data
+    if (idx !== -1) users.value[idx] = updatedUser
     toast.success(`Role updated to ${newRole === 'ROLE_ADMIN' ? 'Admin' : 'Member'}`)
   } catch (e: any) {
     showAlert('Role update failed', e.response?.data?.message ?? `Failed to update role: ${e.message}`)
@@ -621,11 +620,11 @@ async function createUser() {
   }
   creating.value = true
   try {
-    const res = await adminService.createUser(form.value)
-    users.value.push(res.data)
+    const newUser = await adminService.createUser(form.value)
+    users.value.push(newUser)
     showCreate.value = false
     form.value = { firstName: '', lastName: '', username: '', password: '', confirmPassword: '' }
-    toast.success(`User ${res.data.username} created`)
+    toast.success(`User ${newUser.username} created`)
   } catch (e: any) {
     createError.value = e.response?.data?.message ?? 'Failed to create user.'
   } finally {
@@ -669,10 +668,10 @@ async function saveEdit() {
     return
   }
   try {
-    const res = await adminService.updateProfile(editingUser.value.id, editForm.value.firstName, editForm.value.lastName)
+    const updatedUser = await adminService.updateProfile(editingUser.value.id, editForm.value.firstName, editForm.value.lastName)
     const idx = users.value.findIndex(u => u.id === editingUser.value!.id)
-    if (idx !== -1) users.value[idx] = res.data
-    editingUser.value = res.data
+    if (idx !== -1) users.value[idx] = updatedUser
+    editingUser.value = updatedUser
     if (editForm.value.newPassword.trim()) {
       await adminService.resetPassword(editingUser.value.id, editForm.value.newPassword)
       editForm.value.newPassword = ''
