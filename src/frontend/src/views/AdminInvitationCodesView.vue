@@ -24,9 +24,8 @@
           <div class="h-4 bg-slate-100 rounded animate-pulse w-40"></div>
           <div class="h-4 bg-slate-100 rounded animate-pulse w-24"></div>
           <div class="h-4 bg-slate-100 rounded animate-pulse w-32"></div>
-          <div class="h-5 bg-slate-100 rounded-full animate-pulse w-16"></div>
-          <div class="h-5 bg-slate-100 rounded-full animate-pulse w-10 ml-auto"></div>
-          <div class="h-6 bg-slate-100 rounded animate-pulse w-8"></div>
+          <div class="h-6 bg-slate-100 rounded animate-pulse w-32"></div>
+          <div class="h-6 bg-slate-100 rounded animate-pulse w-8 ml-auto"></div>
         </div>
       </div>
       <div v-else-if="codes.length === 0" class="p-8 text-center text-slate-400">No invitation codes yet. Generate one above.</div>
@@ -37,7 +36,6 @@
             <th class="text-left px-4 py-3 text-xs font-semibold text-slate-600 uppercase tracking-wider">CREATED BY</th>
             <th class="text-left px-4 py-3 text-xs font-semibold text-slate-600 uppercase tracking-wider">CREATED AT</th>
             <th class="text-left px-4 py-3 text-xs font-semibold text-slate-600 uppercase tracking-wider">STATUS</th>
-            <th class="px-4 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">ACTIVE</th>
             <th class="px-4 py-3"></th>
           </tr>
         </thead>
@@ -53,35 +51,36 @@
                 <button
                   class="text-slate-400 hover:text-blue-600 transition-colors cursor-pointer"
                   title="Copy"
-                  @click="copy(c.code)"
+                  @click="copy(c.code, c.id)"
                 >
-                  <Copy class="w-3.5 h-3.5" />
+                  <Check v-if="copiedId === c.id" class="w-3.5 h-3.5 text-green-600" />
+                  <Copy v-else class="w-3.5 h-3.5" />
                 </button>
               </div>
             </td>
             <td class="px-4 py-3 text-slate-600">{{ c.createdBy }}</td>
-            <td class="px-4 py-3 text-slate-500">{{ formatDate(c.createdAt) }}</td>
+            <td class="px-4 py-3 text-slate-500" :title="formatDate(c.createdAt)">{{ formatRelativeTime(c.createdAt) }}</td>
             <td class="px-4 py-3">
-              <span
-                :class="[
-                  'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold',
-                  c.active ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500 line-through'
-                ]"
-              >{{ c.active ? 'Active' : 'Inactive' }}</span>
-            </td>
-            <td class="px-4 py-3 text-right">
-              <button
-                role="switch"
-                :aria-checked="c.active"
-                class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none"
-                :class="c.active ? 'bg-blue-600' : 'bg-slate-200'"
-                @click="toggleCode(c)"
-              >
+              <div class="flex items-center gap-3">
                 <span
-                  class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200"
-                  :class="c.active ? 'translate-x-5' : 'translate-x-0'"
-                />
-              </button>
+                  :class="[
+                    'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold',
+                    c.active ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500 line-through'
+                  ]"
+                >{{ c.active ? 'Active' : 'Inactive' }}</span>
+                <button
+                  role="switch"
+                  :aria-checked="c.active"
+                  class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none"
+                  :class="c.active ? 'bg-blue-600' : 'bg-slate-200'"
+                  @click="toggleCode(c)"
+                >
+                  <span
+                    class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200"
+                    :class="c.active ? 'translate-x-5' : 'translate-x-0'"
+                  />
+                </button>
+              </div>
             </td>
             <td class="px-4 py-3 text-right">
               <button
@@ -111,7 +110,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { KeyRound, Plus, Copy, Trash2 } from '@lucide/vue'
+import { KeyRound, Plus, Copy, Check, Trash2 } from '@lucide/vue'
 import AppLayout from '@/components/AppLayout.vue'
 import AppDialog from '@/components/AppDialog.vue'
 import { adminService } from '@/services/adminService'
@@ -124,6 +123,7 @@ const loading = ref(false)
 const generating = ref(false)
 const deleteDialogVisible = ref(false)
 const deletingCode = ref<InvitationCodeResponse | null>(null)
+const copiedId = ref<number | null>(null)
 
 function confirmDelete(c: InvitationCodeResponse) {
   deletingCode.value = c
@@ -143,6 +143,8 @@ async function loadCodes() {
   loading.value = true
   try {
     codes.value = await adminService.listCodes()
+  } catch {
+    toast.error('Failed to load invitation codes')
   } finally {
     loading.value = false
   }
@@ -169,9 +171,27 @@ async function toggleCode(c: InvitationCodeResponse) {
   }
 }
 
-function copy(code: string) {
+function copy(code: string, id: number) {
   navigator.clipboard.writeText(code)
+  copiedId.value = id
   toast.info('Copied to clipboard')
+  setTimeout(() => {
+    if (copiedId.value === id) copiedId.value = null
+  }, 1500)
+}
+
+function formatRelativeTime(iso: string) {
+  const now = Date.now()
+  const then = new Date(iso).getTime()
+  const diff = Math.floor((now - then) / 1000)
+  if (diff < 60) return 'just now'
+  if (diff < 3600) return `${Math.floor(diff / 60)} min ago`
+  if (diff < 86400) return `${Math.floor(diff / 3600)} hours ago`
+  if (diff < 172800) return 'yesterday'
+  if (diff < 604800) return `${Math.floor(diff / 86400)} days ago`
+  if (diff < 2592000) return `${Math.floor(diff / 604800)} weeks ago`
+  if (diff < 31536000) return `${Math.floor(diff / 2592000)} months ago`
+  return `${Math.floor(diff / 31536000)} years ago`
 }
 
 function formatDate(iso: string) {

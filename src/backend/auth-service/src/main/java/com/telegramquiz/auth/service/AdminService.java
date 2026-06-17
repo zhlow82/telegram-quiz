@@ -8,6 +8,7 @@ import java.util.UUID;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.telegramquiz.auth.dto.CreateUserRequest;
 import com.telegramquiz.auth.dto.InvitationCodeResponse;
@@ -29,6 +30,7 @@ public class AdminService {
     private final PasswordEncoder passwordEncoder;
     private final StringRedisTemplate redisTemplate;
 
+    @Transactional(readOnly = true)
     public List<InvitationCodeResponse> listCodes() {
         return invitationCodeRepository.findAllByOrderByCreatedAtDesc()
                 .stream()
