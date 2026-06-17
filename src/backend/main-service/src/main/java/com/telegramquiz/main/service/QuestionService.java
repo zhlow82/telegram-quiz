@@ -60,7 +60,7 @@ public class QuestionService {
         Integer orderIdx = dto.orderIndex();
         int nextOrder = orderIdx != null
                 ? orderIdx
-                : (int) questionRepository.countByCreatedBy(username);
+                : questionRepository.findMaxOrderIndexByCreatedBy(username).orElse(-1) + 1;
 
         Question question = Question.builder()
                 .createdBy(username)
@@ -191,7 +191,7 @@ public class QuestionService {
                 List<ContentBlock> hintBlocks = processImageBlocks(qDto.hintBlocks());
                 List<ContentBlock> explanationBlocks = processImageBlocks(qDto.explanationBlocks());
 
-                int nextOrder = (int) questionRepository.countByCreatedBy(username);
+                int nextOrder = questionRepository.findMaxOrderIndexByCreatedBy(username).orElse(-1) + 1;
 
                 Question question = Question.builder()
                         .createdBy(username)

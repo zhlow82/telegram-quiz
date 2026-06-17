@@ -17,9 +17,18 @@ public class JwtUtil {
     @Value("${jwt.secret}")
     private String secret;
 
+    private volatile SecretKey cachedKey;
+
     private SecretKey getSignKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(secret);
-        return Keys.hmacShaKeyFor(keyBytes);
+        if (cachedKey == null) {
+            synchronized (this) {
+                if (cachedKey == null) {
+                    byte[] keyBytes = Decoders.BASE64.decode(secret);
+                    cachedKey = Keys.hmacShaKeyFor(keyBytes);
+                }
+            }
+        }
+        return cachedKey;
     }
 
     public String extractUsername(String token) {

@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { useToast } from '@/composables/useToast'
 import LoginView from '@/views/LoginView.vue'
 import HomeView from '@/views/HomeView.vue'
 import QuestionBankView from '@/views/QuestionBankView.vue'
@@ -13,6 +14,21 @@ import AdminLogsView from '@/views/AdminLogsView.vue'
 import OAuth2CallbackView from '@/views/OAuth2CallbackView.vue'
 import OAuth2RegisterView from '@/views/OAuth2RegisterView.vue'
 import NotFoundView from '@/views/NotFoundView.vue'
+
+const routeTitles: Record<string, string> = {
+  login: 'Login',
+  home: 'Home',
+  questions: 'Question Bank',
+  quizzes: 'Quizzes',
+  'quiz-new': 'New Quiz',
+  'quiz-edit': 'Edit Quiz',
+  'quiz-participants': 'Participants',
+  'admin-users': 'Users',
+  'admin-codes': 'Invitation Codes',
+  'admin-settings': 'Settings',
+  'admin-logs': 'Logs',
+  'not-found': 'Not Found'
+}
 
 const router = createRouter({
   history: createWebHistory('/tg-quiz/'),
@@ -117,8 +133,16 @@ router.beforeEach((to) => {
   }
 
   if (to.meta.requiresAdmin && !authStore.isAdmin) {
+    const toast = useToast()
+    toast.error('Admin access required')
     return '/home'
   }
+})
+
+router.afterEach((to) => {
+  const name = to.name as string
+  const title = routeTitles[name] || 'Telegram Quiz'
+  document.title = `${title} — Telegram Quiz`
 })
 
 export default router

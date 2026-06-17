@@ -300,7 +300,13 @@ public class QuizBotSession extends TelegramLongPollingBot {
             if (state.lastMessageId == null || !state.lastMessageId.equals(msgId)) {
                 return; // stale button from a previous question
             }
-            int selectedIndex = Integer.parseInt(data.substring(4));
+            int selectedIndex;
+            try {
+                selectedIndex = Integer.parseInt(data.substring(4));
+            } catch (NumberFormatException e) {
+                log.warn("Invalid callback data for ans: {}", data);
+                return;
+            }
             state.cancelTimeout();
             removeKeyboard(chatId, msgId);
             processAnswer(chatId, state, selectedIndex);

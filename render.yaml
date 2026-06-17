@@ -1,3 +1,9 @@
+envGroups:
+  - name: shared-secrets
+    envVars:
+      - key: JWT_SECRET
+        generateValue: true
+
 services:
   - type: web
     name: auth-service
@@ -31,8 +37,9 @@ services:
         value: telegram-quiz-redis
       - key: REDIS_PORT
         value: 6379
-      - key: JWT_SECRET
-        generateValue: true
+      - key: FRONTEND_URL
+        value: ${FRONTEND_URL}
+      - group: shared-secrets
 
   - type: web
     name: main-service
@@ -64,8 +71,7 @@ services:
           property: password
       - key: BOT_TOKEN_ENCRYPTION_KEY
         generateValue: true
-      - key: JWT_SECRET
-        generateValue: true
+      - group: shared-secrets
 
   - type: web
     name: api-gateway

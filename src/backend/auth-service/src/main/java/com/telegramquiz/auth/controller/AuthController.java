@@ -3,6 +3,7 @@ package com.telegramquiz.auth.controller;
 import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -20,6 +21,7 @@ import com.telegramquiz.auth.service.AuthService;
 
 import com.telegramquiz.auth.model.AppSetting;
 import com.telegramquiz.auth.repository.AppSettingRepository;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -41,14 +43,15 @@ public class AuthController {
             @NotBlank @Size(min = 8, message = "Password must be at least 8 characters") String newPassword
     ) {}
 
-    public record UpdateProfileRequest(String firstName, String lastName) {}
+    public record UpdateProfileRequest(
+            @Size(max = 100) String firstName,
+            @Size(max = 100) String lastName
+    ) {}
 
     @GetMapping("/me")
-    public ResponseEntity<?> getMe(@RequestHeader("Authorization") String authHeader) {
-        String token = authHeader.substring(7);
-        String username = jwtUtil.extractUsername(token);
+    public ResponseEntity<?> getMe(@AuthenticationPrincipal String username) {
         var user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
         return ResponseEntity.ok(Map.of(
                 "username",  username,
                 "firstName", user.getFirstName() != null ? user.getFirstName() : "",
@@ -60,12 +63,10 @@ public class AuthController {
 
     @PatchMapping("/profile")
     public ResponseEntity<?> updateProfile(
-            @RequestHeader("Authorization") String authHeader,
-            @RequestBody UpdateProfileRequest req) {
-        String token = authHeader.substring(7);
-        String username = jwtUtil.extractUsername(token);
+            @AuthenticationPrincipal String username,
+            @Valid @RequestBody UpdateProfileRequest req) {
         var user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
         if (req.firstName() != null) user.setFirstName(req.firstName().trim().isEmpty() ? null : req.firstName().trim());
         if (req.lastName()  != null) user.setLastName(req.lastName().trim().isEmpty()   ? null : req.lastName().trim());
         userRepository.save(user);
@@ -79,12 +80,10 @@ public class AuthController {
 
     @PostMapping("/change-password")
     public ResponseEntity<?> changePassword(
-            @RequestHeader("Authorization") String authHeader,
+            @AuthenticationPrincipal String username,
             @Valid @RequestBody ChangePasswordRequest req) {
-        String token = authHeader.substring(7);
-        String username = jwtUtil.extractUsername(token);
         var user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
         if (user.getGoogleSub() != null) {
             return ResponseEntity.badRequest()
                     .body(Map.of("message", "Password change is not available for Google accounts."));

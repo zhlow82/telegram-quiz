@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.telegramquiz.main.bot.QuizBotData;
 import com.telegramquiz.main.dto.QuizRequestDto;
 import com.telegramquiz.main.dto.QuizResponseDto;
 import com.telegramquiz.main.dto.QuizSessionAnswerDto;
@@ -47,13 +46,6 @@ public class QuizController {
             @PathVariable Long id,
             @AuthenticationPrincipal String username) {
         return ResponseEntity.ok(quizService.findById(id, username));
-    }
-
-    @GetMapping("/{id}/debug-bot-data")
-    public ResponseEntity<QuizBotData> debugBotData(
-            @PathVariable Long id,
-            @AuthenticationPrincipal String username) {
-        return ResponseEntity.ok(quizService.debugBotData(id, username));
     }
 
     @PostMapping

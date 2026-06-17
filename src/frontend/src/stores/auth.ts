@@ -1,15 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import api from '@/services/api'
-
-function decodeJwtPayload(token: string): Record<string, unknown> {
-  try {
-    const base64 = token.split('.')[1]
-    return JSON.parse(atob(base64.replace(/-/g, '+').replace(/_/g, '/')))
-  } catch {
-    return {}
-  }
-}
+import { decodeJwtPayload } from '@/utils/jwt'
 
 export const useAuthStore = defineStore('auth', () => {
   const accessToken = ref<string | null>(localStorage.getItem('accessToken'))

@@ -56,15 +56,16 @@ public class TelegramFileService {
             }
 
             byte[] bytes = downloadFile(botToken, filePath);
+            String contentType = filePath.toLowerCase().endsWith(".png") ? "image/png" : "image/jpeg";
             return ResponseEntity.ok()
-                    .header("Content-Type", "image/jpeg")
+                    .header("Content-Type", contentType)
                     .header("Cache-Control", "public, max-age=86400")
                     .body(bytes);
         } catch (Exception e) {
             log.error("Failed to download photo {} for session {}: {}", photoFileId, sessionId, e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .header("Cache-Control", "no-store")
-                    .body(("Error: " + e.getMessage()).getBytes(java.nio.charset.StandardCharsets.UTF_8));
+                    .body("Photo download failed".getBytes(java.nio.charset.StandardCharsets.UTF_8));
         }
     }
 

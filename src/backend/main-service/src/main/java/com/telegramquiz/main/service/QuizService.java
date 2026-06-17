@@ -46,11 +46,6 @@ public class QuizService {
         return toResponseDto(getOrThrow(id, username));
     }
 
-    @Transactional(readOnly = true)
-    public QuizBotData debugBotData(Long id, String username) {
-        return buildBotData(getOrThrow(id, username));
-    }
-
     @Transactional
     public QuizResponseDto create(QuizRequestDto dto, String username) {
         Quiz quiz = Quiz.builder()
@@ -108,8 +103,10 @@ public class QuizService {
 
     @Transactional
     public void delete(Long id, String username) {
-        if (!quizRepository.findByIdAndCreatedBy(id, username).isPresent()) {
-            throw new EntityNotFoundException("Quiz not found: " + id);
+        Quiz quiz = quizRepository.findByIdAndCreatedBy(id, username)
+                .orElseThrow(() -> new EntityNotFoundException("Quiz not found: " + id));
+        if (quiz.getStatus() == QuizStatus.ACTIVE) {
+            telegramBotManager.stopBot(id);
         }
         quizRepository.deleteById(id);
     }

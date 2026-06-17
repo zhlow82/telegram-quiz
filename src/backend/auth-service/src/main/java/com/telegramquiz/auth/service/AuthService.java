@@ -14,6 +14,7 @@ import com.telegramquiz.auth.model.User;
 import com.telegramquiz.auth.repository.UserRepository;
 import com.telegramquiz.auth.security.JwtUtil;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -35,7 +36,7 @@ public class AuthService {
 
         String username = authentication.getName();
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
         String role = user.getRoles().contains("ROLE_ADMIN") ? "ROLE_ADMIN" : "ROLE_MEMBER";
         String accessToken = jwtUtil.generateAccessToken(username, user.getId(), role, "local");
         String refreshToken = jwtUtil.generateRefreshToken(username);
@@ -57,15 +58,15 @@ public class AuthService {
 
     public String refreshAccessToken(String refreshToken) {
         if (!jwtUtil.validateToken(refreshToken)) {
-            throw new RuntimeException("Invalid refresh token");
+            throw new IllegalArgumentException("Invalid refresh token");
         }
         String username = jwtUtil.extractUsername(refreshToken);
         String stored = redisTemplate.opsForValue().get("refresh:" + username);
         if (stored == null || !stored.equals(refreshToken)) {
-            throw new RuntimeException("Refresh token not found or revoked");
+            throw new IllegalArgumentException("Refresh token not found or revoked");
         }
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
         String role = user.getRoles().contains("ROLE_ADMIN") ? "ROLE_ADMIN" : "ROLE_MEMBER";
         return jwtUtil.generateAccessToken(username, user.getId(), role,
                 user.getGoogleSub() != null ? "google" : "local");

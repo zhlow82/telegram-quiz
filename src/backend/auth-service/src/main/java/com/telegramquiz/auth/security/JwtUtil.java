@@ -26,9 +26,18 @@ public class JwtUtil {
     @Value("${jwt.refresh-expiration}")
     private long refreshExpiration;
 
+    private volatile SecretKey cachedKey;
+
     private SecretKey getSignKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(secret);
-        return Keys.hmacShaKeyFor(keyBytes);
+        if (cachedKey == null) {
+            synchronized (this) {
+                if (cachedKey == null) {
+                    byte[] keyBytes = Decoders.BASE64.decode(secret);
+                    cachedKey = Keys.hmacShaKeyFor(keyBytes);
+                }
+            }
+        }
+        return cachedKey;
     }
 
     public String generateAccessToken(String username, Long userId, String role, String provider) {

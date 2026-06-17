@@ -17,6 +17,8 @@
           class="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 flex flex-col gap-4"
           role="dialog"
           aria-modal="true"
+          :aria-labelledby="'dialog-title-' + _uid"
+          :aria-describedby="message ? 'dialog-desc-' + _uid : undefined"
         >
           <button
             type="button"
@@ -34,8 +36,8 @@
               <AlertCircle v-else class="w-5 h-5 text-red-600" />
             </div>
             <div class="flex-1 min-w-0">
-              <h3 class="text-base font-bold text-slate-900 leading-snug">{{ title }}</h3>
-              <p v-if="message" class="mt-1 text-sm text-slate-600 leading-relaxed">{{ message }}</p>
+              <h3 :id="'dialog-title-' + _uid" class="text-base font-bold text-slate-900 leading-snug">{{ title }}</h3>
+              <p v-if="message" :id="'dialog-desc-' + _uid" class="mt-1 text-sm text-slate-600 leading-relaxed">{{ message }}</p>
             </div>
           </div>
 
@@ -67,8 +69,10 @@
 </template>
 
 <script setup lang="ts">
-import { watch, onUnmounted } from 'vue'
+import { watch, onUnmounted, getCurrentInstance } from 'vue'
 import { AlertTriangle, AlertCircle, X } from '@lucide/vue'
+
+const _uid = getCurrentInstance()?.uid ?? 0
 
 const props = withDefaults(defineProps<{
   visible: boolean

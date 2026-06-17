@@ -3,6 +3,7 @@ package com.telegramquiz.main.service;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -136,5 +137,21 @@ public class QuizSessionService {
                         s.getAbandonedAt()
                 ))
                 .toList();
+    }
+
+    @Scheduled(fixedRate = 3600000)
+    @Transactional
+    public void cleanupAbandonedSessions() {
+        LocalDateTime cutoff = LocalDateTime.now().minusHours(1);
+        List<QuizSession> stale = repository.findByStatusAndLastActivityAtBefore(
+                QuizSessionStatus.IN_PROGRESS, cutoff);
+        for (QuizSession session : stale) {
+            session.setStatus(QuizSessionStatus.ABANDONED);
+            session.setAbandonedAt(LocalDateTime.now());
+        }
+        if (!stale.isEmpty()) {
+            repository.saveAll(stale);
+            log.info("Cleaned up {} abandoned sessions", stale.size());
+        }
     }
 }

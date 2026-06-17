@@ -6,7 +6,6 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-
 import com.telegramquiz.main.entity.FolderMemberStatus;
 import com.telegramquiz.main.entity.Question;
 
@@ -19,6 +18,9 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
     long countByCreatedBy(String createdBy);
     List<Question> findAllByCreatedByAndFolderIdOrderByOrderIndexAsc(String createdBy, Long folderId);
     List<Question> findAllByFolderIdOrderByOrderIndexAsc(Long folderId);
+
+    @Query("SELECT MAX(q.orderIndex) FROM Question q WHERE q.createdBy = :username")
+    Optional<Integer> findMaxOrderIndexByCreatedBy(@Param("username") String username);
 
     @Query("SELECT q FROM Question q WHERE " +
            "(q.createdBy = :username OR " +

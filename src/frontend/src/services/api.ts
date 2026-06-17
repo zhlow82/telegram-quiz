@@ -1,17 +1,7 @@
 import axios from 'axios'
+import { isTokenExpired } from '@/utils/jwt'
 
 const BASE = import.meta.env.BASE_URL // '/tg-quiz/'
-
-function isTokenExpired(token: string): boolean {
-  try {
-    // JWT uses base64url — replace url-safe chars before decoding
-    const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')
-    const payload = JSON.parse(atob(base64))
-    return payload.exp * 1000 < Date.now()
-  } catch {
-    return true
-  }
-}
 
 function clearSession() {
   localStorage.removeItem('accessToken')

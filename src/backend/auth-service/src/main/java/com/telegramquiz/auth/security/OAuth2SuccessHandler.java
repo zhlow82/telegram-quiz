@@ -23,8 +23,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
-    private static final String FRONTEND_BASE = "http://localhost:5173/tg-quiz";
     private static final String REDIS_PREFIX = "oauth2:pending:";
+
+    @org.springframework.beans.factory.annotation.Value("${app.frontend-url:http://localhost:5173/tg-quiz}")
+    private String frontendUrl;
 
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
@@ -47,7 +49,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
             User user = existing.get();
             String role = user.getRoles().contains("ROLE_ADMIN") ? "ROLE_ADMIN" : "ROLE_MEMBER";
             String token = jwtUtil.generateAccessToken(user.getUsername(), user.getId(), role, "google");
-            response.sendRedirect(FRONTEND_BASE + "/oauth2/callback?token=" + token);
+            response.sendRedirect(frontendUrl + "/oauth2/callback?token=" + token);
         } else {
             // Unknown user — store Google info in Redis for 10 minutes, redirect to registration page
             String state = UUID.randomUUID().toString();
@@ -58,7 +60,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
                     "lastName",  lastName  != null ? lastName  : ""
             ));
             redis.expire(REDIS_PREFIX + state, Duration.ofMinutes(10));
-            response.sendRedirect(FRONTEND_BASE + "/oauth2/register?state=" + state);
+            response.sendRedirect(frontendUrl + "/oauth2/register?state=" + state);
         }
     }
 }
