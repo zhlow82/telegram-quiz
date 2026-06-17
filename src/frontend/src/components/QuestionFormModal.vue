@@ -14,6 +14,7 @@
 
         <!-- Modal panel -->
         <div
+          ref="modalRef"
           class="relative bg-white rounded-2xl shadow-2xl flex flex-col md:flex-row w-full overflow-hidden"
           style="width: 90vw; max-width: 90vw; height: 90vh; max-height: 90vh"
           role="dialog"
@@ -27,7 +28,8 @@
             <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0">
               <div class="flex items-center gap-3">
                 <div class="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold text-base shrink-0">
-                  {{ isEdit ? '✎' : '+' }}
+                  <Pencil v-if="isEdit" class="w-4 h-4" />
+                  <Plus v-else class="w-4 h-4" />
                 </div>
                 <h2 class="text-lg font-bold text-slate-900 leading-tight">{{ isEdit ? 'Edit Question' : 'New Question' }}</h2>
               </div>
@@ -36,7 +38,7 @@
                 class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition cursor-pointer"
                 aria-label="Close"
                 @click="$emit('close')"
-              >✕</button>
+              ><X class="w-4 h-4" /></button>
             </div>
 
             <!-- Form panel -->
@@ -177,7 +179,7 @@
                       <VueDraggable v-model="form.questionBlocks" :animation="150" handle=".drag-handle" class="space-y-2">
                         <div v-for="block in form.questionBlocks" :key="block._id" class="rounded-lg border border-slate-200 bg-white overflow-hidden">
                           <div class="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-50 border-b border-slate-100">
-                            <div class="drag-handle cursor-grab text-slate-300 hover:text-slate-500 select-none text-base leading-none px-0.5" title="Drag to reorder">⠿</div>
+                            <div class="drag-handle cursor-grab text-slate-300 hover:text-slate-500 select-none text-base leading-none px-0.5" title="Drag to reorder"><GripVertical /></div>
                             <span class="text-xs font-semibold" :class="block.type === 'text' ? 'text-blue-600' : 'text-amber-600'">{{ block.type === 'text' ? 'Text' : 'Image' }}</span>
                             <div class="flex-1"></div>
                             <button type="button" class="text-slate-300 hover:text-red-500 transition text-xs leading-none cursor-pointer px-1" @click="removeBlock(form.questionBlocks, block._id)" title="Remove">✕</button>
@@ -320,7 +322,7 @@
                       <VueDraggable v-model="form.hintBlocks" :animation="150" handle=".drag-handle" class="space-y-2">
                         <div v-for="block in form.hintBlocks" :key="block._id" class="rounded-lg border border-slate-200 bg-white overflow-hidden">
                           <div class="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-50 border-b border-slate-100">
-                            <div class="drag-handle cursor-grab text-slate-300 hover:text-slate-500 select-none text-base leading-none px-0.5" title="Drag to reorder">⠿</div>
+                            <div class="drag-handle cursor-grab text-slate-300 hover:text-slate-500 select-none text-base leading-none px-0.5" title="Drag to reorder"><GripVertical /></div>
                             <span class="text-xs font-semibold" :class="block.type === 'text' ? 'text-blue-600' : 'text-amber-600'">{{ block.type === 'text' ? 'Text' : 'Image' }}</span>
                             <div class="flex-1"></div>
                             <button type="button" class="text-slate-300 hover:text-red-500 transition text-xs leading-none cursor-pointer px-1" @click="removeBlock(form.hintBlocks, block._id)" title="Remove">✕</button>
@@ -375,7 +377,7 @@
                       <VueDraggable v-model="form.explanationBlocks" :animation="150" handle=".drag-handle" class="space-y-2">
                         <div v-for="block in form.explanationBlocks" :key="block._id" class="rounded-lg border border-slate-200 bg-white overflow-hidden">
                           <div class="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-50 border-b border-slate-100">
-                            <div class="drag-handle cursor-grab text-slate-300 hover:text-slate-500 select-none text-base leading-none px-0.5" title="Drag to reorder">⠿</div>
+                            <div class="drag-handle cursor-grab text-slate-300 hover:text-slate-500 select-none text-base leading-none px-0.5" title="Drag to reorder"><GripVertical /></div>
                             <span class="text-xs font-semibold" :class="block.type === 'text' ? 'text-blue-600' : 'text-amber-600'">{{ block.type === 'text' ? 'Text' : 'Image' }}</span>
                             <div class="flex-1"></div>
                             <button type="button" class="text-slate-300 hover:text-red-500 transition text-xs leading-none cursor-pointer px-1" @click="removeBlock(form.explanationBlocks, block._id)" title="Remove">✕</button>
@@ -467,7 +469,7 @@
                       <VueDraggable v-model="form.questionBlocks" :animation="150" handle=".drag-handle" class="space-y-2">
                         <div v-for="block in form.questionBlocks" :key="block._id" class="rounded-lg border border-slate-200 bg-white overflow-hidden">
                           <div class="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-50 border-b border-slate-100">
-                            <div class="drag-handle cursor-grab text-slate-300 hover:text-slate-500 select-none text-base leading-none px-0.5" title="Drag to reorder">⠿</div>
+                            <div class="drag-handle cursor-grab text-slate-300 hover:text-slate-500 select-none text-base leading-none px-0.5" title="Drag to reorder"><GripVertical /></div>
                             <span class="text-xs font-semibold" :class="block.type === 'text' ? 'text-blue-600' : 'text-amber-600'">{{ block.type === 'text' ? 'Text' : 'Image' }}</span>
                             <div class="flex-1"></div>
                             <button type="button" class="text-slate-300 hover:text-red-500 transition text-xs leading-none cursor-pointer px-1" @click="removeBlock(form.questionBlocks, block._id)" title="Remove">✕</button>
@@ -776,11 +778,12 @@
 
 <script setup lang="ts">
 import { ref, watch, computed, nextTick, onUnmounted } from 'vue'
-import { ListChecks, Camera, BookOpen, Users } from '@lucide/vue'
+import { ListChecks, Camera, BookOpen, Users, X, Pencil, Plus, GripVertical } from '@lucide/vue'
 import { VueDraggable } from 'vue-draggable-plus'
 import type { Question, QuestionRequest, ContentBlock } from '@/types/question'
 import type { Folder } from '@/types/folder'
 import { questionsService } from '@/services/questionsService'
+import { useFocusTrap } from '@/composables/useFocusTrap'
 
 // ── FormBlock (internal form type with stable drag key) ──────────────────
 interface FormBlock {
@@ -809,6 +812,10 @@ const emit = defineEmits<{
   (e: 'close'): void
   (e: 'saved', q: Question): void
 }>()
+
+const modalRef = ref<HTMLElement | null>(null)
+
+useFocusTrap(() => props.visible, modalRef)
 
 function onKeydown(e: KeyboardEvent) {
   if (e.key === 'Escape' && props.visible) {

@@ -14,6 +14,7 @@
 
         <!-- Dialog panel -->
         <div
+          ref="dialogRef"
           class="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 flex flex-col gap-4"
           role="dialog"
           aria-modal="true"
@@ -69,10 +70,12 @@
 </template>
 
 <script setup lang="ts">
-import { watch, onUnmounted, getCurrentInstance } from 'vue'
+import { watch, onUnmounted, getCurrentInstance, ref } from 'vue'
 import { AlertTriangle, AlertCircle, X } from '@lucide/vue'
+import { useFocusTrap } from '@/composables/useFocusTrap'
 
 const _uid = getCurrentInstance()?.uid ?? 0
+const dialogRef = ref<HTMLElement | null>(null)
 
 const props = withDefaults(defineProps<{
   visible: boolean
@@ -98,6 +101,8 @@ function confirm() {
 function cancel() {
   emit('cancel')
 }
+
+useFocusTrap(() => props.visible, dialogRef)
 
 function onKeydown(e: KeyboardEvent) {
   if (e.key === 'Escape' && props.visible) {
