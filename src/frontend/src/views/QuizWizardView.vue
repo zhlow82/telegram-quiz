@@ -441,6 +441,15 @@
 
     <!-- Navigation -->
     <div class="flex items-center justify-between gap-3 mt-8 pt-6 border-t border-slate-200">
+      <button
+        v-if="step > 1"
+        type="button"
+        class="px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 transition cursor-pointer"
+        @click="step--"
+      >
+        ← Back
+      </button>
+      <div v-else />
       <div class="flex items-center gap-3">
         <button
           type="button"
@@ -449,45 +458,37 @@
         >
           Cancel
         </button>
-        <button
-          v-if="step > 1"
-          type="button"
-          class="px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 transition cursor-pointer"
-          @click="step--"
+        <div
+          v-if="step < TOTAL_STEPS"
+          class="inline-flex"
+          :class="canProceed ? 'cursor-pointer' : 'cursor-not-allowed'"
+          role="button"
+          :tabindex="canProceed ? 0 : -1"
+          :aria-disabled="!canProceed"
+          @click="nextStep"
+          @keydown.enter.prevent="nextStep"
+          @keydown.space.prevent="nextStep"
         >
-          ← Back
+          <button
+            type="button"
+            class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition disabled:opacity-60 disabled:cursor-not-allowed"
+            :class="canProceed ? 'cursor-pointer' : 'pointer-events-none'"
+            :disabled="!canProceed"
+          >
+            Continue →
+          </button>
+        </div>
+        <button
+          v-if="step === TOTAL_STEPS"
+          type="button"
+          class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center gap-2"
+          :disabled="submitting"
+          @click="isEditMode ? updateQuiz() : createQuiz()"
+        >
+          <span v-if="submitting" class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin inline-block"></span>
+          {{ submitting ? (isEditMode ? 'Saving…' : 'Creating…') : (isEditMode ? 'Save Changes' : 'Create Quiz') }}
         </button>
       </div>
-      <div
-        v-if="step < TOTAL_STEPS"
-        class="inline-flex"
-        :class="canProceed ? 'cursor-pointer' : 'cursor-not-allowed'"
-        role="button"
-        :tabindex="canProceed ? 0 : -1"
-        :aria-disabled="!canProceed"
-        @click="nextStep"
-        @keydown.enter.prevent="nextStep"
-        @keydown.space.prevent="nextStep"
-      >
-        <button
-          type="button"
-          class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition disabled:opacity-60 disabled:cursor-not-allowed"
-          :class="canProceed ? 'cursor-pointer' : 'pointer-events-none'"
-          :disabled="!canProceed"
-        >
-          Continue →
-        </button>
-      </div>
-      <button
-        v-if="step === TOTAL_STEPS"
-        type="button"
-        class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center gap-2"
-        :disabled="submitting"
-        @click="isEditMode ? updateQuiz() : createQuiz()"
-      >
-        <span v-if="submitting" class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin inline-block"></span>
-        {{ submitting ? (isEditMode ? 'Saving…' : 'Creating…') : (isEditMode ? 'Save Changes' : 'Create Quiz') }}
-      </button>
     </div>
   </AppLayout>
 </template>
