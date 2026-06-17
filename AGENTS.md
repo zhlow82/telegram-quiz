@@ -53,6 +53,8 @@ docker compose up -d --build
 
 **Important:** The user starts backend services manually via VS Code `launch.json`. If you start any server yourself for testing, **always stop it after testing is complete**.
 
+**Git:** The user prefers to handle git commits and pushes to GitHub themselves. Do not commit or push code unless explicitly asked.
+
 ## Logging Profiles
 
 | Profile | Output | Use Case |
