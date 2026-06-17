@@ -10,7 +10,7 @@ echo Removing old zip file...
 if exist "%ZIP_NAME%" del /f /q "%ZIP_NAME%"
 
 echo Creating zip package...
-powershell -Command "Compress-Archive -Path 'src', 'docker-compose.yml', 'start.bat', 'stop.bat', '.env.example', 'README.md' -DestinationPath '%ZIP_NAME%' -Force"
+powershell -Command "Compress-Archive -Path 'src', 'docker-compose.yml', 'start.bat', 'stop.bat', 'README.md' -DestinationPath '%ZIP_NAME%' -Force"
 
 echo.
 echo ========================================

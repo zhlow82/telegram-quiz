@@ -48,7 +48,6 @@ cd src/frontend && npx vue-tsc --noEmit
 cd src/frontend && npm run build
 
 # Full stack deployment (VPS)
-cp .env.example .env  # Edit with real secrets
 docker compose up -d --build
 ```
 
@@ -154,7 +153,7 @@ Two deployment methods are supported:
 ### VPS (Docker Compose)
 - `docker-compose.yml` — full stack deployment with all services containerized
 - Each service has its own `Dockerfile` (backend uses multi-stage Maven build, frontend uses Node build + Nginx)
-- Environment variables managed via `.env` file (template: `.env.example`)
+- Environment variables use defaults in `docker-compose.yml` and `application.yml`
 - Frontend Nginx proxies `/auth` and `/api` to the API gateway
 - Database and Redis use Docker volumes for persistence
 - Log files stored in Docker volumes (`auth-logs`, `main-logs`, `gateway-logs`)
@@ -173,4 +172,4 @@ Whenever adding a new library, dependency, service, port, environment variable, 
 - **Always review and update `docker-compose.yml`** if the change requires new containers, volumes, networks, ports, or environment variables
 - **Always review and update `render.yaml`** if the change requires new services, env vars, build commands, or resource allocations
 - **Always review and update any relevant `Dockerfile`** if the change affects how a service is built or run
-- **Always update `.env.example`** if new environment variables are introduced
+- **Always update `docker-compose.yml`** if new environment variables are introduced (edit the defaults directly)

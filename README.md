@@ -38,7 +38,6 @@ telegram-quiz/
 ├── docker-compose.yml           # Full stack deployment (VPS)
 ├── docker-compose.dev.yml       # Dev infrastructure only (Postgres, Redis, pgAdmin)
 ├── render.yaml                  # Render cloud deployment blueprint
-├── .env.example                 # Environment variable template
 └── .gitignore
 ```
 
@@ -362,13 +361,7 @@ Deploy the entire stack on a Linux VPS (DigitalOcean, Hetzner, Linode, etc.) usi
    cd telegram-quiz
    ```
 
-3. Create your `.env` file from the template:
-   ```bash
-   cp .env.example .env
-   nano .env  # Edit with real passwords and secrets
-   ```
-
-4. Build and start all services:
+3. Build and start all services:
    ```bash
    docker compose up -d --build
    ```
@@ -383,16 +376,42 @@ Deploy the entire stack on a Linux VPS (DigitalOcean, Hetzner, Linode, etc.) usi
 | PostgreSQL | 5432 | Database |
 | Redis | 6379 | Token cache |
 
-**Environment variables** (`.env` file):
-| Variable | Description |
-|---|---|
-| `POSTGRES_DB` | Database name |
-| `POSTGRES_USER` | Database username |
-| `POSTGRES_PASSWORD` | Database password |
-| `JWT_SECRET` | Base64-encoded JWT signing secret |
-| `BOT_TOKEN_ENCRYPTION_KEY` | Base64-encoded AES-256 key for bot token encryption |
+**Configuration:** All environment variables use defaults defined in `docker-compose.yml` and `application.yml`. You have two options to customize values:
 
-> **Note:** Never commit your `.env` file to Git. It is already listed in `.gitignore`.
+**Option A: Set environment variables on the server**
+```bash
+# Linux (add to /etc/environment or ~/.bashrc)
+export POSTGRES_PASSWORD=your-secure-password
+export JWT_SECRET=your-jwt-secret
+export BOT_TOKEN_ENCRYPTION_KEY=your-encryption-key
+
+# Then run
+docker compose up -d --build
+```
+
+**Option B: Use a `.env` file (optional)**
+```bash
+# Create .env file
+cat > .env << EOF
+POSTGRES_PASSWORD=your-secure-password
+JWT_SECRET=your-jwt-secret
+BOT_TOKEN_ENCRYPTION_KEY=your-encryption-key
+EOF
+
+# Docker Compose reads .env automatically
+docker compose up -d --build
+```
+
+**Available variables:**
+| Variable | Description | Default |
+|---|---|---|
+| `POSTGRES_DB` | Database name | `postgres` |
+| `POSTGRES_USER` | Database username | `postgres` |
+| `POSTGRES_PASSWORD` | Database password | `postgres` |
+| `JWT_SECRET` | Base64-encoded JWT signing secret | (built-in default) |
+| `BOT_TOKEN_ENCRYPTION_KEY` | Base64-encoded AES-256 key for bot token encryption | (built-in default) |
+
+> **Important:** For production, change the default passwords and secrets. Never commit `.env` files or hardcoded secrets to Git.
 
 ---
 
