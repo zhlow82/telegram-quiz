@@ -4,7 +4,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.gateway.filter.ratelimit.KeyResolver;
 import org.springframework.context.annotation.Bean;
-import org.springframework.http.HttpHeaders;
 
 import reactor.core.publisher.Mono;
 
@@ -18,7 +17,7 @@ public class GatewayApplication {
     @Bean
     public KeyResolver ipKeyResolver() {
         return exchange -> {
-            String forwarded = exchange.getRequest().getHeaders().getFirst(HttpHeaders.X_FORWARDED_FOR);
+            String forwarded = exchange.getRequest().getHeaders().getFirst("X-Forwarded-For");
             if (forwarded != null && !forwarded.isBlank()) {
                 return Mono.just(forwarded.split(",")[0].trim());
             }
