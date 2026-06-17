@@ -441,15 +441,23 @@
 
     <!-- Navigation -->
     <div class="flex items-center justify-between gap-3 mt-8 pt-6 border-t border-slate-200">
-      <button
-        v-if="step > 1"
-        type="button"
-        class="px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 transition cursor-pointer"
-        @click="step--"
-      >
-        ← Back
-      </button>
-      <div v-else />
+      <div class="flex items-center gap-3">
+        <button
+          type="button"
+          class="px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 transition cursor-pointer"
+          @click="router.push('/quizzes')"
+        >
+          Cancel
+        </button>
+        <button
+          v-if="step > 1"
+          type="button"
+          class="px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 transition cursor-pointer"
+          @click="step--"
+        >
+          ← Back
+        </button>
+      </div>
       <div
         v-if="step < TOTAL_STEPS"
         class="inline-flex"
