@@ -26,8 +26,18 @@
       </button>
     </div>
 
+    <!-- Tab content -->
+    <Transition
+      mode="out-in"
+      enter-active-class="transition-all duration-150 ease-out"
+      enter-from-class="opacity-0 translate-y-1"
+      enter-to-class="opacity-100 translate-y-0"
+      leave-active-class="transition-all duration-100 ease-in"
+      leave-from-class="opacity-100 translate-y-0"
+      leave-to-class="opacity-0 -translate-y-1"
+    >
     <!-- Google Sign-In Tab -->
-    <div v-if="activeTab === 'google'" class="bg-white rounded-xl border border-slate-200 p-6">
+    <div v-if="activeTab === 'google'" key="google" class="bg-white rounded-xl border border-slate-200 p-6">
       <div class="flex items-center gap-3 mb-5">
         <img src="https://www.google.com/favicon.ico" class="w-5 h-5" alt="Google" />
         <h2 class="text-base font-bold text-slate-900">Google Sign-In</h2>
@@ -79,7 +89,7 @@
     </div>
 
     <!-- Branding Tab -->
-    <div v-if="activeTab === 'branding'" class="bg-white rounded-xl border border-slate-200 p-6">
+    <div v-else-if="activeTab === 'branding'" key="branding" class="bg-white rounded-xl border border-slate-200 p-6">
       <div class="flex items-center gap-3 mb-5">
         <div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0">
           <Paintbrush class="w-4 h-4 text-slate-600" />
@@ -155,6 +165,7 @@
         </div>
       </div>
     </div>
+    </Transition>
   </AppLayout>
 </template>
 

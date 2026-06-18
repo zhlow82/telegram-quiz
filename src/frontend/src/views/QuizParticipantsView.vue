@@ -296,6 +296,14 @@
 
     <!-- Photo viewer modal -->
     <teleport to="body">
+      <transition
+        enter-active-class="transition-opacity duration-150"
+        enter-from-class="opacity-0"
+        enter-to-class="opacity-100"
+        leave-active-class="transition-opacity duration-150"
+        leave-from-class="opacity-100"
+        leave-to-class="opacity-0"
+      >
       <div v-if="photoModalVisible" class="fixed inset-0 z-[70] flex items-center justify-center p-4" @keydown.escape="closePhotoModal">
         <div class="absolute inset-0 bg-black/70" @click="closePhotoModal" />
         <div class="relative max-w-3xl max-h-[85vh] flex flex-col items-center">
@@ -318,6 +326,7 @@
           </div>
         </div>
       </div>
+      </transition>
     </teleport>
   </AppLayout>
 </template>

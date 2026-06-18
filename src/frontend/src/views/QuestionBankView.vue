@@ -28,7 +28,7 @@
           </div>
           <button
             class="inline-flex items-center gap-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm font-semibold px-4 py-2 rounded-xl transition cursor-pointer"
-            @click="importModalVisible = true"
+            @click="openImportModal"
           >
             <Upload class="w-4 h-4" />
             Import
@@ -366,6 +366,7 @@
         <div v-else-if="selectedFolderFilter === null" class="bg-white rounded-xl border border-slate-200 overflow-hidden">
           <div v-for="(q, i) in questions" :key="q.id"
             class="flex items-center gap-3 px-5 py-3.5 border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors"
+            :class="{ 'question-highlight': highlightedQuestionIds.has(q.id) }"
           >
             <button
               class="w-5 h-5 rounded flex items-center justify-center flex-shrink-0 cursor-pointer"
@@ -375,27 +376,27 @@
               <CheckSquare v-if="selectedQuestionIds.has(q.id)" class="w-5 h-5" />
               <Square v-else class="w-5 h-5" />
             </button>
-            <span class="text-[0.8125rem] font-bold text-slate-300 w-[22px] shrink-0 text-right">{{ i + 1 }}</span>
-            <div v-if="q.questionBlocks.some(b => b.type === 'image')" class="relative w-10 h-10 shrink-0">
-              <img
-                :src="`/api/files/${q.questionBlocks.find(b => b.type === 'image')?.content}`"
-                class="w-10 h-10 rounded-lg object-cover border border-slate-200 bg-slate-100"
-                alt=""
-              />
-              <span
-                v-if="q.questionBlocks.filter(b => b.type === 'image').length > 1"
-                class="absolute -bottom-1 -right-1 bg-slate-700 text-white text-[0.55rem] font-bold leading-none px-1 py-0.5 rounded-md"
-              >+{{ q.questionBlocks.filter(b => b.type === 'image').length - 1 }}</span>
-            </div>
-            <div v-else class="w-10 h-10 shrink-0" />
-            <div class="flex-1 min-w-0">
-              <span class="block text-sm text-slate-800 leading-snug max-h-[2.5rem] overflow-hidden" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">{{ stripHtml(q.questionBlocks.find(b => b.type === 'text')?.content || '') || '(no text)' }}</span>
-              <div class="flex gap-1.5 mt-1 flex-wrap">
-                <span v-if="q.isBriefing" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-amber-100 text-amber-700">
-                  <BookOpen class="w-3 h-3" />Briefing
-                </span>
-                <span v-else-if="q.expectsTextInput" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-700">
-                  <Users class="w-3 h-3" />Team Input
+              <span class="text-[0.8125rem] font-bold text-slate-300 w-[22px] shrink-0 text-right">{{ i + 1 }}</span>
+              <div v-if="q.questionBlocks.some(b => b.type === 'image')" class="relative w-10 h-10 shrink-0">
+                <img
+                  :src="`/api/files/${q.questionBlocks.find(b => b.type === 'image')?.content}`"
+                  class="w-10 h-10 rounded-lg object-cover border border-slate-200 bg-slate-100"
+                  alt=""
+                />
+                <span
+                  v-if="totalImageCount(q) > 1"
+                  class="absolute -bottom-1 -right-1 bg-slate-700 text-white text-[0.55rem] font-bold leading-none px-1 py-0.5 rounded-md"
+                >+{{ totalImageCount(q) - 1 }}</span>
+              </div>
+              <div v-else class="w-10 h-10 shrink-0" />
+              <div class="flex-1 min-w-0">
+                <span class="block text-sm text-slate-800 leading-snug max-h-[2.5rem] overflow-hidden" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">{{ stripHtml(q.questionBlocks.find(b => b.type === 'text')?.content || '') || '(no text)' }}</span>
+                <div class="flex gap-1.5 mt-1 flex-wrap">
+                  <span v-if="q.isBriefing" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-amber-100 text-amber-700">
+                    <BookOpen class="w-3 h-3" />Briefing
+                  </span>
+                  <span v-else-if="q.expectsTextInput" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-700">
+                    <Users class="w-3 h-3" />Team Input
                 </span>
                 <span v-else-if="!q.expectPhoto && !q.isBriefing && !q.expectsTextInput" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-blue-100 text-blue-700">
                   <ListChecks class="w-3 h-3" />Multiple Choice
@@ -440,7 +441,7 @@
           >
             <div v-for="(q, i) in unfiledQuestions" :key="q.id"
               class="flex items-center gap-3 px-5 py-3.5 border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors select-none"
-              :class="{ 'opacity-50': draggingQuestions.some(dq => dq.id === q.id) }"
+              :class="{ 'opacity-50': draggingQuestions.some(dq => dq.id === q.id), 'question-highlight': highlightedQuestionIds.has(q.id) }"
               draggable="true"
               @dragstart="onDragStartFolder(q, $event)"
               @dragend="onDragEnd"
@@ -467,9 +468,9 @@
                   alt=""
                 />
                 <span
-                  v-if="q.questionBlocks.filter(b => b.type === 'image').length > 1"
+                  v-if="totalImageCount(q) > 1"
                   class="absolute -bottom-1 -right-1 bg-slate-700 text-white text-[0.55rem] font-bold leading-none px-1 py-0.5 rounded-md"
-                >+{{ q.questionBlocks.filter(b => b.type === 'image').length - 1 }}</span>
+                >+{{ totalImageCount(q) - 1 }}</span>
               </div>
               <div v-else class="w-10 h-10 shrink-0" />
               <div class="flex-1 min-w-0">
@@ -522,7 +523,7 @@
           >
             <div v-for="(q, i) in folderQuestions" :key="q.id"
               class="flex items-center gap-3 px-5 py-3.5 border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors select-none"
-              :class="{ 'opacity-50': draggingQuestions.some(dq => dq.id === q.id) }"
+              :class="{ 'opacity-50': draggingQuestions.some(dq => dq.id === q.id), 'question-highlight': highlightedQuestionIds.has(q.id) }"
               draggable="true"
               @dragstart="onDragStartFolder(q, $event)"
               @dragend="onDragEnd"
@@ -549,9 +550,9 @@
                   alt=""
                 />
                 <span
-                  v-if="q.questionBlocks.filter(b => b.type === 'image').length > 1"
+                  v-if="totalImageCount(q) > 1"
                   class="absolute -bottom-1 -right-1 bg-slate-700 text-white text-[0.55rem] font-bold leading-none px-1 py-0.5 rounded-md"
-                >+{{ q.questionBlocks.filter(b => b.type === 'image').length - 1 }}</span>
+                >+{{ totalImageCount(q) - 1 }}</span>
               </div>
               <div v-else class="w-10 h-10 shrink-0" />
               <div class="flex-1 min-w-0">
@@ -645,6 +646,14 @@
 
     <!-- Move to folder modal -->
     <teleport to="body">
+      <transition
+        enter-active-class="transition-opacity duration-150"
+        enter-from-class="opacity-0"
+        enter-to-class="opacity-100"
+        leave-active-class="transition-opacity duration-150"
+        leave-from-class="opacity-100"
+        leave-to-class="opacity-0"
+      >
       <div v-if="moveToFolderModalVisible" class="fixed inset-0 z-50 flex items-center justify-center">
         <div class="fixed inset-0 bg-black/40" />
         <div class="relative bg-white rounded-xl shadow-xl w-full max-w-sm mx-4 overflow-hidden">
@@ -691,6 +700,7 @@
           </div>
         </div>
       </div>
+      </transition>
     </teleport>
     </div>
   </AppLayout>
@@ -726,6 +736,27 @@ const currentUsername = computed(() => authStore.username ?? '')
 // -- Selection --------------------------------------------------------------
 const selectedQuestionIds = ref<Set<number>>(new Set())
 
+// -- Highlight newly added questions -----------------------------------------
+const highlightedQuestionIds = ref<Set<number>>(new Set())
+let highlightTimeout: ReturnType<typeof setTimeout> | null = null
+
+function captureCurrentIds() {
+  return new Set(questions.value.map(q => q.id))
+}
+
+function findNewIds(beforeIds: Set<number>) {
+  return new Set(questions.value.filter(q => !beforeIds.has(q.id)).map(q => q.id))
+}
+
+function highlightNewQuestions(newIds: Set<number>) {
+  if (newIds.size === 0) return
+  highlightedQuestionIds.value = newIds
+  if (highlightTimeout) clearTimeout(highlightTimeout)
+  highlightTimeout = setTimeout(() => {
+    highlightedQuestionIds.value = new Set()
+  }, 5000)
+}
+
 const allVisibleSelected = computed(() =>
   visibleQuestions.value.length > 0 &&
   visibleQuestions.value.every(q => selectedQuestionIds.value.has(q.id))
@@ -758,6 +789,12 @@ function clearSelection() {
 // -- Export/Import modals ---------------------------------------------------
 const exportModalVisible = ref(false)
 const importModalVisible = ref(false)
+const beforeImportIds = ref<Set<number>>(new Set())
+
+function openImportModal() {
+  beforeImportIds.value = captureCurrentIds()
+  importModalVisible.value = true
+}
 
 // -- Mass operations --------------------------------------------------------
 const duplicatingInProgress = ref(false)
@@ -770,6 +807,7 @@ const progressPercent = computed(() => progressTotal.value > 0 ? Math.round((pro
 
 const moveToFolderModalVisible = ref(false)
 const moveToFolderTarget = ref<number | null>(null)
+const beforeDuplicateIds = ref<Set<number>>(new Set())
 
 function openMoveToFolderModal() {
   moveToFolderTarget.value = null
@@ -779,6 +817,7 @@ function openMoveToFolderModal() {
 async function duplicateSelectedQuestions() {
   const ids = Array.from(selectedQuestionIds.value)
   if (!ids.length) return
+  beforeDuplicateIds.value = captureCurrentIds()
   duplicatingInProgress.value = true
   progressCurrent.value = 0
   progressTotal.value = ids.length
@@ -817,6 +856,8 @@ async function duplicateSelectedQuestions() {
       folderQuestions.value = questions.value.filter(q => q.folderId === selectedFolderFilter.value)
         .sort((a, b) => a.orderIndex - b.orderIndex)
     }
+    const newIds = findNewIds(beforeDuplicateIds.value)
+    highlightNewQuestions(newIds)
   } catch {
     // ignore
   }
@@ -928,6 +969,13 @@ async function deleteSelectedQuestions() {
 // -- Utilities --------------------------------------------------------------
 function stripHtml(html: string): string {
   return html.replace(/<[^>]*>/g, '').trim()
+}
+
+function totalImageCount(q: Question): number {
+  const questionImages = q.questionBlocks.filter(b => b.type === 'image').length
+  const hintImages = q.hintBlocks?.filter(b => b.type === 'image').length || 0
+  const explanationImages = q.explanationBlocks?.filter(b => b.type === 'image').length || 0
+  return questionImages + hintImages + explanationImages
 }
 
 function formatRelative(iso: string | null): string {
@@ -1332,6 +1380,7 @@ async function duplicateQuestion(q: Question) {
     } else if (typeof selectedFolderFilter.value === 'number' && duplicated.folderId === selectedFolderFilter.value) {
       folderQuestions.value.push(duplicated)
     }
+    highlightNewQuestions(new Set([duplicated.id]))
     toast.success('Question duplicated')
   } catch {
     toast.error('Failed to duplicate question')
@@ -1469,6 +1518,8 @@ async function onImported() {
         .filter(q => q.folderId == null)
         .sort((a, b) => a.orderIndex - b.orderIndex)
     }
+    const newIds = findNewIds(beforeImportIds.value)
+    highlightNewQuestions(newIds)
   } catch {
     toast.error('Failed to refresh questions')
   }
@@ -1477,4 +1528,15 @@ async function onImported() {
 
 <style scoped>
 .drag-ghost { opacity: 0.4; background: #dbeafe !important; }
+
+@keyframes highlight-pulse {
+  0% { background-color: rgba(34, 197, 94, 0.15); }
+  50% { background-color: rgba(34, 197, 94, 0.08); }
+  100% { background-color: rgba(34, 197, 94, 0.15); }
+}
+
+.question-highlight {
+  animation: highlight-pulse 1s ease-in-out 3;
+  background-color: rgba(34, 197, 94, 0.12);
+}
 </style>

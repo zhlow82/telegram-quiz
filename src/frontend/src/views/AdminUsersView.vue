@@ -209,6 +209,14 @@
 
     <!-- Edit user modal -->
     <teleport to="body">
+      <transition
+        enter-active-class="transition-opacity duration-150"
+        enter-from-class="opacity-0"
+        enter-to-class="opacity-100"
+        leave-active-class="transition-opacity duration-150"
+        leave-from-class="opacity-100"
+        leave-to-class="opacity-0"
+      >
       <div
         v-if="showEdit"
         class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
@@ -304,10 +312,19 @@
           </div>
         </div>
       </div>
+      </transition>
     </teleport>
 
     <!-- Create user modal -->
     <teleport to="body">
+      <transition
+        enter-active-class="transition-opacity duration-150"
+        enter-from-class="opacity-0"
+        enter-to-class="opacity-100"
+        leave-active-class="transition-opacity duration-150"
+        leave-from-class="opacity-100"
+        leave-to-class="opacity-0"
+      >
       <div
         v-if="showCreate"
         class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
@@ -411,6 +428,7 @@
           </div>
         </div>
       </div>
+      </transition>
     </teleport>
 
     <!-- App dialog (alert) -->

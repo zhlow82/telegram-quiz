@@ -177,6 +177,14 @@
 
     <!-- Delete confirmation dialog -->
     <teleport to="body">
+      <transition
+        enter-active-class="transition-opacity duration-150"
+        enter-from-class="opacity-0"
+        enter-to-class="opacity-100"
+        leave-active-class="transition-opacity duration-150"
+        leave-from-class="opacity-100"
+        leave-to-class="opacity-0"
+      >
       <div v-if="deleteTarget" class="fixed inset-0 z-50 flex items-center justify-center p-4" @keydown.escape="deleteTarget = null">
         <div class="absolute inset-0 bg-black/50" />
         <div class="relative bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm">
@@ -197,9 +205,18 @@
           </div>
         </div>
       </div>
+      </transition>
     </teleport>
     <!-- QR Code modal -->
     <teleport to="body">
+      <transition
+        enter-active-class="transition-opacity duration-150"
+        enter-from-class="opacity-0"
+        enter-to-class="opacity-100"
+        leave-active-class="transition-opacity duration-150"
+        leave-from-class="opacity-100"
+        leave-to-class="opacity-0"
+      >
       <div v-if="qrQuiz" class="fixed inset-0 z-50 flex items-center justify-center p-4" @keydown.escape="qrQuiz = null">
         <div class="absolute inset-0 bg-black/50" />
         <div class="relative bg-white rounded-2xl shadow-2xl p-6 w-full max-w-xs text-center">
@@ -231,6 +248,7 @@
           </button>
         </div>
       </div>
+      </transition>
     </teleport>
   </AppLayout>
 </template>

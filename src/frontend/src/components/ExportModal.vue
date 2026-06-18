@@ -1,5 +1,13 @@
 <template>
   <teleport to="body">
+    <transition
+      enter-active-class="transition-opacity duration-150"
+      enter-from-class="opacity-0"
+      enter-to-class="opacity-100"
+      leave-active-class="transition-opacity duration-150"
+      leave-from-class="opacity-100"
+      leave-to-class="opacity-0"
+    >
     <div v-if="visible" class="fixed inset-0 z-50 flex items-center justify-center">
       <div class="fixed inset-0 bg-black/50" />
       <div class="relative z-10 bg-white rounded-2xl shadow-xl max-w-md w-full mx-4 p-6">
@@ -61,6 +69,7 @@
         </div>
       </div>
     </div>
+    </transition>
   </teleport>
 </template>
 

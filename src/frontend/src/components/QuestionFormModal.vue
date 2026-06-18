@@ -48,91 +48,111 @@
               <div class="px-6 pt-5 pb-4 border-b border-slate-100 shrink-0">
                 <div class="space-y-2">
                   <label class="block text-sm font-semibold text-slate-700">Question Type</label>
-                  <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <div class="flex flex-wrap gap-2">
 
                     <!-- Multiple Choice -->
-                    <button
-                      type="button"
-                      class="flex flex-col items-center gap-2 px-3 py-4 rounded-xl border-2 transition cursor-pointer text-center"
-                      :class="!form.expectPhoto && !form.isBriefing && !form.expectsTextInput
-                        ? 'border-blue-500 bg-blue-50 shadow-md'
-                        : 'border-slate-200 bg-white hover:border-blue-200 hover:bg-blue-50/40'"
-                      @click="setQuestionType(false, false)"
-                    >
-                      <div
-                        class="w-10 h-10 rounded-xl flex items-center justify-center transition"
+                    <div class="relative group">
+                      <button
+                        type="button"
+                        class="flex items-center gap-2 px-3 py-2 rounded-lg border-2 transition cursor-pointer"
                         :class="!form.expectPhoto && !form.isBriefing && !form.expectsTextInput
-                          ? 'bg-blue-600 text-white shadow-sm'
-                          : 'bg-slate-100 text-slate-400'"
+                          ? 'border-blue-500 bg-blue-50 shadow-sm'
+                          : 'border-slate-200 bg-white hover:border-blue-200 hover:bg-blue-50/40'"
+                        @click="setQuestionType(false, false)"
                       >
-                        <ListChecks class="w-5 h-5" />
+                        <div
+                          class="w-6 h-6 rounded-md flex items-center justify-center transition"
+                          :class="!form.expectPhoto && !form.isBriefing && !form.expectsTextInput
+                            ? 'bg-blue-600 text-white'
+                            : 'bg-slate-100 text-slate-400'"
+                        >
+                          <ListChecks class="w-3.5 h-3.5" />
+                        </div>
+                        <span class="text-sm font-semibold" :class="!form.expectPhoto && !form.isBriefing && !form.expectsTextInput ? 'text-blue-700' : 'text-slate-700'">Multiple Choice</span>
+                      </button>
+                      <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-150 pointer-events-none w-48 bg-slate-900 text-white text-xs rounded-lg px-3 py-2 shadow-lg z-50 text-center">
+                        Players pick from A / B / C / D options
+                        <div class="absolute top-full left-1/2 -translate-x-1/2 -mt-1 w-2 h-2 bg-slate-900 rotate-45"></div>
                       </div>
-                      <span class="text-sm font-bold leading-tight" :class="!form.expectPhoto && !form.isBriefing && !form.expectsTextInput ? 'text-blue-700' : 'text-slate-700'">Multiple Choice</span>
-                      <span class="text-xs text-slate-500 leading-snug">Players pick from A / B / C / D options</span>
-                    </button>
+                    </div>
 
                     <!-- Photo -->
-                    <button
-                      type="button"
-                      class="flex flex-col items-center gap-2 px-3 py-4 rounded-xl border-2 transition cursor-pointer text-center"
-                      :class="form.expectPhoto && !form.isBriefing
-                        ? 'border-violet-500 bg-violet-50 shadow-md'
-                        : 'border-slate-200 bg-white hover:border-violet-200 hover:bg-violet-50/40'"
-                      @click="setQuestionType(true, false)"
-                    >
-                      <div
-                        class="w-10 h-10 rounded-xl flex items-center justify-center transition"
+                    <div class="relative group">
+                      <button
+                        type="button"
+                        class="flex items-center gap-2 px-3 py-2 rounded-lg border-2 transition cursor-pointer"
                         :class="form.expectPhoto && !form.isBriefing
-                          ? 'bg-violet-600 text-white shadow-sm'
-                          : 'bg-slate-100 text-slate-400'"
+                          ? 'border-violet-500 bg-violet-50 shadow-sm'
+                          : 'border-slate-200 bg-white hover:border-violet-200 hover:bg-violet-50/40'"
+                        @click="setQuestionType(true, false)"
                       >
-                        <Camera class="w-5 h-5" />
+                        <div
+                          class="w-6 h-6 rounded-md flex items-center justify-center transition"
+                          :class="form.expectPhoto && !form.isBriefing
+                            ? 'bg-violet-600 text-white'
+                            : 'bg-slate-100 text-slate-400'"
+                        >
+                          <Camera class="w-3.5 h-3.5" />
+                        </div>
+                        <span class="text-sm font-semibold" :class="form.expectPhoto && !form.isBriefing ? 'text-violet-700' : 'text-slate-700'">Photo</span>
+                      </button>
+                      <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-150 pointer-events-none w-48 bg-slate-900 text-white text-xs rounded-lg px-3 py-2 shadow-lg z-50 text-center">
+                        Players send a photo as their answer
+                        <div class="absolute top-full left-1/2 -translate-x-1/2 -mt-1 w-2 h-2 bg-slate-900 rotate-45"></div>
                       </div>
-                      <span class="text-sm font-bold leading-tight" :class="form.expectPhoto && !form.isBriefing ? 'text-violet-700' : 'text-slate-700'">Photo</span>
-                      <span class="text-xs text-slate-500 leading-snug">Players send a photo as their answer</span>
-                    </button>
+                    </div>
 
                     <!-- Briefing -->
-                    <button
-                      type="button"
-                      class="flex flex-col items-center gap-2 px-3 py-4 rounded-xl border-2 transition cursor-pointer text-center"
-                      :class="form.isBriefing
-                        ? 'border-amber-500 bg-amber-50 shadow-md'
-                        : 'border-slate-200 bg-white hover:border-amber-200 hover:bg-amber-50/40'"
-                      @click="setQuestionType(false, true)"
-                    >
-                      <div
-                        class="w-10 h-10 rounded-xl flex items-center justify-center transition"
+                    <div class="relative group">
+                      <button
+                        type="button"
+                        class="flex items-center gap-2 px-3 py-2 rounded-lg border-2 transition cursor-pointer"
                         :class="form.isBriefing
-                          ? 'bg-amber-500 text-white shadow-sm'
-                          : 'bg-slate-100 text-slate-400'"
+                          ? 'border-amber-500 bg-amber-50 shadow-sm'
+                          : 'border-slate-200 bg-white hover:border-amber-200 hover:bg-amber-50/40'"
+                        @click="setQuestionType(false, true)"
                       >
-                        <BookOpen class="w-5 h-5" />
+                        <div
+                          class="w-6 h-6 rounded-md flex items-center justify-center transition"
+                          :class="form.isBriefing
+                            ? 'bg-amber-500 text-white'
+                            : 'bg-slate-100 text-slate-400'"
+                        >
+                          <BookOpen class="w-3.5 h-3.5" />
+                        </div>
+                        <span class="text-sm font-semibold" :class="form.isBriefing ? 'text-amber-700' : 'text-slate-700'">Briefing</span>
+                      </button>
+                      <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-150 pointer-events-none w-48 bg-slate-900 text-white text-xs rounded-lg px-3 py-2 shadow-lg z-50 text-center">
+                        Instructions + photo, then READY
+                        <div class="absolute top-full left-1/2 -translate-x-1/2 -mt-1 w-2 h-2 bg-slate-900 rotate-45"></div>
                       </div>
-                      <span class="text-sm font-bold leading-tight" :class="form.isBriefing ? 'text-amber-700' : 'text-slate-700'">Briefing</span>
-                      <span class="text-xs text-slate-500 leading-snug">Instructions + photo, then READY</span>
-                    </button>
+                    </div>
 
                     <!-- Team Input -->
-                    <button
-                      type="button"
-                      class="flex flex-col items-center gap-2 px-3 py-4 rounded-xl border-2 transition cursor-pointer text-center"
-                      :class="form.expectsTextInput
-                        ? 'border-emerald-500 bg-emerald-50 shadow-md'
-                        : 'border-slate-200 bg-white hover:border-emerald-200 hover:bg-emerald-50/40'"
-                      @click="setQuestionType(false, false, true)"
-                    >
-                      <div
-                        class="w-10 h-10 rounded-xl flex items-center justify-center transition"
+                    <div class="relative group">
+                      <button
+                        type="button"
+                        class="flex items-center gap-2 px-3 py-2 rounded-lg border-2 transition cursor-pointer"
                         :class="form.expectsTextInput
-                          ? 'bg-emerald-600 text-white shadow-sm'
-                          : 'bg-slate-100 text-slate-400'"
+                          ? 'border-emerald-500 bg-emerald-50 shadow-sm'
+                          : 'border-slate-200 bg-white hover:border-emerald-200 hover:bg-emerald-50/40'"
+                        @click="setQuestionType(false, false, true)"
                       >
-                        <Users class="w-5 h-5" />
+                        <div
+                          class="w-6 h-6 rounded-md flex items-center justify-center transition"
+                          :class="form.expectsTextInput
+                            ? 'bg-emerald-600 text-white'
+                            : 'bg-slate-100 text-slate-400'"
+                        >
+                          <Users class="w-3.5 h-3.5" />
+                        </div>
+                        <span class="text-sm font-semibold" :class="form.expectsTextInput ? 'text-emerald-700' : 'text-slate-700'">Team Input</span>
+                      </button>
+                      <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-150 pointer-events-none w-48 bg-slate-900 text-white text-xs rounded-lg px-3 py-2 shadow-lg z-50 text-center">
+                        Players enter their team name
+                        <div class="absolute top-full left-1/2 -translate-x-1/2 -mt-1 w-2 h-2 bg-slate-900 rotate-45"></div>
                       </div>
-                      <span class="text-sm font-bold leading-tight" :class="form.expectsTextInput ? 'text-emerald-700' : 'text-slate-700'">Team Input</span>
-                      <span class="text-xs text-slate-500 leading-snug">Players enter their team name</span>
-                    </button>
+                    </div>
 
                   </div>
                 </div>
@@ -141,13 +161,16 @@
               <!-- Folder picker -->
               <div v-if="props.folders.length > 0" class="flex items-center gap-3 px-5 py-2 border-b border-slate-100 bg-slate-50/40 shrink-0">
                 <span class="text-[0.7rem] font-semibold text-slate-400 uppercase tracking-wide flex-shrink-0">Folder</span>
-                <select
-                  v-model="form.folderId"
-                  class="flex-1 text-xs border border-slate-200 rounded-lg px-2 py-1.5 bg-white text-slate-700 outline-none focus:border-blue-400 cursor-pointer transition"
-                >
-                  <option :value="null">— No folder —</option>
-                  <option v-for="f in props.folders" :key="f.id" :value="f.id">{{ f.name }}</option>
-                </select>
+                <div class="relative flex-1">
+                  <select
+                    v-model="form.folderId"
+                    class="w-full text-xs border border-slate-200 rounded-lg pl-3 pr-8 py-1.5 bg-white text-slate-700 outline-none focus:border-blue-400 cursor-pointer transition appearance-none"
+                  >
+                    <option :value="null">— No folder —</option>
+                    <option v-for="f in props.folders" :key="f.id" :value="f.id">{{ f.name }}</option>
+                  </select>
+                  <ChevronDown class="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
+                </div>
               </div>
 
               <!-- Sub-tabs -->
@@ -156,17 +179,29 @@
                   v-for="tab in tabs"
                   :key="tab.value"
                   type="button"
-                  class="px-4 py-2 text-sm font-semibold rounded-t-lg border border-b-0 -mb-px transition cursor-pointer"
+                  class="px-4 py-2 text-sm font-semibold rounded-t-lg border border-b-0 -mb-px transition cursor-pointer relative"
                   :class="activeTab === tab.value
                     ? 'bg-white border-slate-200 text-blue-600 shadow-sm'
                     : 'bg-slate-50 border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-100'"
                   @click="activeTab = tab.value"
-                >{{ tab.label }}</button>
+                >
+                  {{ tab.label }}
+                  <span v-if="tab.value === 'question' && error" class="absolute top-1 right-1 w-2 h-2 rounded-full bg-red-500"></span>
+                </button>
               </div>
 
               <!-- Tab content -->
               <div ref="tabContentRef" class="flex-1">
-                <form @submit.prevent="submit" class="p-6 space-y-5">
+                <Transition
+                  mode="out-in"
+                  enter-active-class="transition-all duration-150 ease-out"
+                  enter-from-class="opacity-0 translate-y-1"
+                  enter-to-class="opacity-100 translate-y-0"
+                  leave-active-class="transition-all duration-100 ease-in"
+                  leave-from-class="opacity-100 translate-y-0"
+                  leave-to-class="opacity-0 -translate-y-1"
+                >
+                <form @submit.prevent="submit" class="p-6 space-y-5" :key="activeTab">
 
                   <!-- ── Tab: Question (Multiple Choice / Photo) ── -->
                   <template v-if="activeTab === 'question'">
@@ -176,6 +211,13 @@
                       <label class="block text-sm font-semibold text-slate-700">
                         Question Content <span class="text-red-500">*</span>
                       </label>
+                      <div v-if="!form.questionBlocks.some(b => b.content.trim())" class="flex flex-col items-center gap-2 py-6 text-center">
+                        <div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center">
+                          <MessageSquare class="w-6 h-6 text-slate-400" />
+                        </div>
+                        <p class="text-sm text-slate-500">Add your question text or upload an image</p>
+                        <p class="text-xs text-slate-400">Use the buttons below to get started</p>
+                      </div>
                       <VueDraggable v-model="form.questionBlocks" :animation="150" handle=".drag-handle" class="space-y-2">
                         <div v-for="block in form.questionBlocks" :key="block._id" class="rounded-lg border border-slate-200 bg-white overflow-hidden">
                           <div class="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-50 border-b border-slate-100">
@@ -186,12 +228,12 @@
                           </div>
                           <div v-if="block.type === 'text'" class="p-3 space-y-1.5">
                             <div class="flex items-center gap-0.5 px-1.5 py-1 bg-slate-50 border border-slate-200 rounded-lg w-fit">
-                              <button type="button" class="px-1.5 py-0.5 text-xs font-bold text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" @click="applyBlockFormat(questionTextareas[block._id] ?? null, form.questionBlocks, block._id, '<b>', '</b>')">B</button>
-                              <button type="button" class="px-1.5 py-0.5 text-xs italic text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" @click="applyBlockFormat(questionTextareas[block._id] ?? null, form.questionBlocks, block._id, '<i>', '</i>')">I</button>
-                              <button type="button" class="px-1.5 py-0.5 text-xs underline text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" @click="applyBlockFormat(questionTextareas[block._id] ?? null, form.questionBlocks, block._id, '<u>', '</u>')">U</button>
-                              <button type="button" class="px-1.5 py-0.5 text-xs line-through text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" @click="applyBlockFormat(questionTextareas[block._id] ?? null, form.questionBlocks, block._id, '<s>', '</s>')">S</button>
+                              <button type="button" class="px-1.5 py-0.5 text-xs font-bold text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" title="Bold" @click="applyBlockFormat(questionTextareas[block._id] ?? null, form.questionBlocks, block._id, '<b>', '</b>')">B</button>
+                              <button type="button" class="px-1.5 py-0.5 text-xs italic text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" title="Italic" @click="applyBlockFormat(questionTextareas[block._id] ?? null, form.questionBlocks, block._id, '<i>', '</i>')">I</button>
+                              <button type="button" class="px-1.5 py-0.5 text-xs underline text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" title="Underline" @click="applyBlockFormat(questionTextareas[block._id] ?? null, form.questionBlocks, block._id, '<u>', '</u>')">U</button>
+                              <button type="button" class="px-1.5 py-0.5 text-xs line-through text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" title="Strikethrough" @click="applyBlockFormat(questionTextareas[block._id] ?? null, form.questionBlocks, block._id, '<s>', '</s>')">S</button>
                               <div class="w-px h-3 bg-slate-200 mx-0.5"></div>
-                              <button type="button" class="px-1.5 py-0.5 text-xs font-mono text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" @click="applyBlockFormat(questionTextareas[block._id] ?? null, form.questionBlocks, block._id, '<code>', '</code>')">&lt;/&gt;</button>
+                              <button type="button" class="px-1.5 py-0.5 text-xs font-mono text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" title="Code" @click="applyBlockFormat(questionTextareas[block._id] ?? null, form.questionBlocks, block._id, '<code>', '</code>')">&lt;/&gt;</button>
                               <button type="button" class="px-1.5 py-0.5 text-xs text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" title="Bullet" @click="insertBullet(questionTextareas[block._id] ?? null, form.questionBlocks, block._id)">•</button>
                               <div class="w-px h-3 bg-slate-200 mx-0.5"></div>
                               <button v-for="c in COLORS" :key="c.hex" type="button" :title="c.label" :style="{ backgroundColor: c.hex }" class="w-3.5 h-3.5 rounded-full cursor-pointer hover:scale-110 transition-transform flex-shrink-0" @click="applyBlockFormat(questionTextareas[block._id] ?? null, form.questionBlocks, block._id, colorTag(c.hex), '</span>')"></button>
@@ -200,7 +242,7 @@
                               :ref="(el) => { questionTextareas[block._id] = el as HTMLTextAreaElement }"
                               v-model="block.content"
                               class="tg-auto-textarea w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 resize-none transition bg-white text-slate-900 placeholder-slate-400 font-[inherit]"
-                              placeholder="Type here…"
+                              placeholder="Type your question here…"
                             ></textarea>
                           </div>
                           <div v-else class="p-3">
@@ -230,7 +272,10 @@
                   <template v-if="activeTab === 'answer'">
 
                     <div class="space-y-1.5">
-                      <label class="block text-sm font-semibold text-slate-700">Answer Options</label>
+                      <div class="flex items-center justify-between">
+                        <label class="block text-sm font-semibold text-slate-700">Answer Options</label>
+                        <span class="text-xs text-slate-400">Click the circle to mark correct</span>
+                      </div>
                       <div class="space-y-2">
                         <div
                           v-for="(opt, i) in form.options"
@@ -240,10 +285,17 @@
                             ? 'border-green-300 bg-green-50'
                             : 'border-slate-200 bg-white hover:border-slate-300'"
                         >
-                          <span
-                            class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
-                            :class="form.answer && form.answer === opt ? 'bg-green-100 text-green-700' : 'bg-blue-50 text-blue-600'"
-                          >{{ String.fromCharCode(65 + i) }}</span>
+                          <button
+                            type="button"
+                            class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition-all cursor-pointer"
+                            :class="form.answer && form.answer === opt
+                              ? 'bg-green-500 text-white scale-110'
+                              : 'bg-blue-50 text-blue-600 hover:bg-blue-100 hover:scale-105'"
+                            @click="form.answer = form.answer === opt ? '' : opt"
+                          >
+                            <Check v-if="form.answer && form.answer === opt" class="w-3.5 h-3.5" />
+                            <span v-else>{{ String.fromCharCode(65 + i) }}</span>
+                          </button>
                           <input
                             v-model="form.options[i]"
                             class="flex-1 text-sm outline-none bg-transparent text-slate-900 placeholder-slate-400"
@@ -258,19 +310,6 @@
                           @click="addOption"
                         >+ Add option</button>
                       </div>
-                    </div>
-
-                    <div class="space-y-1.5">
-                      <label class="block text-sm font-semibold text-slate-700">Correct Answer</label>
-                      <select
-                        v-model="form.answer"
-                        class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition bg-white text-slate-900 cursor-pointer"
-                      >
-                        <option value="">— select —</option>
-                        <option v-for="(opt, i) in form.options" :key="i" :value="opt">
-                          {{ String.fromCharCode(65 + i) }}: {{ opt || '(empty)' }}
-                        </option>
-                      </select>
                     </div>
 
                   </template>
@@ -303,10 +342,10 @@
                       <div class="flex flex-wrap gap-2">
                         <span class="text-xs text-slate-500 self-center">Quick set:</span>
                         <button v-for="n in [0, 1, 2, 3, 5, 10]" :key="n" type="button"
-                          class="px-3 py-1 rounded-full text-xs font-semibold border transition cursor-pointer"
+                          class="px-3 py-1 rounded-full text-xs font-semibold border transition-all duration-150 cursor-pointer"
                           :class="form.mark === n
-                            ? 'bg-blue-600 text-white border-blue-600'
-                            : 'bg-white text-slate-600 border-slate-200 hover:border-blue-400 hover:text-blue-600'"
+                            ? 'bg-blue-600 text-white border-blue-600 scale-110 shadow-sm points-pop'
+                            : 'bg-white text-slate-600 border-slate-200 hover:border-blue-400 hover:text-blue-600 hover:scale-105'"
                           @click="form.mark = n"
                         >{{ n }}</button>
                       </div>
@@ -319,6 +358,13 @@
 
                     <div class="space-y-1.5">
                       <label class="block text-sm font-semibold text-slate-700">Hint Content</label>
+                      <div v-if="!form.hintBlocks.some(b => b.content.trim())" class="flex flex-col items-center gap-2 py-6 text-center">
+                        <div class="w-12 h-12 rounded-full bg-amber-50 flex items-center justify-center">
+                          <Lightbulb class="w-6 h-6 text-amber-400" />
+                        </div>
+                        <p class="text-sm text-slate-500">Add hint content to reveal after players click the hint button</p>
+                        <p class="text-xs text-slate-400">Optional — leave empty to disable hints</p>
+                      </div>
                       <VueDraggable v-model="form.hintBlocks" :animation="150" handle=".drag-handle" class="space-y-2">
                         <div v-for="block in form.hintBlocks" :key="block._id" class="rounded-lg border border-slate-200 bg-white overflow-hidden">
                           <div class="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-50 border-b border-slate-100">
@@ -329,12 +375,12 @@
                           </div>
                           <div v-if="block.type === 'text'" class="p-3 space-y-1.5">
                             <div class="flex items-center gap-0.5 px-1.5 py-1 bg-slate-50 border border-slate-200 rounded-lg w-fit">
-                              <button type="button" class="px-1.5 py-0.5 text-xs font-bold text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" @click="applyBlockFormat(hintTextareas[block._id] ?? null, form.hintBlocks, block._id, '<b>', '</b>')">B</button>
-                              <button type="button" class="px-1.5 py-0.5 text-xs italic text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" @click="applyBlockFormat(hintTextareas[block._id] ?? null, form.hintBlocks, block._id, '<i>', '</i>')">I</button>
-                              <button type="button" class="px-1.5 py-0.5 text-xs underline text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" @click="applyBlockFormat(hintTextareas[block._id] ?? null, form.hintBlocks, block._id, '<u>', '</u>')">U</button>
-                              <button type="button" class="px-1.5 py-0.5 text-xs line-through text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" @click="applyBlockFormat(hintTextareas[block._id] ?? null, form.hintBlocks, block._id, '<s>', '</s>')">S</button>
+                              <button type="button" class="px-1.5 py-0.5 text-xs font-bold text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" title="Bold" @click="applyBlockFormat(hintTextareas[block._id] ?? null, form.hintBlocks, block._id, '<b>', '</b>')">B</button>
+                              <button type="button" class="px-1.5 py-0.5 text-xs italic text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" title="Italic" @click="applyBlockFormat(hintTextareas[block._id] ?? null, form.hintBlocks, block._id, '<i>', '</i>')">I</button>
+                              <button type="button" class="px-1.5 py-0.5 text-xs underline text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" title="Underline" @click="applyBlockFormat(hintTextareas[block._id] ?? null, form.hintBlocks, block._id, '<u>', '</u>')">U</button>
+                              <button type="button" class="px-1.5 py-0.5 text-xs line-through text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" title="Strikethrough" @click="applyBlockFormat(hintTextareas[block._id] ?? null, form.hintBlocks, block._id, '<s>', '</s>')">S</button>
                               <div class="w-px h-3 bg-slate-200 mx-0.5"></div>
-                              <button type="button" class="px-1.5 py-0.5 text-xs font-mono text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" @click="applyBlockFormat(hintTextareas[block._id] ?? null, form.hintBlocks, block._id, '<code>', '</code>')">&lt;/&gt;</button>
+                              <button type="button" class="px-1.5 py-0.5 text-xs font-mono text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" title="Code" @click="applyBlockFormat(hintTextareas[block._id] ?? null, form.hintBlocks, block._id, '<code>', '</code>')">&lt;/&gt;</button>
                               <button type="button" class="px-1.5 py-0.5 text-xs text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" title="Bullet" @click="insertBullet(hintTextareas[block._id] ?? null, form.hintBlocks, block._id)">•</button>
                               <div class="w-px h-3 bg-slate-200 mx-0.5"></div>
                               <button v-for="c in COLORS" :key="c.hex" type="button" :title="c.label" :style="{ backgroundColor: c.hex }" class="w-3.5 h-3.5 rounded-full cursor-pointer hover:scale-110 transition-transform flex-shrink-0" @click="applyBlockFormat(hintTextareas[block._id] ?? null, form.hintBlocks, block._id, colorTag(c.hex), '</span>')"></button>
@@ -343,7 +389,7 @@
                               :ref="(el) => { hintTextareas[block._id] = el as HTMLTextAreaElement }"
                               v-model="block.content"
                               class="tg-auto-textarea w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 resize-none transition bg-white text-slate-900 placeholder-slate-400 font-[inherit]"
-                              placeholder="Hint text…"
+                              placeholder="Type hint text here…"
                             ></textarea>
                           </div>
                           <div v-else class="p-3">
@@ -369,11 +415,18 @@
 
                   </template>
 
-                  <!-- ── Tab: After Answer ── -->
+                  <!-- ── Tab: Post Answer ── -->
                   <template v-if="activeTab === 'explanation'">
 
                     <div class="space-y-1.5">
                       <label class="block text-sm font-semibold text-slate-700">Post Answer Content</label>
+                      <div v-if="!form.explanationBlocks.some(b => b.content.trim())" class="flex flex-col items-center gap-2 py-6 text-center">
+                        <div class="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center">
+                          <CheckCircle class="w-6 h-6 text-green-400" />
+                        </div>
+                        <p class="text-sm text-slate-500">Add content to show after players answer</p>
+                        <p class="text-xs text-slate-400">e.g. the correct answer, explanation, or fun facts</p>
+                      </div>
                       <VueDraggable v-model="form.explanationBlocks" :animation="150" handle=".drag-handle" class="space-y-2">
                         <div v-for="block in form.explanationBlocks" :key="block._id" class="rounded-lg border border-slate-200 bg-white overflow-hidden">
                           <div class="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-50 border-b border-slate-100">
@@ -384,12 +437,12 @@
                           </div>
                           <div v-if="block.type === 'text'" class="p-3 space-y-1.5">
                             <div class="flex items-center gap-0.5 px-1.5 py-1 bg-slate-50 border border-slate-200 rounded-lg w-fit">
-                              <button type="button" class="px-1.5 py-0.5 text-xs font-bold text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" @click="applyBlockFormat(explanationTextareas[block._id] ?? null, form.explanationBlocks, block._id, '<b>', '</b>')">B</button>
-                              <button type="button" class="px-1.5 py-0.5 text-xs italic text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" @click="applyBlockFormat(explanationTextareas[block._id] ?? null, form.explanationBlocks, block._id, '<i>', '</i>')">I</button>
-                              <button type="button" class="px-1.5 py-0.5 text-xs underline text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" @click="applyBlockFormat(explanationTextareas[block._id] ?? null, form.explanationBlocks, block._id, '<u>', '</u>')">U</button>
-                              <button type="button" class="px-1.5 py-0.5 text-xs line-through text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" @click="applyBlockFormat(explanationTextareas[block._id] ?? null, form.explanationBlocks, block._id, '<s>', '</s>')">S</button>
+                              <button type="button" class="px-1.5 py-0.5 text-xs font-bold text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" title="Bold" @click="applyBlockFormat(explanationTextareas[block._id] ?? null, form.explanationBlocks, block._id, '<b>', '</b>')">B</button>
+                              <button type="button" class="px-1.5 py-0.5 text-xs italic text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" title="Italic" @click="applyBlockFormat(explanationTextareas[block._id] ?? null, form.explanationBlocks, block._id, '<i>', '</i>')">I</button>
+                              <button type="button" class="px-1.5 py-0.5 text-xs underline text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" title="Underline" @click="applyBlockFormat(explanationTextareas[block._id] ?? null, form.explanationBlocks, block._id, '<u>', '</u>')">U</button>
+                              <button type="button" class="px-1.5 py-0.5 text-xs line-through text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" title="Strikethrough" @click="applyBlockFormat(explanationTextareas[block._id] ?? null, form.explanationBlocks, block._id, '<s>', '</s>')">S</button>
                               <div class="w-px h-3 bg-slate-200 mx-0.5"></div>
-                              <button type="button" class="px-1.5 py-0.5 text-xs font-mono text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" @click="applyBlockFormat(explanationTextareas[block._id] ?? null, form.explanationBlocks, block._id, '<code>', '</code>')">&lt;/&gt;</button>
+                              <button type="button" class="px-1.5 py-0.5 text-xs font-mono text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" title="Code" @click="applyBlockFormat(explanationTextareas[block._id] ?? null, form.explanationBlocks, block._id, '<code>', '</code>')">&lt;/&gt;</button>
                               <button type="button" class="px-1.5 py-0.5 text-xs text-slate-600 hover:bg-slate-200 rounded transition cursor-pointer leading-none" title="Bullet" @click="insertBullet(explanationTextareas[block._id] ?? null, form.explanationBlocks, block._id)">•</button>
                               <div class="w-px h-3 bg-slate-200 mx-0.5"></div>
                               <button v-for="c in COLORS" :key="c.hex" type="button" :title="c.label" :style="{ backgroundColor: c.hex }" class="w-3.5 h-3.5 rounded-full cursor-pointer hover:scale-110 transition-transform flex-shrink-0" @click="applyBlockFormat(explanationTextareas[block._id] ?? null, form.explanationBlocks, block._id, colorTag(c.hex), '</span>')"></button>
@@ -398,7 +451,7 @@
                               :ref="(el) => { explanationTextareas[block._id] = el as HTMLTextAreaElement }"
                               v-model="block.content"
                               class="tg-auto-textarea w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 resize-none transition bg-white text-slate-900 placeholder-slate-400 font-[inherit]"
-                              placeholder="After answer text…"
+                              placeholder="Type post answer content here…"
                             ></textarea>
                           </div>
                           <div v-else class="p-3">
@@ -591,6 +644,7 @@
                   </template>
 
                 </form>
+                </Transition>
               </div>
             </div>
 
@@ -629,7 +683,7 @@
             </div>
 
             <!-- Chat body -->
-            <div class="flex-1 overflow-y-auto px-2 pt-2 pb-3 flex flex-col gap-1 tab-scroll" style="background: #e8edf2">
+            <div class="flex-1 overflow-y-auto px-2 pt-2 pb-3 flex flex-col gap-1 tab-scroll preview-fade" style="background: #e8edf2">
 
               <!-- Date chip -->
               <div class="flex justify-center mb-1.5">
@@ -778,7 +832,7 @@
 
 <script setup lang="ts">
 import { ref, watch, computed, nextTick, onUnmounted } from 'vue'
-import { ListChecks, Camera, BookOpen, Users, X, Pencil, Plus, GripVertical } from '@lucide/vue'
+import { ListChecks, Camera, BookOpen, Users, X, Pencil, Plus, GripVertical, Check, MessageSquare, Lightbulb, CheckCircle, ChevronDown } from '@lucide/vue'
 import { VueDraggable } from 'vue-draggable-plus'
 import type { Question, QuestionRequest, ContentBlock } from '@/types/question'
 import type { Folder } from '@/types/folder'
@@ -1122,6 +1176,7 @@ function removeOption(i: number) {
 async function submit() {
   if (!form.value.questionBlocks.some(b => b.type === 'text' && b.content.trim())) {
     error.value = 'At least one text block is required.'
+    activeTab.value = 'question'
     return
   }
   error.value = ''
@@ -1441,5 +1496,34 @@ async function submit() {
   font-style: italic;
   text-align: center;
   padding: 0.5rem 0;
+}
+
+/* ── Drag-and-drop feedback ── */
+:deep(.sortable-ghost) {
+  opacity: 0.4;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: scale(1.02);
+}
+:deep(.sortable-drag) {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+:deep(.sortable-chosen) {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* ── Points quick-set animation ── */
+@keyframes points-pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+.points-pop {
+  animation: points-pop 0.2s ease-out;
+}
+
+/* ── Preview panel fade gradient ── */
+.preview-fade {
+  mask-image: linear-gradient(to bottom, black 90%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black 90%, transparent 100%);
 }
 </style>
