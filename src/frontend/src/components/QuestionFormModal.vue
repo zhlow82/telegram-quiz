@@ -373,7 +373,7 @@
                   <template v-if="activeTab === 'explanation'">
 
                     <div class="space-y-1.5">
-                      <label class="block text-sm font-semibold text-slate-700">After Answer Content</label>
+                      <label class="block text-sm font-semibold text-slate-700">Post Answer Content</label>
                       <VueDraggable v-model="form.explanationBlocks" :animation="150" handle=".drag-handle" class="space-y-2">
                         <div v-for="block in form.explanationBlocks" :key="block._id" class="rounded-lg border border-slate-200 bg-white overflow-hidden">
                           <div class="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-50 border-b border-slate-100">
@@ -739,7 +739,7 @@
 
                 <!-- After-answer service message -->
                 <div class="flex justify-center my-1.5">
-                  <span class="tg-service-msg">after answer</span>
+                  <span class="tg-service-msg">post answer</span>
                 </div>
 
                 </template>
@@ -760,7 +760,7 @@
                       </div>
                     </template>
                   </template>
-                  <div v-else-if="!form.showActionButton" class="tg-empty-explanation">No after answer content added yet…</div>
+                  <div v-else-if="!form.showActionButton" class="tg-empty-explanation">No post answer content added yet…</div>
                   <div v-if="form.showActionButton" class="tg-keyboard">
                     <div class="tg-kb-btn tg-kb-ready">{{ form.actionButtonText || 'Next Question' }}</div>
                   </div>
@@ -891,7 +891,7 @@ const tabs = computed(() => {
       { value: 'question' as const, label: 'Question' },
       { value: 'mark' as const, label: 'Points' },
       { value: 'hint' as const, label: 'Hint' },
-      { value: 'explanation' as const, label: 'After Answer' },
+      { value: 'explanation' as const, label: 'Post Answer' },
     ]
   }
   return [
@@ -899,7 +899,7 @@ const tabs = computed(() => {
     { value: 'answer' as const, label: 'Answer' },
     { value: 'mark' as const, label: 'Points' },
     { value: 'hint' as const, label: 'Hint' },
-    { value: 'explanation' as const, label: 'After Answer' },
+    { value: 'explanation' as const, label: 'Post Answer' },
   ]
 })
 const filledOptions = computed(() => form.value.options.filter(o => o.trim()))

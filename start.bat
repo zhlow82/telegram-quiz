@@ -32,11 +32,11 @@ docker compose up -d --build
 
 echo.
 echo ========================================
-echo   Services started successfully!
+echo   Telegram Quiz - Ready!
 echo ========================================
 echo.
-echo Frontend:  http://localhost
-echo Gateway:   http://localhost:8080
+echo Access the application at:
+echo http://localhost/tg-quiz
 echo.
 echo To stop all services, run: stop.bat
 echo.
@@ -46,7 +46,14 @@ pause
 
 :skip_restart
 echo.
-echo Services are already running.
+echo ========================================
+echo   Telegram Quiz - Ready!
+echo ========================================
+echo.
+echo Access the application at:
+echo http://localhost/tg-quiz
+echo.
+echo To stop all services, run: stop.bat
 echo.
 docker compose ps --format "table {{.Name}}\t{{.Status}}"
 echo.
