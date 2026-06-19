@@ -30,8 +30,8 @@ All frontend API calls go through the gateway at `localhost:8080`. Vite proxies 
 ## Commands
 
 ```bash
-# Infrastructure (local dev)
-docker-compose -f docker-compose.dev.yml up -d
+# Infrastructure (local dev — auto-started by devcontainer)
+# To manage manually: docker compose -f .devcontainer/docker-compose.yml up -d
 
 # Backend (each in separate terminal)
 cd src/backend/auth-service && mvn spring-boot:run

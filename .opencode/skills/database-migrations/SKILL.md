@@ -101,8 +101,8 @@ ORDER BY installed_rank;
 ## Resetting Database (Dev Only)
 
 ```bash
-docker-compose -f docker-compose.dev.yml down -v
-docker-compose -f docker-compose.dev.yml up -d
+docker compose -f .devcontainer/docker-compose.yml down -v
+docker compose -f .devcontainer/docker-compose.yml up -d
 ```
 
 This drops all data and Flyway re-runs all migrations from scratch.

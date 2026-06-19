@@ -1,0 +1,25 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# Explicitly declare text files we want to normalize
+*.java text
+*.xml text
+*.yml text
+*.yaml text
+*.json text
+*.js text
+*.ts text
+*.vue text
+*.css text
+*.html text
+*.md text
+*.sql text
+*.properties text
+
+# Binary files
+*.png binary
+*.jpg binary
+*.gif binary
+*.ico binary
+*.jar binary
+*.class binary

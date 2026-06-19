@@ -1,21 +1,25 @@
-version: '3.8'
-
-# Development infrastructure only — does NOT run application services.
-# Usage: docker-compose -f docker-compose.dev.yml up -d
-
 services:
+  dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ..:/workspace:cached
+    command: sleep infinity
+    environment:
+      DB_HOST: postgres
+      REDIS_HOST: redis
+
   postgres:
     image: postgres:17
-    container_name: telegram-quiz-postgres-dev
+    ports:
+      - "5432:5432"
     environment:
       POSTGRES_DB: postgres
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-    ports:
-      - "5432:5432"
     volumes:
       - postgres_dev_data:/var/lib/postgresql/data
-    restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
@@ -24,25 +28,21 @@ services:
 
   pgadmin:
     image: dpage/pgadmin4
-    container_name: telegram-quiz-pgadmin-dev
+    ports:
+      - "5050:80"
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@telegramquiz.com
       PGADMIN_DEFAULT_PASSWORD: admin
-    ports:
-      - "5050:80"
     depends_on:
       postgres:
         condition: service_healthy
-    restart: unless-stopped
 
   redis:
     image: redis:7-alpine
-    container_name: telegram-quiz-redis-dev
     ports:
       - "6379:6379"
     volumes:
       - redis_dev_data:/data
-    restart: unless-stopped
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s

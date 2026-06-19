@@ -36,7 +36,7 @@ telegram-quiz/
 │       ├── nginx.conf           # Nginx reverse proxy config
 │       └── entrypoint.sh        # Runtime env var substitution
 ├── docker-compose.yml           # Full stack deployment (VPS)
-├── docker-compose.dev.yml       # Dev infrastructure only (Postgres, Redis, pgAdmin)
+├── .devcontainer/                 # VS Code dev container (Postgres, Redis, pgAdmin, Java 21, Node 20)
 ├── render.yaml                  # Render cloud deployment blueprint
 └── .gitignore
 ```
@@ -112,11 +112,9 @@ npm --version         # npm 11+
 
 ## Getting Started
 
-### 1. Start dev infrastructure (PostgreSQL, Redis, pgAdmin)
+### 1. Open in Dev Container
 
-```bash
-docker-compose -f docker-compose.dev.yml up -d
-```
+In VS Code, click **"Reopen in Container"** when prompted (requires the [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)). This automatically starts PostgreSQL, Redis, and pgAdmin, and installs frontend dependencies.
 
 | Service | URL |
 |---|---|
@@ -507,4 +505,4 @@ SELECT version, description, installed_on, success FROM flyway_schema_history_ma
 
 ### If a migration fails
 
-For local dev: `docker-compose -f docker-compose.dev.yml down -v && docker-compose -f docker-compose.dev.yml up -d` resets the DB and Flyway re-runs all migrations from scratch.
+For local dev: `docker compose -f .devcontainer/docker-compose.yml down -v && docker compose -f .devcontainer/docker-compose.yml up -d` resets the DB and Flyway re-runs all migrations from scratch.
