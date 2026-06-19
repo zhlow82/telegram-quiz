@@ -28,26 +28,31 @@
     <!-- Sidebar -->
     <aside
       :class="[
-        'fixed inset-y-0 left-0 z-40 flex-shrink-0 bg-white border-r border-slate-200 flex flex-col transition-all duration-200 ease-in-out',
+        'fixed inset-y-0 left-0 z-40 flex-shrink-0 bg-white border-r border-slate-200 flex flex-col transition-[width] duration-200 ease-in-out overflow-hidden',
         sidebarCollapsed ? 'w-16' : 'w-64',
         'md:static md:z-auto md:translate-x-0',
         drawerOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0',
       ]"
     >
       <!-- Brand -->
-      <div class="flex items-center gap-3 px-4 py-5 flex-shrink-0">
+      <div class="flex items-center gap-3 px-4 py-5 flex-shrink-0 overflow-hidden">
         <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden bg-primary">
           <img v-if="brandingStore.appLogoUrl" :src="brandingStore.appLogoUrl" class="w-full h-full object-cover" alt="" />
           <Zap v-else class="w-4 h-4 text-white" />
         </div>
-        <span v-if="!sidebarCollapsed" class="text-slate-900 font-bold text-sm">{{ brandingStore.appName }}</span>
-        <button
-          v-if="!sidebarCollapsed"
-          class="hidden md:flex ml-auto w-6 h-6 rounded-lg items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition cursor-pointer"
-          @click="sidebarCollapsed = true"
-        >
-          <ChevronLeft class="w-4 h-4" />
-        </button>
+        <div class="flex-1 min-w-0 flex items-center justify-between">
+          <span
+            class="text-slate-900 font-bold text-sm whitespace-nowrap transition-all duration-150"
+            :class="sidebarCollapsed ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100'"
+          >{{ brandingStore.appName }}</span>
+          <button
+            class="hidden md:flex w-6 h-6 rounded-lg items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition cursor-pointer flex-shrink-0"
+            :class="sidebarCollapsed ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100'"
+            @click="sidebarCollapsed = true"
+          >
+            <ChevronLeft class="w-4 h-4" />
+          </button>
+        </div>
       </div>
 
       <button
@@ -62,59 +67,69 @@
       <div class="border-t border-slate-100" />
 
       <!-- Nav -->
-      <nav class="flex-1 px-3 pt-4 overflow-y-auto">
+      <nav class="flex-1 px-3 pt-4 overflow-y-auto overflow-x-hidden">
         <p
-          v-if="!sidebarCollapsed"
-          class="px-3 mb-2 text-xs font-semibold uppercase text-slate-400"
+          class="px-3 mb-2 text-xs font-semibold uppercase text-slate-400 whitespace-nowrap transition-all duration-150"
+          :class="sidebarCollapsed ? 'opacity-0 h-0 mb-0 overflow-hidden' : 'opacity-100'"
           style="letter-spacing: 0.08em"
         >Main</p>
         <router-link
           v-for="item in navItems"
           :key="item.to"
           :to="item.to"
-          class="flex items-center gap-3 px-3 py-2 mb-1 text-sm font-medium transition-colors no-underline"
+          class="flex items-center gap-3 py-2 mb-1 text-sm font-medium transition-colors no-underline relative"
           :class="[
             $route.path === item.to
-              ? 'bg-primary text-white rounded-full'
-              : 'text-slate-600 hover:bg-slate-100 rounded-lg',
-            sidebarCollapsed ? 'justify-center' : ''
+              ? 'bg-primary text-white'
+              : 'text-slate-600 hover:bg-slate-100',
+            sidebarCollapsed 
+              ? 'justify-center px-0 mx-auto w-10 h-10 rounded-xl' 
+              : 'px-3 rounded-full border-l-4 border-l-white'
           ]"
           :title="sidebarCollapsed ? item.label : ''"
           @click="drawerOpen = false"
         >
           <component :is="item.icon" class="w-4 h-4 flex-shrink-0" />
-          <span v-if="!sidebarCollapsed">{{ item.label }}</span>
+          <span
+            class="whitespace-nowrap transition-all duration-150"
+            :class="sidebarCollapsed ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100'"
+          >{{ item.label }}</span>
         </router-link>
 
         <template v-if="authStore.isAdmin">
           <div class="border-t border-slate-100 my-3" />
           <p
-            v-if="!sidebarCollapsed"
-            class="px-3 mb-2 text-xs font-semibold uppercase text-slate-400"
+            class="px-3 mb-2 text-xs font-semibold uppercase text-slate-400 whitespace-nowrap transition-all duration-150"
+            :class="sidebarCollapsed ? 'opacity-0 h-0 mb-0 overflow-hidden' : 'opacity-100'"
             style="letter-spacing: 0.08em"
           >Admin</p>
           <router-link
             v-for="item in adminNavItems"
             :key="item.to"
             :to="item.to"
-            class="flex items-center gap-3 px-3 py-2 mb-1 text-sm font-medium transition-colors no-underline"
+            class="flex items-center gap-3 py-2 mb-1 text-sm font-medium transition-colors no-underline relative"
             :class="[
               $route.path === item.to
-                ? 'bg-primary text-white rounded-full'
-                : 'text-slate-600 hover:bg-slate-100 rounded-lg',
-              sidebarCollapsed ? 'justify-center' : ''
+                ? 'bg-primary text-white'
+                : 'text-slate-600 hover:bg-slate-100',
+              sidebarCollapsed 
+                ? 'justify-center px-0 mx-auto w-10 h-10 rounded-xl' 
+                : 'px-3 rounded-full border-l-4 border-l-white'
             ]"
             :title="sidebarCollapsed ? item.label : ''"
             @click="drawerOpen = false"
           >
             <component :is="item.icon" class="w-4 h-4 flex-shrink-0" />
-            <span v-if="!sidebarCollapsed">{{ item.label }}</span>
+            <span
+              class="whitespace-nowrap transition-all duration-150"
+              :class="sidebarCollapsed ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100'"
+            >{{ item.label }}</span>
           </router-link>
         </template>
       </nav>
 
       <!-- User section -->
-      <div class="flex-shrink-0 border-t border-slate-100 p-3">
+      <div class="flex-shrink-0 border-t border-slate-100 p-3 overflow-hidden">
         <button
           class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl mb-2 text-left transition-colors hover:bg-slate-100 cursor-pointer"
           :class="sidebarCollapsed ? 'justify-center px-0' : ''"
@@ -125,13 +140,16 @@
           <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
             {{ userInitial }}
           </div>
-          <template v-if="!sidebarCollapsed">
+          <div
+            class="min-w-0 flex-1 flex items-center gap-2 transition-all duration-150"
+            :class="sidebarCollapsed ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100'"
+          >
             <div class="min-w-0 flex-1">
               <div class="text-slate-900 text-sm font-semibold truncate">{{ authStore.firstName || authStore.username }}</div>
               <div class="text-xs text-slate-500">{{ authStore.isAdmin ? 'Admin' : 'Member' }}</div>
             </div>
             <Pencil class="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-          </template>
+          </div>
         </button>
         <button
           class="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-sm text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition-colors disabled:opacity-50 cursor-pointer"
@@ -139,7 +157,10 @@
           @click="handleLogout"
         >
           <LogOut class="w-4 h-4" />
-          <span v-if="!sidebarCollapsed">Sign out</span>
+          <span
+            class="whitespace-nowrap transition-all duration-150"
+            :class="sidebarCollapsed ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100'"
+          >Sign out</span>
         </button>
       </div>
     </aside>
@@ -261,6 +282,63 @@
       </div>
     </teleport>
 
+    <!-- Keyboard shortcuts modal -->
+    <teleport to="body">
+      <transition
+        enter-active-class="transition-opacity duration-150"
+        enter-from-class="opacity-0"
+        enter-to-class="opacity-100"
+        leave-active-class="transition-opacity duration-150"
+        leave-from-class="opacity-100"
+        leave-to-class="opacity-0"
+      >
+      <div v-if="showShortcuts" class="fixed inset-0 z-50 flex items-center justify-center p-4" @keydown.escape="showShortcuts = false">
+        <div class="absolute inset-0 bg-black/50" />
+        <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 overflow-hidden">
+          <div class="flex items-center justify-between mb-5">
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center">
+                <KeyRound class="w-4 h-4 text-slate-600" />
+              </div>
+              <h2 class="text-lg font-bold text-slate-900">Keyboard Shortcuts</h2>
+            </div>
+            <button
+              type="button"
+              class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition cursor-pointer"
+              @click="showShortcuts = false"
+            ><X class="w-4 h-4" /></button>
+          </div>
+          <div class="space-y-3">
+            <div class="flex items-center justify-between py-2 border-b border-slate-100">
+              <span class="text-sm text-slate-600">Navigate to Home</span>
+              <kbd class="px-2 py-1 bg-slate-100 rounded text-xs font-mono text-slate-600 border border-slate-200">G then H</kbd>
+            </div>
+            <div class="flex items-center justify-between py-2 border-b border-slate-100">
+              <span class="text-sm text-slate-600">Navigate to Questions</span>
+              <kbd class="px-2 py-1 bg-slate-100 rounded text-xs font-mono text-slate-600 border border-slate-200">G then Q</kbd>
+            </div>
+            <div class="flex items-center justify-between py-2 border-b border-slate-100">
+              <span class="text-sm text-slate-600">Navigate to Quizzes</span>
+              <kbd class="px-2 py-1 bg-slate-100 rounded text-xs font-mono text-slate-600 border border-slate-200">G then Z</kbd>
+            </div>
+            <div class="flex items-center justify-between py-2 border-b border-slate-100">
+              <span class="text-sm text-slate-600">Create new quiz</span>
+              <kbd class="px-2 py-1 bg-slate-100 rounded text-xs font-mono text-slate-600 border border-slate-200">N</kbd>
+            </div>
+            <div class="flex items-center justify-between py-2 border-b border-slate-100">
+              <span class="text-sm text-slate-600">Show shortcuts</span>
+              <kbd class="px-2 py-1 bg-slate-100 rounded text-xs font-mono text-slate-600 border border-slate-200">?</kbd>
+            </div>
+            <div class="flex items-center justify-between py-2">
+              <span class="text-sm text-slate-600">Close modal / dialog</span>
+              <kbd class="px-2 py-1 bg-slate-100 rounded text-xs font-mono text-slate-600 border border-slate-200">Esc</kbd>
+            </div>
+          </div>
+        </div>
+      </div>
+      </transition>
+    </teleport>
+
     <!-- Main area -->
     <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
 
@@ -287,7 +365,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { Zap, Menu, LogOut, LayoutDashboard, BookOpen, Play, Users, KeyRound, Settings, Pencil, X, Eye, EyeOff, ChevronLeft, ChevronRight, ScrollText } from '@lucide/vue'
 import { useAuthStore } from '@/stores/auth'
@@ -302,7 +380,11 @@ const toast = useToast()
 
 const drawerOpen = ref(false)
 const loading = ref(false)
-const sidebarCollapsed = ref(false)
+const sidebarCollapsed = ref(localStorage.getItem('sidebarCollapsed') === 'true')
+
+watch(sidebarCollapsed, (val) => {
+  localStorage.setItem('sidebarCollapsed', String(val))
+})
 const showProfile = ref(false)
 const profileLoading = ref(false)
 const profileError = ref('')
@@ -315,6 +397,9 @@ const cpForm = ref({ current: '', newPwd: '', confirm: '' })
 const cpShowCurrent = ref(false)
 const cpShowNew = ref(false)
 const cpShowConfirm = ref(false)
+const showShortcuts = ref(false)
+let keySequence = ''
+let keyTimeout: ReturnType<typeof setTimeout> | null = null
 
 function openProfile() {
   profileForm.value.firstName = authStore.firstName || ''
@@ -407,4 +492,50 @@ async function handleLogout() {
     loading.value = false
   }
 }
+
+function handleGlobalKeydown(e: KeyboardEvent) {
+  const target = e.target as HTMLElement
+  if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT' || target.isContentEditable) return
+
+  if (e.key === '?') {
+    e.preventDefault()
+    showShortcuts.value = !showShortcuts.value
+    return
+  }
+
+  if (e.key === 'Escape') {
+    showShortcuts.value = false
+    return
+  }
+
+  if (e.key.toLowerCase() === 'n' && !showProfile.value && !showShortcuts.value) {
+    e.preventDefault()
+    router.push('/quizzes/new')
+    return
+  }
+
+  if (e.key.toLowerCase() === 'g') {
+    if (keyTimeout) clearTimeout(keyTimeout)
+    keySequence = 'g'
+    keyTimeout = setTimeout(() => { keySequence = '' }, 1000)
+    return
+  }
+
+  if (keySequence === 'g') {
+    if (keyTimeout) clearTimeout(keyTimeout)
+    keySequence = ''
+    if (e.key.toLowerCase() === 'h') { e.preventDefault(); router.push('/home') }
+    else if (e.key.toLowerCase() === 'q') { e.preventDefault(); router.push('/questions') }
+    else if (e.key.toLowerCase() === 'z') { e.preventDefault(); router.push('/quizzes') }
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('keydown', handleGlobalKeydown)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('keydown', handleGlobalKeydown)
+  if (keyTimeout) clearTimeout(keyTimeout)
+})
 </script>

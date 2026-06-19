@@ -3,7 +3,8 @@
 
     <!-- Brand panel (desktop only) -->
     <div
-      class="hidden md:flex flex-col items-center justify-center flex-[0_0_42%] relative overflow-hidden px-12 bg-primary"
+      class="hidden md:flex flex-col items-center justify-center flex-[0_0_42%] relative overflow-hidden px-12"
+      style="background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 25%, #0369a1 50%, #0ea5e9 75%, #38bdf8 100%); background-size: 400% 400%; animation: gradient-shift 15s ease infinite;"
     >
       <!-- Watermark icons -->
       <Zap class="absolute -top-8 -left-8 w-72 h-72 text-white/10 pointer-events-none" />
@@ -195,3 +196,11 @@ async function handleLogin() {
   }
 }
 </script>
+
+<style scoped>
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+</style>

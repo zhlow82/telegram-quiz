@@ -46,7 +46,7 @@
       <!-- Selection action bar -->
       <div
         v-if="someSelected"
-        class="flex items-center gap-3 mb-4 px-4 py-3 rounded-xl bg-blue-50 border border-blue-200"
+        class="flex items-center gap-3 mb-4 px-4 py-3 rounded-xl bg-blue-50 border border-blue-200 sticky top-0 z-10 shadow-sm"
       >
         <button
           class="w-5 h-5 rounded flex items-center justify-center text-blue-600 cursor-pointer"
@@ -106,10 +106,12 @@
 
           <!-- All Questions -->
           <button
-            class="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-sm font-medium transition-colors cursor-pointer"
-            :class="selectedFolderFilter === null
-              ? 'bg-blue-50 text-blue-700 font-semibold'
-              : 'text-slate-700 hover:bg-slate-50'"
+            class="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-sm font-medium transition-colors cursor-pointer relative"
+            :class="[
+              selectedFolderFilter === null
+                ? 'bg-blue-50 text-blue-700 font-semibold border-l-4 border-l-blue-500'
+                : 'text-slate-700 hover:bg-slate-50 border-l-4 border-l-transparent'
+            ]"
             @click="selectedFolderFilter = null"
           >
             <Library class="w-4 h-4 flex-shrink-0" :class="selectedFolderFilter === null ? 'text-blue-600' : 'text-slate-400'" />
@@ -119,9 +121,9 @@
 
           <!-- Unfiled (also a drop target) -->
           <button
-            class="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-sm font-medium transition-colors cursor-pointer border-t border-slate-100"
+            class="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-sm font-medium transition-colors cursor-pointer border-t border-slate-100 relative"
             :class="[
-              selectedFolderFilter === 'unfiled' ? 'bg-blue-50 text-blue-700 font-semibold' : 'text-slate-700 hover:bg-slate-50',
+              selectedFolderFilter === 'unfiled' ? 'bg-blue-50 text-blue-700 font-semibold border-l-4 border-l-blue-500' : 'text-slate-700 hover:bg-slate-50 border-l-4 border-l-transparent',
               dropTarget === 'unfiled' ? 'ring-2 ring-inset ring-blue-400 bg-blue-50' : ''
             ]"
             @click="selectedFolderFilter = 'unfiled'"
@@ -147,9 +149,9 @@
           >
           <div v-for="folder in paginatedOwnedFolders" :key="folder.id">
             <div
-              class="group flex items-center gap-2 px-3.5 py-2.5 transition-colors cursor-pointer"
+              class="group flex items-center gap-2 px-3.5 py-2.5 transition-colors cursor-pointer relative"
               :class="[
-                selectedFolderFilter === folder.id ? 'bg-blue-50 text-blue-700' : 'text-slate-700 hover:bg-slate-50',
+                selectedFolderFilter === folder.id ? 'bg-blue-50 text-blue-700 border-l-4 border-l-blue-500' : 'text-slate-700 hover:bg-slate-50 border-l-4 border-l-transparent',
                 dropTarget === folder.id ? 'ring-2 ring-inset ring-blue-400 bg-blue-50' : ''
               ]"
               @click="selectedFolderFilter = folder.id"
@@ -225,9 +227,9 @@
             <div class="px-3.5 py-1.5 text-[0.65rem] font-semibold text-slate-400 uppercase tracking-wide border-t border-slate-100">Shared with me</div>
             <div v-for="folder in sharedFolders" :key="folder.id">
               <div
-                class="group flex items-center gap-2 px-3.5 py-2.5 transition-colors cursor-pointer"
+                class="group flex items-center gap-2 px-3.5 py-2.5 transition-colors cursor-pointer relative"
                 :class="[
-                  selectedFolderFilter === folder.id ? 'bg-blue-50 text-blue-700' : 'text-slate-700 hover:bg-slate-50',
+                  selectedFolderFilter === folder.id ? 'bg-blue-50 text-blue-700 border-l-4 border-l-blue-500' : 'text-slate-700 hover:bg-slate-50 border-l-4 border-l-transparent',
                   dropTarget === folder.id ? 'ring-2 ring-inset ring-blue-400 bg-blue-50' : ''
                 ]"
                 @click="selectedFolderFilter = folder.id"
@@ -344,17 +346,26 @@
         <!-- Empty state -->
         <div
           v-else-if="visibleQuestions.length === 0"
-          class="bg-white rounded-xl border border-slate-200 flex flex-col items-center gap-4 py-14 px-6 text-center"
+          class="bg-white rounded-xl border border-slate-200 flex flex-col items-center gap-4 py-16 px-6 text-center"
         >
-          <div class="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center">
-            <BookOpen class="w-7 h-7 text-blue-600" />
+          <div class="relative">
+            <div class="w-20 h-20 bg-gradient-to-br from-blue-100 to-blue-50 rounded-2xl flex items-center justify-center">
+              <BookOpen class="w-10 h-10 text-blue-600" />
+            </div>
+            <div class="absolute -top-2 -right-2 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+              <Plus class="w-5 h-5 text-white" />
+            </div>
           </div>
           <div>
-            <p class="font-semibold text-slate-900 mb-1">No questions here</p>
-            <p class="text-sm text-slate-500">Add your first question to get started</p>
+            <p class="font-bold text-slate-900 text-lg mb-2">No questions here</p>
+            <p class="text-sm text-slate-500 max-w-sm">
+              {{ selectedFolderFilter === null 
+                ? 'Start building your question bank by adding your first question.' 
+                : 'This folder is empty. Add questions or move them from other folders.' }}
+            </p>
           </div>
           <button
-            class="inline-flex items-center gap-2 bg-primary hover:bg-primary-hover text-white text-sm font-semibold px-4 py-2 rounded-full transition cursor-pointer"
+            class="inline-flex items-center gap-2 bg-primary hover:bg-primary-hover text-white text-sm font-semibold px-5 py-2.5 rounded-full transition cursor-pointer shadow-sm"
             @click="openCreate"
           >
             <Plus class="w-4 h-4" />
@@ -365,8 +376,11 @@
         <!-- Question list (All view — read only) -->
         <div v-else-if="selectedFolderFilter === null" class="bg-white rounded-xl border border-slate-200 overflow-hidden">
           <div v-for="(q, i) in questions" :key="q.id"
-            class="flex items-center gap-3 px-5 py-3.5 border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors"
-            :class="{ 'question-highlight': highlightedQuestionIds.has(q.id) }"
+            class="flex items-center gap-3 px-5 py-3.5 border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors relative"
+            :class="[
+              { 'question-highlight': highlightedQuestionIds.has(q.id) },
+              getQuestionTypeBorderClass(q)
+            ]"
           >
             <button
               class="w-5 h-5 rounded flex items-center justify-center flex-shrink-0 cursor-pointer"
@@ -440,8 +454,11 @@
             @end="persistUnfiledQuestionsReorder"
           >
             <div v-for="(q, i) in unfiledQuestions" :key="q.id"
-              class="flex items-center gap-3 px-5 py-3.5 border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors select-none"
-              :class="{ 'opacity-50': draggingQuestions.some(dq => dq.id === q.id), 'question-highlight': highlightedQuestionIds.has(q.id) }"
+              class="flex items-center gap-3 px-5 py-3.5 border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors select-none relative"
+              :class="[
+                { 'opacity-50': draggingQuestions.some(dq => dq.id === q.id), 'question-highlight': highlightedQuestionIds.has(q.id) },
+                getQuestionTypeBorderClass(q)
+              ]"
               draggable="true"
               @dragstart="onDragStartFolder(q, $event)"
               @dragend="onDragEnd"
@@ -522,8 +539,11 @@
             @end="persistFolderQuestionsReorder"
           >
             <div v-for="(q, i) in folderQuestions" :key="q.id"
-              class="flex items-center gap-3 px-5 py-3.5 border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors select-none"
-              :class="{ 'opacity-50': draggingQuestions.some(dq => dq.id === q.id), 'question-highlight': highlightedQuestionIds.has(q.id) }"
+              class="flex items-center gap-3 px-5 py-3.5 border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors select-none relative"
+              :class="[
+                { 'opacity-50': draggingQuestions.some(dq => dq.id === q.id), 'question-highlight': highlightedQuestionIds.has(q.id) },
+                getQuestionTypeBorderClass(q)
+              ]"
               draggable="true"
               @dragstart="onDragStartFolder(q, $event)"
               @dragend="onDragEnd"
@@ -992,6 +1012,14 @@ function formatRelative(iso: string | null): string {
   const months = Math.floor(days / 30)
   if (months < 12) return `${months}mo ago`
   return `${Math.floor(months / 12)}y ago`
+}
+
+function getQuestionTypeBorderClass(q: Question): string {
+  if (q.isBriefing) return 'border-l-4 border-l-amber-400'
+  if (q.expectsTextInput) return 'border-l-4 border-l-emerald-400'
+  if (q.expectPhoto) return 'border-l-4 border-l-violet-400'
+  if (q.options && q.options.length > 0) return 'border-l-4 border-l-blue-400'
+  return ''
 }
 
 // -- Questions --------------------------------------------------------------

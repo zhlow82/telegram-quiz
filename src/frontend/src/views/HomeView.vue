@@ -42,14 +42,14 @@
           <!-- Total Questions -->
           <router-link
             to="/questions"
-            class="bg-white rounded-xl border border-slate-200 p-5 hover:border-blue-300 hover:shadow-sm transition-all cursor-pointer no-underline group"
+            class="bg-white rounded-xl border border-slate-200 p-5 hover:border-blue-300 hover:shadow-md hover:scale-[1.02] transition-all cursor-pointer no-underline group"
           >
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-[0.6875rem] uppercase tracking-[0.07em] text-slate-500 font-semibold mb-1">Questions</p>
                 <p class="text-2xl font-black text-slate-900">{{ questionCount }}</p>
               </div>
-              <div class="w-[42px] h-[42px] min-w-[42px] rounded-xl flex items-center justify-center bg-blue-50 group-hover:bg-blue-100 transition-colors">
+              <div class="w-[42px] h-[42px] min-w-[42px] rounded-xl flex items-center justify-center bg-blue-50 group-hover:bg-blue-100 group-hover:scale-110 transition-all">
                 <BookOpen class="w-5 h-5 text-blue-600" />
               </div>
             </div>
@@ -58,44 +58,50 @@
           <!-- Active Quizzes -->
           <router-link
             to="/quizzes"
-            class="bg-white rounded-xl border border-slate-200 p-5 hover:border-green-300 hover:shadow-sm transition-all cursor-pointer no-underline group"
+            class="bg-white rounded-xl border border-slate-200 p-5 hover:border-green-300 hover:shadow-md hover:scale-[1.02] transition-all cursor-pointer no-underline group"
           >
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-[0.6875rem] uppercase tracking-[0.07em] text-slate-500 font-semibold mb-1">Active Quizzes</p>
                 <p class="text-2xl font-black text-slate-900">{{ activeQuizCount }}</p>
               </div>
-              <div class="w-[42px] h-[42px] min-w-[42px] rounded-xl flex items-center justify-center bg-green-50 group-hover:bg-green-100 transition-colors">
+              <div class="w-[42px] h-[42px] min-w-[42px] rounded-xl flex items-center justify-center bg-green-50 group-hover:bg-green-100 group-hover:scale-110 transition-all">
                 <Zap class="w-5 h-5 text-green-600" />
               </div>
             </div>
           </router-link>
 
           <!-- Total Participants -->
-          <div class="bg-white rounded-xl border border-slate-200 p-5">
+          <router-link
+            to="/quizzes"
+            class="bg-white rounded-xl border border-slate-200 p-5 hover:border-amber-300 hover:shadow-md hover:scale-[1.02] transition-all cursor-pointer no-underline group"
+          >
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-[0.6875rem] uppercase tracking-[0.07em] text-slate-500 font-semibold mb-1">Participants</p>
                 <p class="text-2xl font-black text-slate-900">{{ totalParticipants }}</p>
               </div>
-              <div class="w-[42px] h-[42px] min-w-[42px] rounded-xl flex items-center justify-center bg-amber-50">
+              <div class="w-[42px] h-[42px] min-w-[42px] rounded-xl flex items-center justify-center bg-amber-50 group-hover:bg-amber-100 group-hover:scale-110 transition-all">
                 <Users class="w-5 h-5 text-amber-600" />
               </div>
             </div>
-          </div>
+          </router-link>
 
           <!-- Pass Rate -->
-          <div class="bg-white rounded-xl border border-slate-200 p-5">
+          <router-link
+            to="/quizzes"
+            class="bg-white rounded-xl border border-slate-200 p-5 hover:border-purple-300 hover:shadow-md hover:scale-[1.02] transition-all cursor-pointer no-underline group"
+          >
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-[0.6875rem] uppercase tracking-[0.07em] text-slate-500 font-semibold mb-1">Pass Rate</p>
                 <p class="text-2xl font-black text-slate-900">{{ overallPassRate }}%</p>
               </div>
-              <div class="w-[42px] h-[42px] min-w-[42px] rounded-xl flex items-center justify-center bg-purple-50">
+              <div class="w-[42px] h-[42px] min-w-[42px] rounded-xl flex items-center justify-center bg-purple-50 group-hover:bg-purple-100 group-hover:scale-110 transition-all">
                 <Trophy class="w-5 h-5 text-purple-600" />
               </div>
             </div>
-          </div>
+          </router-link>
         </div>
 
         <!-- Two column layout -->
@@ -235,7 +241,13 @@
                   {{ p.firstName }}
                   <span v-if="p.username" class="text-slate-400 font-normal text-xs ml-1">@{{ p.username }}</span>
                 </p>
-                <p class="text-xs text-slate-400 mt-0.5">{{ p.quizName }} · {{ formatDate(p.startedAt) }}</p>
+                <p class="text-xs text-slate-400 mt-0.5">
+                  <router-link :to="`/quizzes/${p.quizId}/participants`" class="text-blue-600 hover:text-blue-700 hover:underline font-medium">
+                    {{ p.quizName }}
+                  </router-link>
+                  <span class="mx-1">·</span>
+                  {{ formatDate(p.startedAt) }}
+                </p>
               </div>
               <!-- Result -->
               <div class="flex flex-col items-end gap-0.5 flex-shrink-0">
@@ -291,6 +303,7 @@ const recentParticipants = ref<Array<{
   sessionId: number
   firstName: string
   username: string | null
+  quizId: number
   quizName: string
   score: number
   totalQuestions: number
@@ -353,6 +366,7 @@ onMounted(async () => {
             sessionId: s.id,
             firstName: s.telegramFirstName,
             username: s.telegramUsername,
+            quizId,
             quizName,
             score: s.score,
             totalQuestions: s.totalQuestions,

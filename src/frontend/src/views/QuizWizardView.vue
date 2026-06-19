@@ -15,13 +15,45 @@
     </div>
 
     <!-- Step progress bar -->
-    <div class="flex items-center gap-1.5 mb-8">
+    <div class="flex items-center justify-between mb-16 max-w-3xl mx-auto">
       <div
         v-for="s in TOTAL_STEPS"
         :key="s"
-        class="h-1.5 rounded-full flex-1 transition-colors duration-300"
-        :class="s <= step ? 'bg-blue-600' : 'bg-slate-200'"
-      ></div>
+        class="flex items-center"
+        :class="s < TOTAL_STEPS ? 'flex-1' : ''"
+      >
+        <!-- Step circle -->
+        <div class="relative flex items-center justify-center">
+          <div
+            class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300 border-2"
+            :class="{
+              'bg-blue-600 border-blue-600 text-white': s <= step,
+              'bg-white border-slate-300 text-slate-400': s > step
+            }"
+          >
+            <CheckCircle v-if="s < step" class="w-5 h-5" />
+            <span v-else>{{ s }}</span>
+          </div>
+          <!-- Step label -->
+          <div class="absolute top-12 left-1/2 -translate-x-1/2 whitespace-nowrap">
+            <span
+              class="text-xs font-medium"
+              :class="{
+                'text-blue-600': s <= step,
+                'text-slate-400': s > step
+              }"
+            >
+              {{ getStepLabel(s) }}
+            </span>
+          </div>
+        </div>
+        <!-- Connector line -->
+        <div
+          v-if="s < TOTAL_STEPS"
+          class="flex-1 h-0.5 mx-2 transition-colors duration-300"
+          :class="s < step ? 'bg-blue-600' : 'bg-slate-200'"
+        ></div>
+      </div>
     </div>
 
     <!-- ── Step 1: BotFather instructions ─────────────────────────────── -->
@@ -242,6 +274,39 @@
               placeholder="Search questions…"
               class="flex-1 text-sm text-slate-700 placeholder-slate-400 bg-transparent outline-none"
             />
+          </div>
+          <!-- Question type filter tabs -->
+          <div class="flex flex-wrap gap-1.5">
+            <button
+              type="button"
+              class="px-2.5 py-1 rounded-lg text-xs font-semibold transition cursor-pointer border"
+              :class="typeFilter === null ? 'bg-slate-700 text-white border-slate-700' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'"
+              @click="typeFilter = null"
+            >All</button>
+            <button
+              type="button"
+              class="px-2.5 py-1 rounded-lg text-xs font-semibold transition cursor-pointer border"
+              :class="typeFilter === 'mcq' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-blue-600 border-blue-200 hover:bg-blue-50'"
+              @click="typeFilter = 'mcq'"
+            >MCQ</button>
+            <button
+              type="button"
+              class="px-2.5 py-1 rounded-lg text-xs font-semibold transition cursor-pointer border"
+              :class="typeFilter === 'photo' ? 'bg-violet-600 text-white border-violet-600' : 'bg-white text-violet-600 border-violet-200 hover:bg-violet-50'"
+              @click="typeFilter = 'photo'"
+            >Photo</button>
+            <button
+              type="button"
+              class="px-2.5 py-1 rounded-lg text-xs font-semibold transition cursor-pointer border"
+              :class="typeFilter === 'briefing' ? 'bg-amber-600 text-white border-amber-600' : 'bg-white text-amber-600 border-amber-200 hover:bg-amber-50'"
+              @click="typeFilter = 'briefing'"
+            >Briefing</button>
+            <button
+              type="button"
+              class="px-2.5 py-1 rounded-lg text-xs font-semibold transition cursor-pointer border"
+              :class="typeFilter === 'team' ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-white text-emerald-600 border-emerald-200 hover:bg-emerald-50'"
+              @click="typeFilter = 'team'"
+            >Team Input</button>
           </div>
           <div class="bg-white border border-slate-200 rounded-xl overflow-hidden max-h-96 overflow-y-auto">
             <div v-if="questionsLoading" class="px-4 py-6 text-center text-sm text-slate-400">Loading…</div>
@@ -529,6 +594,11 @@ function questionTypeBadgeClass(q: Question): string {
   return 'text-slate-600 bg-slate-100'
 }
 
+function getStepLabel(step: number): string {
+  const labels = ['Bot Setup', 'Token', 'Settings', 'Questions', 'Review']
+  return labels[step - 1] || ''
+}
+
 const router = useRouter()
 const route = useRoute()
 const toast = useToast()
@@ -580,6 +650,7 @@ const questionsLoading = ref(false)
 const questionSearch = ref('')
 const folders = ref<Folder[]>([])
 const folderFilter = ref<number | 'unfiled' | null>(null)
+const typeFilter = ref<'mcq' | 'photo' | 'briefing' | 'team' | null>(null)
 
 // Step 5
 const submitting = ref(false)
@@ -646,6 +717,10 @@ const unselectedQuestions = computed(() => {
     if (selectedIds.has(q.id)) return false
     if (folderFilter.value === 'unfiled' && q.folderId !== null) return false
     if (typeof folderFilter.value === 'number' && q.folderId !== folderFilter.value) return false
+    if (typeFilter.value === 'mcq' && (!q.options || q.options.length === 0)) return false
+    if (typeFilter.value === 'photo' && !q.expectPhoto) return false
+    if (typeFilter.value === 'briefing' && !q.isBriefing) return false
+    if (typeFilter.value === 'team' && !q.expectsTextInput) return false
     if (!search) return true
     const text = q.questionBlocks.find(b => b.type === 'text')?.content || ''
     return text.toLowerCase().includes(search)

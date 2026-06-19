@@ -22,7 +22,14 @@
           <CheckCircle v-if="toast.type === 'success'" class="w-4 h-4 flex-shrink-0" />
           <AlertCircle v-else-if="toast.type === 'error'" class="w-4 h-4 flex-shrink-0" />
           <Info v-else class="w-4 h-4 flex-shrink-0" />
-          {{ toast.message }}
+          <span>{{ toast.message }}</span>
+          <button
+            v-if="toast.action"
+            class="ml-2 px-2 py-0.5 rounded-md text-xs font-bold uppercase tracking-wide bg-white/20 hover:bg-white/30 text-white transition cursor-pointer"
+            @click="toast.action.onClick()"
+          >
+            {{ toast.action.label }}
+          </button>
         </div>
       </transition-group>
     </div>
