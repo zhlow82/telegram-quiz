@@ -18,7 +18,7 @@ tar -a -c -f "%ZIP_NAME%" ^
     --exclude "src/frontend/dist" ^
     --exclude ".git" ^
     --exclude ".env" ^
-    src docker-compose.yml start.bat stop.bat zip.bat SETUP-GUIDE.txt README.md
+    src docker-compose.yml start.bat stop.bat SETUP-GUIDE.txt
 
 if %errorlevel% neq 0 (
     echo.

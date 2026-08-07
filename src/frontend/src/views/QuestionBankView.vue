@@ -651,7 +651,7 @@
   <ExportModal
     :visible="exportModalVisible"
     :selected-count="selectedQuestionIds.size"
-    :question-ids="Array.from(selectedQuestionIds)"
+    :question-ids="exportQuestionIds"
     @close="exportModalVisible = false"
     @exported="clearSelection"
   />
@@ -828,6 +828,11 @@ function toggleSelect(id: number) {
 function clearSelection() {
   selectedQuestionIds.value = new Set()
 }
+
+// Export preserves the visible (sorted) order of the selected questions
+const exportQuestionIds = computed(() =>
+  visibleQuestions.value.filter(q => selectedQuestionIds.value.has(q.id)).map(q => q.id)
+)
 
 // -- Export/Import modals ---------------------------------------------------
 const exportModalVisible = ref(false)

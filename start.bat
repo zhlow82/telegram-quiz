@@ -55,7 +55,7 @@ set /a attempts=0
 :wait_loop
 set /a attempts+=1
 if %attempts% gtr 45 goto :wait_timeout
-powershell -Command "try { $r = Invoke-WebRequest -Uri 'http://localhost/tg-quiz' -UseBasicParsing -TimeoutSec 3; if ($r.StatusCode -eq 200) { exit 0 } else { exit 1 } } catch { exit 1 }" >nul 2>&1
+powershell -Command "try { $r = Invoke-WebRequest -Uri 'http://localhost/tg-quiz/' -UseBasicParsing -TimeoutSec 3; if ($r.StatusCode -eq 200) { exit 0 } else { exit 1 } } catch { exit 1 }" >nul 2>&1
 if %errorlevel% equ 0 goto :ready
 timeout /t 2 /nobreak >nul
 goto :wait_loop

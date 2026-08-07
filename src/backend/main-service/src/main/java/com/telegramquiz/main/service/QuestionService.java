@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
@@ -172,8 +173,12 @@ public class QuestionService {
     public ExportResponseDto exportQuestions(ExportRequestDto dto, String username) {
         List<Question> questions = questionRepository.findAllAccessibleByIds(
                 dto.questionIds(), username, FolderMemberStatus.ACCEPTED);
+        Map<Long, Question> byId = questions.stream()
+                .collect(Collectors.toMap(Question::getId, q -> q));
 
-        List<ExportedQuestionDto> exported = questions.stream()
+        List<ExportedQuestionDto> exported = dto.questionIds().stream()
+                .map(byId::get)
+                .filter(Objects::nonNull)
                 .map(q -> toExportedDto(q, dto.includeImages()))
                 .toList();
 
