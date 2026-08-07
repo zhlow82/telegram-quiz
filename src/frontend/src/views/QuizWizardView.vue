@@ -616,7 +616,7 @@ const tokenWarning = ref('')
 // Step 3 — quiz config
 const quizName = ref('')
 type TimingMode = 'none' | 'per-question' | 'total'
-const timingMode = ref<TimingMode>('per-question')
+const timingMode = ref<TimingMode>('none')
 const timePerQuestion = ref(30)
 const totalQuizTimeSeconds = ref(600)
 const passScorePercent = ref(60)

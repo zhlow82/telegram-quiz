@@ -1,0 +1,103 @@
+========================================================
+  TELEGRAM QUIZ - USER GUIDE
+  How to use the application
+========================================================
+
+  This guide explains the everyday tasks: creating
+  questions, building quizzes, running them on Telegram,
+  and watching results.
+
+
+--------------------------------------------------------
+  1. QUESTION BANK - CREATE QUESTIONS
+--------------------------------------------------------
+
+  - Open the "Question Bank" page (left menu)
+  - Click "Add Question" (top right) and pick a type:
+
+    * Multiple Choice - players pick from the options
+    * Photo - players send a photo as their answer
+    * Briefing - an intro / info screen for players
+    * Team Input - players enter their team name
+
+  - Fill in the question text, options, and the correct
+    answer, then Save
+  - Tip: use the left sidebar to create folders and drag
+    questions into them to stay organised
+  - Tips:
+    * Drag a JSON file anywhere onto the page to import
+      previously exported questions
+    * Drag an image from your computer onto an image
+      block to add it as the question picture
+    * In a Team Input question, use {{player_input}} in
+      the text - it is replaced with the player's team name
+      when they type it in Telegram
+
+
+--------------------------------------------------------
+  2. CREATE A QUIZ
+--------------------------------------------------------
+
+  - Click "Create Quiz" (top right of the Quizzes page)
+  - Step 1: read the BotFather instructions
+  - Step 2: paste your bot token and click "Validate"
+  - Step 3: set the quiz name, timing and pass score
+  - Step 4: click questions to add them (drag to reorder)
+  - Step 5: review everything and click "Create Quiz"
+
+  Where do I get a bot token?
+    - Open Telegram, search for @BotFather
+    - Send the command /newbot and follow the prompts
+    - BotFather replies with your bot token - paste it into
+      the quiz wizard (Step 2)
+    - Already have a bot? You can reuse an existing bot token.
+
+  Note: each bot token can only power one active quiz at
+  a time. Stop the other quiz first if it uses the same bot.
+
+
+--------------------------------------------------------
+  3. START THE QUIZ
+--------------------------------------------------------
+
+  - On the Quizzes page, click "Start" on your quiz
+  - When the quiz is live, click the QR icon and share
+    the bot link (https://t.me/YourBotName) with players
+  - Players open the bot in Telegram and press /start
+  - During the quiz:
+    * Players answer with the option buttons (or a photo
+      for photo questions)
+    * They can tap the Hint button once per question
+    * Photo questions: players can re-attach their photo
+      before clicking "Next Question"
+    * After the last question, each player gets a summary:
+      score, pass/fail, time taken, and hints used
+
+  Note: changes to questions in the Question Bank do NOT
+  apply to a running quiz. Stop the quiz and start it again
+  to use updated questions.
+
+
+--------------------------------------------------------
+  4. WATCH RESULTS LIVE
+--------------------------------------------------------
+
+  - Click a quiz to open its Participants page
+  - See attempts, pass rate, and each player's answers
+  - Use the search box and the sort menu (e.g. highest
+    score first) to find players
+  - Click a player to view their detailed answers
+  - Click "Stop" on the Quizzes page when the quiz is over
+
+
+--------------------------------------------------------
+  5. DASHBOARD
+--------------------------------------------------------
+
+  - The home page gives you an overview: question count,
+    active quizzes, participants, and pass rate
+  - The "Recent participants" list shows the 20 most recent
+    players - click one to jump to their details
+
+
+========================================================
