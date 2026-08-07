@@ -28,6 +28,13 @@ spring:
                     redis-rate-limiter.requestedTokens: 1
                     key-resolver: "#{@ipKeyResolver}"
 
+            - id: auth-oauth2
+              uri: ${AUTH_SERVICE_URL:http://localhost:8081}
+              predicates:
+                - Path=/oauth2/**,/login/oauth2/**
+              filters:
+                - RemoveRequestHeader=Origin
+
             - id: main-service
               uri: ${MAIN_SERVICE_URL:http://localhost:8082}
               predicates:

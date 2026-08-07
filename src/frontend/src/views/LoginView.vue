@@ -127,7 +127,7 @@
           </div>
           <a
             v-if="googleConfigured"
-            href="http://localhost:8081/oauth2/authorization/google"
+            :href="`${baseUrl}oauth2/authorization/google`"
             class="w-full flex items-center justify-center gap-2.5 border border-slate-200 rounded-xl py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition cursor-pointer no-underline"
           >
             <svg class="w-4 h-4" viewBox="0 0 24 24">
@@ -159,6 +159,8 @@ import api from '@/services/api'
 const router = useRouter()
 const authStore = useAuthStore()
 const brandingStore = useBrandingStore()
+
+const baseUrl = import.meta.env.BASE_URL
 
 const form = ref({ username: '', password: '' })
 const error = ref('')

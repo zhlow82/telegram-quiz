@@ -1,3 +1,5 @@
+name: telegram-quiz-dev
+
 services:
   dev:
     build:

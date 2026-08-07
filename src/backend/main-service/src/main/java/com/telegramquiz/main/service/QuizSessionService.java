@@ -139,6 +139,11 @@ public class QuizSessionService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
+    public java.util.Optional<Long> findQuizIdBySessionId(Long sessionId) {
+        return repository.findById(sessionId).map(QuizSession::getQuizId);
+    }
+
     @Scheduled(fixedRate = 3600000)
     @Transactional
     public void cleanupAbandonedSessions() {

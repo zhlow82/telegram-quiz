@@ -1,10 +1,10 @@
 <template>
   <AppLayout>
     <!-- Header -->
-    <div class="flex items-center gap-4 pb-6 mb-6 border-b border-slate-200">
+    <div class="flex items-center gap-4 pb-6 mb-6 border-b border-slate-200 flex-wrap">
       <router-link
         to="/quizzes"
-        class="w-9 h-9 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-center text-slate-500 hover:text-slate-700 transition no-underline flex-shrink-0"
+        class="w-9 h-9 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-center text-slate-500 hover:text-slate-700 transition no-underline flex-shrink-0"
       >
         <ChevronLeft class="w-4 h-4" />
       </router-link>
@@ -27,7 +27,7 @@
           <div
             class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300 border-2"
             :class="{
-              'bg-blue-600 border-blue-600 text-white': s <= step,
+              'bg-primary border-primary text-white': s <= step,
               'bg-white border-slate-300 text-slate-400': s > step
             }"
           >
@@ -39,7 +39,7 @@
             <span
               class="text-xs font-medium"
               :class="{
-                'text-blue-600': s <= step,
+                'text-primary': s <= step,
                 'text-slate-400': s > step
               }"
             >
@@ -51,7 +51,7 @@
         <div
           v-if="s < TOTAL_STEPS"
           class="flex-1 h-0.5 mx-2 transition-colors duration-300"
-          :class="s < step ? 'bg-blue-600' : 'bg-slate-200'"
+          :class="s < step ? 'bg-primary' : 'bg-slate-200'"
         ></div>
       </div>
     </div>
@@ -71,23 +71,23 @@
         </div>
         <ol class="space-y-3 text-sm text-slate-700">
           <li class="flex gap-3">
-            <span class="w-6 h-6 rounded-full bg-blue-600 text-white text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">1</span>
+            <span class="w-6 h-6 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">1</span>
             <span>Open Telegram and search for <strong class="font-semibold">@BotFather</strong> (the official bot with a blue checkmark)</span>
           </li>
           <li class="flex gap-3">
-            <span class="w-6 h-6 rounded-full bg-blue-600 text-white text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">2</span>
+            <span class="w-6 h-6 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">2</span>
             <span>Send the command <code class="bg-white border border-blue-200 px-1.5 py-0.5 rounded text-blue-700 font-mono text-xs">/newbot</code> to BotFather</span>
           </li>
           <li class="flex gap-3">
-            <span class="w-6 h-6 rounded-full bg-blue-600 text-white text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">3</span>
+            <span class="w-6 h-6 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">3</span>
             <span>Follow the prompts — choose a name and a unique username ending in <code class="bg-white border border-blue-200 px-1.5 py-0.5 rounded text-blue-700 font-mono text-xs">bot</code></span>
           </li>
           <li class="flex gap-3">
-            <span class="w-6 h-6 rounded-full bg-blue-600 text-white text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">4</span>
+            <span class="w-6 h-6 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">4</span>
             <span>BotFather will reply with your <strong class="font-semibold">bot token</strong> — a long string like <code class="bg-white border border-blue-200 px-1.5 py-0.5 rounded text-blue-700 font-mono text-xs">123456789:ABC...</code></span>
           </li>
           <li class="flex gap-3">
-            <span class="w-6 h-6 rounded-full bg-blue-600 text-white text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">5</span>
+            <span class="w-6 h-6 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">5</span>
             <span>Copy that token — you'll paste it in the next step</span>
           </li>
         </ol>
@@ -114,7 +114,7 @@
             type="password"
             placeholder="123456789:ABCDEFGHIJKLMNabcdefghijklmn"
             class="flex-1 px-3 py-2.5 text-sm border rounded-xl outline-none transition bg-white text-slate-900 placeholder-slate-400 font-mono"
-            :class="tokenError ? 'border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-500/20' : 'border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20'"
+            :class="tokenError ? 'border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-500/20' : 'border-slate-200 focus:border-primary focus:ring-2 focus:ring-primary/20'"
             @input="botValidated = false; tokenError = ''"
             @keydown.enter="validateToken"
           />
@@ -150,7 +150,7 @@
             v-model="quizName"
             type="text"
             placeholder="e.g. Geography Round 1"
-            class="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-xl outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-white text-slate-900 placeholder-slate-400 transition"
+            class="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-xl outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 bg-white text-slate-900 placeholder-slate-400 transition"
           />
         </div>
 
@@ -173,12 +173,12 @@
               type="button"
               class="flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition cursor-pointer"
               :class="timingMode === 'per-question'
-                ? 'border-blue-500 bg-blue-50'
+                ? 'border-primary bg-sky-50'
                 : 'border-slate-200 bg-white hover:border-slate-300'"
               @click="timingMode = 'per-question'"
             >
-              <Clock class="w-5 h-5" :class="timingMode === 'per-question' ? 'text-blue-600' : 'text-slate-400'" />
-              <span class="text-xs font-semibold" :class="timingMode === 'per-question' ? 'text-blue-700' : 'text-slate-500'">Per Question</span>
+              <Clock class="w-5 h-5" :class="timingMode === 'per-question' ? 'text-primary' : 'text-slate-400'" />
+              <span class="text-xs font-semibold" :class="timingMode === 'per-question' ? 'text-primary' : 'text-slate-500'">Per Question</span>
             </button>
             <button
               type="button"
@@ -203,7 +203,7 @@
               type="number"
               min="5"
               max="300"
-              class="w-full px-3 py-2.5 pr-10 text-sm border border-slate-200 rounded-xl outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-white text-slate-900 transition"
+              class="w-full px-3 py-2.5 pr-10 text-sm border border-slate-200 rounded-xl outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 bg-white text-slate-900 transition"
             />
             <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400">sec</span>
           </div>
@@ -234,7 +234,7 @@
               type="number"
               min="0"
               max="100"
-              class="w-full px-3 py-2.5 pr-8 text-sm border border-slate-200 rounded-xl outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-white text-slate-900 transition"
+              class="w-full px-3 py-2.5 pr-8 text-sm border border-slate-200 rounded-xl outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 bg-white text-slate-900 transition"
             />
             <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400">%</span>
           </div>
@@ -259,7 +259,7 @@
             <FolderOpen class="w-4 h-4 text-slate-400 flex-shrink-0" />
             <select
               v-model="folderFilter"
-              class="flex-1 text-sm text-slate-700 bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition cursor-pointer"
+              class="flex-1 text-sm text-slate-700 bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition cursor-pointer"
             >
               <option :value="null">All folders</option>
               <option value="unfiled">Unfiled</option>
@@ -286,7 +286,7 @@
             <button
               type="button"
               class="px-2.5 py-1 rounded-lg text-xs font-semibold transition cursor-pointer border"
-              :class="typeFilter === 'mcq' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-blue-600 border-blue-200 hover:bg-blue-50'"
+              :class="typeFilter === 'mcq' ? 'bg-primary text-white border-primary' : 'bg-white text-primary border-primary/30 hover:bg-sky-50'"
               @click="typeFilter = 'mcq'"
             >MCQ</button>
             <button
@@ -324,7 +324,7 @@
               class="w-full text-left px-4 py-3 border-b border-slate-100 last:border-0 hover:bg-blue-50 transition-colors cursor-pointer flex items-center gap-3"
               @click="selectQuestion(q)"
             >
-              <Plus class="w-4 h-4 text-blue-500 flex-shrink-0" />
+              <Plus class="w-4 h-4 text-primary flex-shrink-0" />
               <div v-if="q.questionBlocks.find(b => b.type === 'image')" class="relative w-10 h-10 flex-shrink-0">
                 <img
                   :src="`/api/files/${q.questionBlocks.find(b => b.type === 'image')!.content}`"
@@ -356,7 +356,7 @@
         <div class="space-y-2">
           <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Selected ({{ selectedQuestions.length }})</p>
           <!-- Points summary card -->
-          <div v-if="selectedQuestions.length > 0 && totalPoints > 0" class="flex items-stretch gap-2 bg-white border border-slate-200 rounded-xl overflow-hidden">
+          <div v-if="selectedQuestions.length > 0" class="flex items-stretch gap-2 bg-white border border-slate-200 rounded-xl overflow-hidden">
             <div class="flex-1 flex flex-col items-center justify-center py-3 px-4 border-r border-slate-100">
               <span class="text-2xl font-black text-slate-900 leading-none">{{ totalPoints }}</span>
               <span class="text-[0.65rem] font-semibold text-slate-400 uppercase tracking-wide mt-1">Total pts</span>
@@ -509,7 +509,7 @@
       <button
         v-if="step > 1"
         type="button"
-        class="px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 transition cursor-pointer"
+        class="px-4 py-2.5 rounded-lg border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 transition cursor-pointer"
         @click="step--"
       >
         ← Back
@@ -518,31 +518,20 @@
       <div class="flex items-center gap-3">
         <button
           type="button"
-          class="px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 transition cursor-pointer"
+          class="px-4 py-2.5 rounded-lg border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 transition cursor-pointer"
           @click="router.push('/quizzes')"
         >
           Cancel
         </button>
-        <div
+        <button
           v-if="step < TOTAL_STEPS"
-          class="inline-flex"
-          :class="canProceed ? 'cursor-pointer' : 'cursor-not-allowed'"
-          role="button"
-          :tabindex="canProceed ? 0 : -1"
-          :aria-disabled="!canProceed"
+          type="button"
+          class="px-5 py-2.5 rounded-full bg-primary hover:bg-primary-hover text-white text-sm font-semibold transition cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+          :disabled="!canProceed"
           @click="nextStep"
-          @keydown.enter.prevent="nextStep"
-          @keydown.space.prevent="nextStep"
         >
-          <button
-            type="button"
-            class="px-5 py-2.5 rounded-full bg-primary hover:bg-primary-hover text-white text-sm font-semibold transition disabled:opacity-60 disabled:cursor-not-allowed"
-            :class="canProceed ? 'cursor-pointer' : 'pointer-events-none'"
-            :disabled="!canProceed"
-          >
-            Continue →
-          </button>
-        </div>
+          Continue →
+        </button>
         <button
           v-if="step === TOTAL_STEPS"
           type="button"
@@ -695,6 +684,7 @@ async function loadQuizForEdit() {
     }
     botName.value = quiz.botUsername || ''
     botUsername.value = quiz.botUsername || ''
+    botToken.value = quiz.botTokenMasked || ''
     botValidated.value = true
     if (quiz.questions) {
       selectedQuestions.value = quiz.questions

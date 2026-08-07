@@ -17,7 +17,9 @@ public class ChatQuizState {
     public volatile Integer lastMessageId = null;
     public volatile boolean waitingForTextInput = false;
     public volatile LocalDateTime questionStartedAt = null;
+    public volatile LocalDateTime deadline = null;
     private volatile ScheduledFuture<?> timeoutFuture = null;
+    private volatile ScheduledFuture<?> deadlineFuture = null;
 
     public ChatQuizState(long chatId, int totalQuestions,
                          long telegramUserId, String telegramUsername, String telegramFirstName) {
@@ -37,6 +39,18 @@ public class ChatQuizState {
         if (f != null) {
             f.cancel(false);
             timeoutFuture = null;
+        }
+    }
+
+    public void setDeadlineFuture(ScheduledFuture<?> future) {
+        this.deadlineFuture = future;
+    }
+
+    public void cancelDeadline() {
+        ScheduledFuture<?> f = deadlineFuture;
+        if (f != null) {
+            f.cancel(false);
+            deadlineFuture = null;
         }
     }
 }

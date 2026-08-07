@@ -38,7 +38,8 @@ services:
       - key: REDIS_PORT
         value: 6379
       - key: FRONTEND_URL
-        value: ${FRONTEND_URL}
+        # Set this to your frontend service's public URL, e.g. https://<your-frontend>.onrender.com
+        value: https://YOUR-FRONTEND.onrender.com
       - group: shared-secrets
 
   - type: web
@@ -85,6 +86,10 @@ services:
         value: http://auth-service:8081
       - key: MAIN_SERVICE_URL
         value: http://main-service:8082
+      - key: REDIS_HOST
+        value: telegram-quiz-redis
+      - key: REDIS_PORT
+        value: 6379
 
   - type: web
     name: frontend

@@ -8,6 +8,7 @@ public record QuizBotData(
         String botToken,
         String botUsername,
         int timePerQuestionSeconds,
+        int totalTimeLimitSeconds,
         int passScorePercent,
         List<QuizBotQuestion> questions
 ) {}

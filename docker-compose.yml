@@ -1,4 +1,4 @@
-version: '3.8'
+name: telegram-quiz
 
 services:
   postgres:
@@ -44,8 +44,8 @@ services:
       - DB_USERNAME=${POSTGRES_USER:-postgres}
       - DB_PASSWORD=${POSTGRES_PASSWORD:-postgres}
       - REDIS_HOST=redis
-      - JWT_SECRET=${JWT_SECRET:-dGVsZWdyYW1xdWl6LWp3dC1zZWNyZXQta2V5LWZvci1kZXZlbG9wbWVudC11c2Utb25seS0yMDI2}
-      - FRONTEND_URL=http://localhost/tg-quiz
+      - JWT_SECRET=${JWT_SECRET}
+      - FRONTEND_URL=${FRONTEND_URL:-http://localhost/tg-quiz}
     volumes:
       - auth-logs:/app/logs
     depends_on:
@@ -65,7 +65,7 @@ services:
       - DATABASE_URL=jdbc:postgresql://postgres:5432/${POSTGRES_DB:-postgres}
       - DB_USERNAME=${POSTGRES_USER:-postgres}
       - DB_PASSWORD=${POSTGRES_PASSWORD:-postgres}
-      - JWT_SECRET=${JWT_SECRET:-dGVsZWdyYW1xdWl6LWp3dC1zZWNyZXQta2V5LWZvci1kZXZlbG9wbWVudC11c2Utb25seS0yMDI2}
+      - JWT_SECRET=${JWT_SECRET}
       - BOT_TOKEN_ENCRYPTION_KEY=${BOT_TOKEN_ENCRYPTION_KEY:-ZGV2S2V5Rm9yVGVsZWdyYW1RdWl6QXBwMTIzNDU2Nzg=}
     volumes:
       - main-logs:/app/logs
@@ -87,6 +87,8 @@ services:
       - SPRING_PROFILES_ACTIVE=prod-vps
       - AUTH_SERVICE_URL=http://auth-service:8081
       - MAIN_SERVICE_URL=http://main-service:8082
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
     volumes:
       - gateway-logs:/app/logs
     ports:
@@ -94,6 +96,7 @@ services:
     depends_on:
       - auth-service
       - main-service
+      - redis
     restart: unless-stopped
 
   frontend:

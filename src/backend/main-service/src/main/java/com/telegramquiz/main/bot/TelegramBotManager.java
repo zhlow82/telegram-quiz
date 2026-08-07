@@ -81,6 +81,7 @@ public class TelegramBotManager {
                         token,
                         quiz.getBotUsername(),
                         quiz.getTimePerQuestionSeconds(),
+                        quiz.getTotalTimeLimitSeconds(),
                         quiz.getPassScorePercent(),
                         botQuestions
                 );

@@ -67,6 +67,9 @@ public class AuthService {
         }
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        if (!user.isActive()) {
+            throw new IllegalArgumentException("Account is deactivated");
+        }
         String role = user.getRoles().contains("ROLE_ADMIN") ? "ROLE_ADMIN" : "ROLE_MEMBER";
         return jwtUtil.generateAccessToken(username, user.getId(), role,
                 user.getGoogleSub() != null ? "google" : "local");

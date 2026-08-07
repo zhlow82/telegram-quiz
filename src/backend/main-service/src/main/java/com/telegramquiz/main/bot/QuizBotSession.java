@@ -97,6 +97,7 @@ public class QuizBotSession extends TelegramLongPollingBot {
         ChatQuizState existing = sessions.get(chatId);
         if (existing != null) {
             existing.cancelTimeout();
+            existing.cancelDeadline();
         }
 
         if (quizData.questions().isEmpty()) {
@@ -111,6 +112,11 @@ public class QuizBotSession extends TelegramLongPollingBot {
         ChatQuizState state = new ChatQuizState(chatId, scoredCount,
                 telegramUserId, telegramUsername, telegramFirstName);
         sessions.put(chatId, state);
+
+        if (quizData.totalTimeLimitSeconds() > 0) {
+            state.deadline = LocalDateTime.now().plusSeconds(quizData.totalTimeLimitSeconds());
+            startQuizDeadline(chatId, state);
+        }
 
         try {
             Long sessionId = sessionService.recordStarted(quizData.quizId(), scoredCount,
@@ -134,6 +140,10 @@ public class QuizBotSession extends TelegramLongPollingBot {
 
     private void sendCurrentQuestion(Long chatId, ChatQuizState state) {
         if (state.questionIndex >= quizData.questions().size()) {
+            endQuiz(chatId, state);
+            return;
+        }
+        if (state.deadline != null && LocalDateTime.now().isAfter(state.deadline)) {
             endQuiz(chatId, state);
             return;
         }
@@ -186,11 +196,15 @@ public class QuizBotSession extends TelegramLongPollingBot {
                     : "";
             sb.append(qText);
 
-            List<String> options = q.options();
-            boolean hasHint = q.hintBlocks() != null && !q.hintBlocks().isEmpty();
-            sendMessageWithKeyboard(chatId, sb.toString(), buildAnswerKeyboard(options, hasHint), result -> {
-                if (result != null) state.lastMessageId = result.getMessageId();
-            });
+            if (q.expectPhoto()) {
+                sendText(chatId, sb.toString());
+            } else {
+                List<String> options = q.options();
+                boolean hasHint = q.hintBlocks() != null && !q.hintBlocks().isEmpty();
+                sendMessageWithKeyboard(chatId, sb.toString(), buildAnswerKeyboard(options, hasHint), result -> {
+                    if (result != null) state.lastMessageId = result.getMessageId();
+                });
+            }
             if (quizData.timePerQuestionSeconds() > 0) {
                 startQuestionTimeout(chatId, state);
             }
@@ -246,6 +260,8 @@ public class QuizBotSession extends TelegramLongPollingBot {
             return;
         }
 
+        state.cancelTimeout();
+
         String fileId = message.getPhoto().get(message.getPhoto().size() - 1).getFileId();
         String caption = message.getCaption();
 
@@ -254,12 +270,13 @@ public class QuizBotSession extends TelegramLongPollingBot {
                 : null;
 
         try {
-            sessionService.recordAnswer(state.sessionId, q.id(), null, null,
+            sessionService.recordAnswer(state.sessionId, q.id(), null, true,
                     fileId, caption, responseTimeMs);
         } catch (Exception e) {
             log.warn("Could not record photo answer for session {}: {}", state.sessionId, e.getMessage());
         }
 
+        state.score++;
         sendText(chatId, "📸 Photo received! Moving to next question...");
         state.questionIndex++;
         scheduler.schedule(() -> sendCurrentQuestion(chatId, state), 2, TimeUnit.SECONDS);
@@ -396,6 +413,33 @@ public class QuizBotSession extends TelegramLongPollingBot {
             sendCurrentQuestion(chatId, state);
         }, 1, TimeUnit.SECONDS);
         state.setTimeoutFuture(future);
+    }
+
+    private void startQuizDeadline(Long chatId, ChatQuizState state) {
+        ScheduledFuture<?> future = scheduler.schedule(() -> {
+            ChatQuizState current = sessions.get(chatId);
+            if (current != state) return;
+
+            state.cancelTimeout();
+
+            if (state.questionIndex < quizData.questions().size()) {
+                QuizBotQuestion q = quizData.questions().get(state.questionIndex);
+                Integer responseTimeMs = state.questionStartedAt != null
+                        ? (int) java.time.Duration.between(state.questionStartedAt, LocalDateTime.now()).toMillis()
+                        : null;
+                try {
+                    sessionService.recordAnswer(state.sessionId, q.id(), null, false,
+                            null, null, responseTimeMs);
+                } catch (Exception e) {
+                    log.debug("Could not record deadline answer for session {}: {}", state.sessionId, e.getMessage());
+                }
+                Integer msgId = state.lastMessageId;
+                if (msgId != null) removeKeyboard(chatId, msgId);
+            }
+            sendText(chatId, "⏰ <b>Time's up!</b>");
+            endQuiz(chatId, state);
+        }, quizData.totalTimeLimitSeconds(), TimeUnit.SECONDS);
+        state.setDeadlineFuture(future);
     }
 
     private void endQuiz(Long chatId, ChatQuizState state) {
@@ -616,7 +660,10 @@ public class QuizBotSession extends TelegramLongPollingBot {
     }
 
     public void shutdown() {
-        sessions.values().forEach(ChatQuizState::cancelTimeout);
+        sessions.values().forEach(state -> {
+            state.cancelTimeout();
+            state.cancelDeadline();
+        });
         sessions.clear();
         scheduler.shutdownNow();
     }

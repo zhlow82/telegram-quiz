@@ -96,14 +96,24 @@ public class QuizController {
 
     @GetMapping("/sessions/{sessionId}/answers")
     public ResponseEntity<List<QuizSessionAnswerDto>> getSessionAnswers(
-            @PathVariable Long sessionId) {
+            @PathVariable Long sessionId,
+            @AuthenticationPrincipal String username) {
+        verifySessionAccess(sessionId, username);
         return ResponseEntity.ok(quizSessionService.getAnswersBySessionId(sessionId));
     }
 
     @GetMapping("/sessions/{sessionId}/photos")
     public ResponseEntity<byte[]> getSessionPhoto(
             @PathVariable Long sessionId,
-            @RequestParam("fileId") String photoFileId) {
+            @RequestParam("fileId") String photoFileId,
+            @AuthenticationPrincipal String username) {
+        verifySessionAccess(sessionId, username);
         return telegramFileService.downloadPhoto(sessionId, photoFileId);
+    }
+
+    private void verifySessionAccess(Long sessionId, String username) {
+        Long quizId = quizSessionService.findQuizIdBySessionId(sessionId)
+                .orElseThrow(() -> new jakarta.persistence.EntityNotFoundException("Session not found: " + sessionId));
+        quizService.findById(quizId, username);
     }
 }

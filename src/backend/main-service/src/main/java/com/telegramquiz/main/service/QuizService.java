@@ -207,6 +207,7 @@ public class QuizService {
                 decryptedToken,
                 quiz.getBotUsername(),
                 quiz.getTimePerQuestionSeconds(),
+                quiz.getTotalTimeLimitSeconds(),
                 quiz.getPassScorePercent(),
                 botQuestions
         );

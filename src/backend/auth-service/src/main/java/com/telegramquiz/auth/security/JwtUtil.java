@@ -43,6 +43,7 @@ public class JwtUtil {
     public String generateAccessToken(String username, Long userId, String role, String provider) {
         return Jwts.builder()
                 .subject(username)
+                .claim("type", "access")
                 .claim("userId", userId)
                 .claim("role", role)
                 .claim("provider", provider)
@@ -55,6 +56,7 @@ public class JwtUtil {
     public String generateRefreshToken(String username) {
         return Jwts.builder()
                 .subject(username)
+                .claim("type", "refresh")
                 .id(UUID.randomUUID().toString())
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + refreshExpiration))
@@ -75,6 +77,10 @@ public class JwtUtil {
 
     public String extractRole(String token) {
         return (String) getClaims(token).get("role");
+    }
+
+    public String extractType(String token) {
+        return (String) getClaims(token).get("type");
     }
 
     private Claims getClaims(String token) {

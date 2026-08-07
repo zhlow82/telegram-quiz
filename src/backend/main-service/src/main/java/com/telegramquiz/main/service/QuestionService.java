@@ -106,6 +106,13 @@ public class QuestionService {
         question.setHintBlocks(dto.hintBlocks() != null ? dto.hintBlocks() : new ArrayList<>());
         question.setExplanationBlocks(dto.explanationBlocks() != null ? dto.explanationBlocks() : new ArrayList<>());
         question.setMark(dto.mark());
+        // Verify folder access if folderId is provided
+        if (dto.folderId() != null) {
+            FolderAccessLevel access = folderService.getAccessLevel(dto.folderId(), username);
+            if (access == FolderAccessLevel.NONE) {
+                throw new EntityNotFoundException("Folder not found: " + dto.folderId());
+            }
+        }
         question.setFolderId(dto.folderId());
         question.setUpdatedBy(username);
         return toDto(questionRepository.save(question));

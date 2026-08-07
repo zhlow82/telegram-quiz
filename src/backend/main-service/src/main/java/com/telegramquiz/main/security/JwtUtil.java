@@ -46,6 +46,10 @@ public class JwtUtil {
         return (String) getClaims(token).get("role");
     }
 
+    public String extractType(String token) {
+        return (String) getClaims(token).get("type");
+    }
+
     private Claims getClaims(String token) {
         return Jwts.parser()
                 .verifyWith(getSignKey())
