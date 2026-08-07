@@ -12,14 +12,19 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.telegramquiz.main.dto.ValidateTokenRequestDto;
 import com.telegramquiz.main.dto.ValidateTokenResponseDto;
+import com.telegramquiz.main.entity.Quiz;
+import com.telegramquiz.main.service.QuizService;
 
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/bot")
+@RequiredArgsConstructor
 public class BotController {
 
     private final RestClient restClient = RestClient.create();
+    private final QuizService quizService;
 
     @PostMapping("/validate-token")
     public ResponseEntity<ValidateTokenResponseDto> validateToken(
@@ -31,15 +36,18 @@ public class BotController {
                     .body(TelegramGetMeResponse.class);
 
             if (response != null && response.ok() && response.result() != null) {
+                Quiz conflict = quizService.findTokenConflict(dto.token(), dto.excludeQuizId());
                 return ResponseEntity.ok(new ValidateTokenResponseDto(
                         true,
                         response.result().firstName(),
-                        response.result().username()
+                        response.result().username(),
+                        conflict != null,
+                        conflict != null ? conflict.getName() : null
                 ));
             }
-            return ResponseEntity.ok(new ValidateTokenResponseDto(false, null, null));
+            return ResponseEntity.ok(new ValidateTokenResponseDto(false, null, null, false, null));
         } catch (RestClientException e) {
-            return ResponseEntity.ok(new ValidateTokenResponseDto(false, null, null));
+            return ResponseEntity.ok(new ValidateTokenResponseDto(false, null, null, false, null));
         }
     }
 

@@ -39,12 +39,15 @@ export interface QuizRequest {
 
 export interface ValidateTokenRequest {
   token: string
+  excludeQuizId?: number
 }
 
 export interface ValidateTokenResponse {
   valid: boolean
   botName: string | null
   username: string | null
+  inUse: boolean
+  inUseByQuizName: string | null
 }
 
 export interface QuizSessionSummary {

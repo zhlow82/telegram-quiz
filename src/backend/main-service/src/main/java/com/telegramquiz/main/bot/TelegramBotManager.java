@@ -37,6 +37,7 @@ public class TelegramBotManager {
     private TelegramBotsApi botsApi;
     private final Map<Long, BotSession> activeSessions = new ConcurrentHashMap<>();
     private final Map<Long, QuizBotSession> activeBots = new ConcurrentHashMap<>();
+    private final Map<String, Long> tokenToQuizId = new ConcurrentHashMap<>();
 
     @EventListener(ApplicationReadyEvent.class)
     @Transactional(readOnly = true)
@@ -94,6 +95,11 @@ public class TelegramBotManager {
 
     public void startBot(QuizBotData data) {
         stopBot(data.quizId()); // stop any existing session first
+        Long existingQuizId = tokenToQuizId.get(data.botToken());
+        if (existingQuizId != null && !existingQuizId.equals(data.quizId())) {
+            throw new IllegalStateException(
+                    "Bot token is already in use by quiz " + existingQuizId);
+        }
         if (botsApi == null) {
             log.warn("TelegramBotsApi not initialised — bot for quiz {} will not start", data.quizId());
             return;
@@ -103,6 +109,7 @@ public class TelegramBotManager {
             BotSession session = botsApi.registerBot(bot);
             activeSessions.put(data.quizId(), session);
             activeBots.put(data.quizId(), bot);
+            tokenToQuizId.put(data.botToken(), data.quizId());
             log.info("Started Telegram bot for quiz {} (@{})", data.quizId(), data.botUsername());
         } catch (TelegramApiException e) {
             log.error("Failed to start Telegram bot for quiz {}: {}", data.quizId(), e.getMessage());
@@ -113,6 +120,7 @@ public class TelegramBotManager {
     public void stopBot(Long quizId) {
         BotSession session = activeSessions.remove(quizId);
         QuizBotSession bot = activeBots.remove(quizId);
+        tokenToQuizId.entrySet().removeIf(entry -> entry.getValue().equals(quizId));
         if (session != null) {
             session.stop();
             log.info("Stopped Telegram bot for quiz {}", quizId);

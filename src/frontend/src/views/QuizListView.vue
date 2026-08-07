@@ -445,7 +445,7 @@ async function confirmStart() {
   } catch (e: any) {
     startTarget.value = null
     const msg = e?.response?.data?.message || e?.message || 'Unknown error'
-    startError.value = `Failed to start quiz. ${msg}. Please check the bot token and try again.`
+    startError.value = msg
   } finally {
     togglingId.value = null
   }

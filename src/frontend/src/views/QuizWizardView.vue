@@ -115,7 +115,7 @@
             placeholder="123456789:ABCDEFGHIJKLMNabcdefghijklmn"
             class="flex-1 px-3 py-2.5 text-sm border rounded-xl outline-none transition bg-white text-slate-900 placeholder-slate-400 font-mono"
             :class="tokenError ? 'border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-500/20' : 'border-slate-200 focus:border-primary focus:ring-2 focus:ring-primary/20'"
-            @input="botValidated = false; tokenError = ''"
+            @input="botValidated = false; tokenError = ''; tokenWarning = ''"
             @keydown.enter="validateToken"
           />
           <button
@@ -128,6 +128,10 @@
           </button>
         </div>
         <p v-if="tokenError" class="text-xs text-red-600">{{ tokenError }}</p>
+        <div v-if="tokenWarning" class="flex items-start gap-2 text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+          <AlertTriangle class="w-3.5 h-3.5 flex-shrink-0 mt-px" />
+          <span>{{ tokenWarning }}</span>
+        </div>
         <div v-if="botValidated" class="flex items-center gap-2 text-green-700 text-sm bg-green-50 border border-green-200 rounded-lg px-3 py-2">
           <CheckCircle class="w-4 h-4 flex-shrink-0" />
           Connected to <strong class="font-semibold">{{ botName }}</strong>
@@ -605,6 +609,7 @@ const botName = ref('')
 const botUsername = ref('')
 const validating = ref(false)
 const tokenError = ref('')
+const tokenWarning = ref('')
 
 // Step 3 — quiz config
 const quizName = ref('')
@@ -765,10 +770,18 @@ async function validateToken() {
   if (!botToken.value.trim() || validating.value) return
   validating.value = true
   tokenError.value = ''
+  tokenWarning.value = ''
   botValidated.value = false
   try {
-    const res = await quizService.validateToken({ token: botToken.value.trim() })
-    if (res.valid) {
+    const res = await quizService.validateToken({
+      token: botToken.value.trim(),
+      excludeQuizId: editQuizId.value ?? undefined,
+    })
+    if (res.valid && res.inUse) {
+      tokenWarning.value = `This bot is already in use by the active quiz "${res.inUseByQuizName ?? 'unknown'}". Stop that quiz first or use a different bot.`
+      botName.value = res.botName ?? ''
+      botUsername.value = res.username ?? ''
+    } else if (res.valid) {
       botValidated.value = true
       botName.value = res.botName ?? ''
       botUsername.value = res.username ?? ''

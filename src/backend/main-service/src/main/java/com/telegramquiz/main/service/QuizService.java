@@ -3,8 +3,10 @@ package com.telegramquiz.main.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.telegramquiz.main.bot.QuizBotData;
 import com.telegramquiz.main.bot.QuizBotQuestion;
@@ -86,6 +88,13 @@ public class QuizService {
     @Transactional
     public QuizResponseDto activate(Long id, String username) {
         Quiz quiz = getOrThrow(id, username);
+        String decryptedToken = encryptionService.decrypt(quiz.getBotToken());
+        Quiz conflict = findTokenConflict(decryptedToken, quiz.getId());
+        if (conflict != null) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "This bot is already in use by the active quiz \"" + conflict.getName()
+                            + "\". Stop that quiz first or use a different bot.");
+        }
         quiz.setStatus(QuizStatus.ACTIVE);
         Quiz saved = quizRepository.save(quiz);
         telegramBotManager.startBot(buildBotData(saved));
@@ -132,6 +141,21 @@ public class QuizService {
     private Quiz getOrThrow(Long id, String username) {
         return quizRepository.findByIdAndCreatedBy(id, username)
                 .orElseThrow(() -> new EntityNotFoundException("Quiz not found: " + id));
+    }
+
+    /** Returns another ACTIVE quiz currently using the same bot token, or null. */
+    public Quiz findTokenConflict(String rawToken, Long excludeQuizId) {
+        for (Quiz q : quizRepository.findAllByStatus(QuizStatus.ACTIVE)) {
+            if (q.getId().equals(excludeQuizId)) continue;
+            try {
+                if (encryptionService.decrypt(q.getBotToken()).equals(rawToken)) {
+                    return q;
+                }
+            } catch (Exception e) {
+                // skip quizzes whose stored token cannot be decrypted
+            }
+        }
+        return null;
     }
 
     private QuizSummaryDto toSummaryDto(Quiz quiz) {
