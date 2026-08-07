@@ -157,53 +157,65 @@ public class QuizBotSession extends TelegramLongPollingBot {
             quizData.quizId(), state.questionIndex + 1, chatId, q.isBriefing(), q.expectsTextInput(), imageBlockCount);
         sendImageBlocks(chatId, q.questionBlocks());
 
+        List<String> textBlocks = renderTextBlocks(q);
+
         if (q.expectsTextInput()) {
             state.waitingForTextInput = true;
             StringBuilder sb = new StringBuilder();
             sb.append("👥 <b>Team Input</b>\n\n");
-            String qText = q.questionBlocks() != null && !q.questionBlocks().isEmpty()
-                    ? q.questionBlocks().stream()
-                        .filter(b -> "text".equals(b.type()))
-                        .map(b -> renderTelegramHtml(b.content()))
-                        .collect(Collectors.joining("\n\n"))
-                    : "";
-            sb.append(qText);
+            if (!textBlocks.isEmpty()) sb.append(textBlocks.get(0));
             sendText(chatId, sb.toString());
+            for (int i = 1; i < textBlocks.size(); i++) {
+                sendText(chatId, textBlocks.get(i));
+            }
         } else if (q.isBriefing()) {
             state.waitingForTextInput = false;
             StringBuilder sb = new StringBuilder();
             sb.append("📋 <b>Briefing</b>\n\n");
-            String qText = q.questionBlocks() != null && !q.questionBlocks().isEmpty()
-                    ? q.questionBlocks().stream()
-                        .filter(b -> "text".equals(b.type()))
-                        .map(b -> renderTelegramHtml(b.content()))
-                        .collect(Collectors.joining("\n\n"))
-                    : "";
-            sb.append(qText);
-
-            sendMessageWithKeyboard(chatId, sb.toString(), buildBriefingKeyboard(q), result -> {
-                if (result != null) state.lastMessageId = result.getMessageId();
-            });
+            if (!textBlocks.isEmpty()) sb.append(textBlocks.get(0));
+            if (textBlocks.size() <= 1) {
+                sendMessageWithKeyboard(chatId, sb.toString(), buildBriefingKeyboard(q), result -> {
+                    if (result != null) state.lastMessageId = result.getMessageId();
+                });
+            } else {
+                sendText(chatId, sb.toString());
+                for (int i = 1; i < textBlocks.size() - 1; i++) {
+                    sendText(chatId, textBlocks.get(i));
+                }
+                sendMessageWithKeyboard(chatId, textBlocks.get(textBlocks.size() - 1), buildBriefingKeyboard(q), result -> {
+                    if (result != null) state.lastMessageId = result.getMessageId();
+                });
+            }
         } else {
             state.scoredQuestionNumber++;
+            if (state.activeStartAt == null) {
+                state.activeStartAt = LocalDateTime.now();
+            }
             StringBuilder sb = new StringBuilder();
             sb.append("📝 <b>Q ").append(state.scoredQuestionNumber).append("/").append(state.totalQuestions).append("</b>\n\n");
-            String qText = q.questionBlocks() != null && !q.questionBlocks().isEmpty()
-                    ? q.questionBlocks().stream()
-                        .filter(b -> "text".equals(b.type()))
-                        .map(b -> renderTelegramHtml(b.content()))
-                        .collect(Collectors.joining("\n\n"))
-                    : "";
-            sb.append(qText);
+            if (!textBlocks.isEmpty()) sb.append(textBlocks.get(0));
 
             if (q.expectPhoto()) {
                 sendText(chatId, sb.toString());
+                for (int i = 1; i < textBlocks.size(); i++) {
+                    sendText(chatId, textBlocks.get(i));
+                }
             } else {
                 List<String> options = q.options();
                 boolean hasHint = q.hintBlocks() != null && !q.hintBlocks().isEmpty();
-                sendMessageWithKeyboard(chatId, sb.toString(), buildAnswerKeyboard(options, hasHint), result -> {
-                    if (result != null) state.lastMessageId = result.getMessageId();
-                });
+                if (textBlocks.size() <= 1) {
+                    sendMessageWithKeyboard(chatId, sb.toString(), buildAnswerKeyboard(options, hasHint), result -> {
+                        if (result != null) state.lastMessageId = result.getMessageId();
+                    });
+                } else {
+                    sendText(chatId, sb.toString());
+                    for (int i = 1; i < textBlocks.size() - 1; i++) {
+                        sendText(chatId, textBlocks.get(i));
+                    }
+                    sendMessageWithKeyboard(chatId, textBlocks.get(textBlocks.size() - 1), buildAnswerKeyboard(options, hasHint), result -> {
+                        if (result != null) state.lastMessageId = result.getMessageId();
+                    });
+                }
             }
             if (quizData.timePerQuestionSeconds() > 0) {
                 startQuestionTimeout(chatId, state);
@@ -241,8 +253,7 @@ public class QuizBotSession extends TelegramLongPollingBot {
 
         StringBuilder result = new StringBuilder();
         result.append("✅ Team name saved: <b>").append(escapeHtml(text)).append("</b>");
-        appendExplanationText(result, q, text);
-        sendAfterAnswer(chatId, state, q, result.toString());
+        sendAfterAnswer(chatId, state, q, result.toString(), text);
     }
 
     private void handlePhotoMessage(Message message) {
@@ -264,7 +275,6 @@ public class QuizBotSession extends TelegramLongPollingBot {
 
         String fileId = message.getPhoto().get(message.getPhoto().size() - 1).getFileId();
         String caption = message.getCaption();
-
         Integer responseTimeMs = state.questionStartedAt != null
                 ? (int) java.time.Duration.between(state.questionStartedAt, LocalDateTime.now()).toMillis()
                 : null;
@@ -277,9 +287,8 @@ public class QuizBotSession extends TelegramLongPollingBot {
         }
 
         state.score++;
-        sendText(chatId, "📸 Photo received! Moving to next question...");
-        state.questionIndex++;
-        scheduler.schedule(() -> sendCurrentQuestion(chatId, state), 2, TimeUnit.SECONDS);
+
+        sendAfterAnswer(chatId, state, q, null, null);
     }
 
     private void handleCallback(org.telegram.telegrambots.meta.api.objects.CallbackQuery callback) {
@@ -328,6 +337,10 @@ public class QuizBotSession extends TelegramLongPollingBot {
             removeKeyboard(chatId, msgId);
             processAnswer(chatId, state, selectedIndex);
         } else if (HINT_CALLBACK.equals(data)) {
+            if (state.lastHintedQuestionIndex != state.questionIndex) {
+                state.lastHintedQuestionIndex = state.questionIndex;
+                state.hintCount++;
+            }
             sendHint(chatId, quizData.questions().get(state.questionIndex));
         }
     }
@@ -364,17 +377,7 @@ public class QuizBotSession extends TelegramLongPollingBot {
         if (!correct && q.answer() != null) {
             result.append("\nCorrect answer: <b>").append(escapeHtml(q.answer())).append("</b>");
         }
-        if (q.hintBlocks() != null && !q.hintBlocks().isEmpty()) {
-            String hintText = q.hintBlocks().stream()
-                    .filter(b -> "text".equals(b.type()))
-                    .map(b -> renderTelegramHtml(b.content()))
-                    .collect(Collectors.joining("\n\n"));
-            if (!hintText.isBlank()) {
-                result.append("\n\n💡 ").append(hintText);
-            }
-        }
-        appendExplanationText(result, q, null);
-        sendAfterAnswer(chatId, state, q, result.toString());
+        sendAfterAnswer(chatId, state, q, result.toString(), null);
     }
 
     private void startQuestionTimeout(Long chatId, ChatQuizState state) {
@@ -448,10 +451,14 @@ public class QuizBotSession extends TelegramLongPollingBot {
         int score = state.score;
         int percent = total > 0 ? (score * 100 / total) : 0;
         boolean passed = percent >= quizData.passScorePercent();
+        long durationMs = state.activeStartAt != null
+                ? java.time.Duration.between(state.activeStartAt, LocalDateTime.now()).toMillis()
+                : 0;
 
         try {
             sessionService.recordCompleted(quizData.quizId(), state.telegramUserId,
-                    score, total, passed);
+                    score, total, passed,
+                    durationMs, state.hintCount);
         } catch (Exception e) {
             log.warn("Could not record session complete for quiz {}: {}", quizData.quizId(), e.getMessage());
         }
@@ -460,7 +467,19 @@ public class QuizBotSession extends TelegramLongPollingBot {
                 (passed ? "🎉" : "😔") + " <b>Quiz Complete!</b>\n\n" +
                 "Score: <b>" + score + "/" + total + "</b> (" + percent + "%)\n" +
                 "Result: " + (passed ? "<b>PASSED!</b> 🎊" : "<b>FAILED</b>") + "\n\n" +
+                "⏱ Time taken: <b>" + formatDuration(durationMs) + "</b>\n" +
+                "💡 Hints used: <b>" + state.hintCount + "</b>\n\n" +
                 (passed ? "Congratulations! 🏆" : "Send /start to try again!"));
+    }
+
+    private String formatDuration(long millis) {
+        long totalSeconds = Math.max(0, millis / 1000);
+        long hours = totalSeconds / 3600;
+        long minutes = (totalSeconds % 3600) / 60;
+        long seconds = totalSeconds % 60;
+        if (hours > 0) return hours + "h " + minutes + "m " + seconds + "s";
+        if (minutes > 0) return minutes + "m " + seconds + "s";
+        return seconds + "s";
     }
 
     // ── helpers ────────────────────────────────────────────────────────────
@@ -502,17 +521,22 @@ public class QuizBotSession extends TelegramLongPollingBot {
                 .build();
     }
 
-    private void appendExplanationText(StringBuilder result, QuizBotQuestion q, String textInputValue) {
-        if (q.explanationBlocks() == null || q.explanationBlocks().isEmpty()) {
-            return;
-        }
-        String explanationText = q.explanationBlocks().stream()
+    private List<String> renderTextBlocks(QuizBotQuestion q) {
+        if (q.questionBlocks() == null) return List.of();
+        return q.questionBlocks().stream()
+                .filter(b -> "text".equals(b.type()))
+                .map(b -> renderTelegramHtml(b.content()))
+                .filter(b -> !b.isBlank())
+                .toList();
+    }
+
+    private List<String> renderExplanationTexts(QuizBotQuestion q, String textInputValue) {
+        if (q.explanationBlocks() == null) return List.of();
+        return q.explanationBlocks().stream()
                 .filter(b -> "text".equals(b.type()))
                 .map(b -> renderTemplateText(b.content(), textInputValue))
-                .collect(Collectors.joining("\n\n"));
-        if (!explanationText.isBlank()) {
-            result.append("\n\n📖 ").append(explanationText);
-        }
+                .filter(b -> !b.isBlank())
+                .toList();
     }
 
     private String renderTemplateText(String text, String textInputValue) {
@@ -541,19 +565,37 @@ public class QuizBotSession extends TelegramLongPollingBot {
                 .replaceAll("(?i)&lt;br\s*/?&gt;", "\n");
     }
 
-    private void sendAfterAnswer(Long chatId, ChatQuizState state, QuizBotQuestion question, String text) {
-        boolean hasExplanation = question.explanationBlocks() != null && !question.explanationBlocks().isEmpty();
-        if (hasExplanation) {
+    private void sendAfterAnswer(Long chatId, ChatQuizState state, QuizBotQuestion question, String text, String textInputValue) {
+        List<String> explanationTexts = renderExplanationTexts(question, textInputValue);
+        boolean hasExplanationBlocks = question.explanationBlocks() != null && !question.explanationBlocks().isEmpty();
+
+        if (hasExplanationBlocks) {
             sendImageBlocks(chatId, question.explanationBlocks());
         }
-        if (hasExplanation && question.showAfterAnswerButton()) {
-            sendMessageWithKeyboard(chatId, text, buildAfterAnswerKeyboard(question), result -> {
+
+        List<String> bubbles = new ArrayList<>();
+        if (text != null && !text.isBlank()) bubbles.add(text);
+        bubbles.addAll(explanationTexts);
+
+        if (bubbles.isEmpty()) {
+            state.questionIndex++;
+            scheduler.schedule(() -> sendCurrentQuestion(chatId, state), 2, TimeUnit.SECONDS);
+            return;
+        }
+
+        if (hasExplanationBlocks && question.showAfterAnswerButton()) {
+            for (int i = 0; i < bubbles.size() - 1; i++) {
+                sendText(chatId, bubbles.get(i));
+            }
+            sendMessageWithKeyboard(chatId, bubbles.get(bubbles.size() - 1), buildAfterAnswerKeyboard(question), result -> {
                 if (result != null) state.lastMessageId = result.getMessageId();
             });
             return;
         }
 
-        sendText(chatId, text);
+        for (String bubble : bubbles) {
+            sendText(chatId, bubble);
+        }
         state.questionIndex++;
         scheduler.schedule(() -> sendCurrentQuestion(chatId, state), 2, TimeUnit.SECONDS);
     }
@@ -570,12 +612,13 @@ public class QuizBotSession extends TelegramLongPollingBot {
             return;
         }
         sendImageBlocks(chatId, question.hintBlocks());
-        String hintText = question.hintBlocks().stream()
+        List<String> hintTexts = question.hintBlocks().stream()
                 .filter(b -> "text".equals(b.type()))
                 .map(b -> renderTelegramHtml(b.content()))
-                .collect(Collectors.joining("\n\n"));
-        if (!hintText.isBlank()) {
-            sendText(chatId, "💡 " + hintText);
+                .filter(b -> !b.isBlank())
+                .toList();
+        for (int i = 0; i < hintTexts.size(); i++) {
+            sendText(chatId, (i == 0 ? "💡 " : "") + hintTexts.get(i));
         }
     }
 

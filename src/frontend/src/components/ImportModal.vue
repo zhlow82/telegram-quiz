@@ -29,9 +29,9 @@
             <div
               class="border-2 border-dashed rounded-xl p-8 text-center transition-colors"
               :class="isDragging ? 'border-blue-400 bg-blue-50' : 'border-slate-300 hover:border-slate-400'"
-              @dragover.prevent="isDragging = true"
-              @dragleave="isDragging = false"
-              @drop.prevent="onDrop"
+              @dragover.prevent.stop="isDragging = true"
+              @dragleave.stop="isDragging = false"
+              @drop.prevent.stop="onDrop"
             >
               <div class="w-14 h-14 mx-auto rounded-2xl bg-slate-100 flex items-center justify-center mb-4">
                 <Upload class="w-7 h-7 text-slate-400" />
@@ -184,6 +184,7 @@ import type { ExportData, ExportedQuestion, ImportResult } from '@/types/questio
 
 const props = defineProps<{
   visible: boolean
+  initialFile?: File | null
 }>()
 
 const emit = defineEmits<{
@@ -214,6 +215,12 @@ watch(() => props.visible, (val) => {
   if (!val) {
     step.value = 1
     resetImport()
+  }
+})
+
+watch(() => props.initialFile, (file) => {
+  if (file && props.visible) {
+    handleFile(file)
   }
 })
 

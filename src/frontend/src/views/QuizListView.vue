@@ -147,7 +147,7 @@
             @click="stopQuiz(quiz)"
           >
             <Square class="w-3.5 h-3.5 fill-red-500" />
-            Stop
+            {{ togglingId === quiz.id ? 'Stopping...' : 'Stop' }}
           </button>
         </template>
 

@@ -135,14 +135,28 @@
   <!-- Session list -->
   <div v-else>
     <!-- Search box -->
-    <div v-if="sessions.length > 0" class="flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 rounded-lg w-full sm:w-80 mb-4">
-      <Search class="w-4 h-4 text-slate-400 flex-shrink-0" />
-      <input
-        v-model="sessionSearch"
-        type="text"
-        placeholder="Search participants…"
-        class="flex-1 text-sm text-slate-700 placeholder-slate-400 bg-transparent outline-none"
-      />
+    <div class="flex flex-wrap items-center gap-2 mb-4">
+      <div class="flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 rounded-lg w-full sm:w-80">
+        <Search class="w-4 h-4 text-slate-400 flex-shrink-0" />
+        <input
+          v-model="sessionSearch"
+          type="text"
+          placeholder="Search participants…"
+          class="flex-1 text-sm text-slate-700 placeholder-slate-400 bg-transparent outline-none"
+        />
+      </div>
+      <div class="relative">
+        <select
+          v-model="sessionSort"
+          class="appearance-none bg-white border border-slate-200 rounded-lg pl-3 pr-8 py-2 text-sm text-slate-700 outline-none focus:border-primary cursor-pointer transition"
+        >
+          <option value="newest">Newest first</option>
+          <option value="score-desc">Highest score</option>
+          <option value="score-asc">Lowest score</option>
+          <option value="fastest">Fastest time</option>
+        </select>
+        <ChevronDown class="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+      </div>
     </div>
 
     <div class="space-y-2">
@@ -265,6 +279,20 @@
                   <div>
                     <p class="text-xs text-slate-500 mb-0.5">Avg Time</p>
                     <p class="text-lg font-bold text-slate-900">{{ formatResponseTime(answerStats.avgTime) }}</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <Timer class="w-4 h-4 text-slate-400" />
+                  <div>
+                    <p class="text-xs text-slate-500 mb-0.5">Time Taken</p>
+                    <p class="text-lg font-bold text-slate-900">{{ formatDuration(s.durationMs) }}</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <Lightbulb class="w-4 h-4 text-slate-400" />
+                  <div>
+                    <p class="text-xs text-slate-500 mb-0.5">Hints Used</p>
+                    <p class="text-lg font-bold text-slate-900">{{ s.hintsUsed ?? 0 }}</p>
                   </div>
                 </div>
               </div>
@@ -406,7 +434,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { ArrowLeft, Users, CheckCircle, XCircle, Minus, Clock, RefreshCw, FileText, Camera, X, AlertCircle, ChevronDown, ChevronLeft, ChevronRight, Search, Trophy, Eye } from '@lucide/vue'
+import { ArrowLeft, Users, CheckCircle, XCircle, Minus, Clock, Timer, Lightbulb, RefreshCw, FileText, Camera, X, AlertCircle, ChevronDown, ChevronLeft, ChevronRight, Search, Trophy, Eye } from '@lucide/vue'
 import AppEmptyState from '@/components/AppEmptyState.vue'
 import { quizService } from '@/services/quizService'
 import type { Quiz, QuizSessionSummary, QuizSessionAnswer } from '@/types/quiz'
@@ -419,15 +447,37 @@ const quizId = computed(() => Number(route.params.id))
 const SESSIONS_PER_PAGE = 20
 const currentPage = ref(1)
 const sessionSearch = ref('')
+const sessionSort = ref('newest')
 
 const filteredSessions = computed(() => {
+  let list = sessions.value
   const q = sessionSearch.value.trim().toLowerCase()
-  if (!q) return sessions.value
-  return sessions.value.filter(s =>
-    s.telegramFirstName.toLowerCase().includes(q) ||
-    (s.telegramUsername && s.telegramUsername.toLowerCase().includes(q)) ||
-    (s.teamName && s.teamName.toLowerCase().includes(q))
-  )
+  if (q) {
+    list = list.filter(s =>
+      s.telegramFirstName.toLowerCase().includes(q) ||
+      (s.telegramUsername && s.telegramUsername.toLowerCase().includes(q)) ||
+      (s.teamName && s.teamName.toLowerCase().includes(q))
+    )
+  }
+
+  switch (sessionSort.value) {
+    case 'score-desc':
+      return [...list].sort((a, b) =>
+        b.score - a.score || (a.durationMs ?? Infinity) - (b.durationMs ?? Infinity))
+    case 'score-asc':
+      return [...list].sort((a, b) =>
+        a.score - b.score || (a.durationMs ?? Infinity) - (b.durationMs ?? Infinity))
+    case 'fastest':
+      return [...list].sort((a, b) =>
+        (a.durationMs ?? Infinity) - (b.durationMs ?? Infinity))
+    default:
+      return [...list].sort((a, b) =>
+        new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime())
+  }
+})
+
+watch(sessionSort, () => {
+  currentPage.value = 1
 })
 
 const totalPages = computed(() => Math.max(1, Math.ceil(filteredSessions.value.length / SESSIONS_PER_PAGE)))
@@ -609,6 +659,17 @@ function formatDate(iso: string): string {
 function formatResponseTime(ms: number): string {
   if (ms < 1000) return `${ms}ms`
   return `${(ms / 1000).toFixed(1)}s`
+}
+
+function formatDuration(ms: number | null): string {
+  if (ms === null || ms === undefined) return '—'
+  const totalSeconds = Math.max(0, Math.round(ms / 1000))
+  const hours = Math.floor(totalSeconds / 3600)
+  const minutes = Math.floor((totalSeconds % 3600) / 60)
+  const seconds = totalSeconds % 60
+  if (hours > 0) return `${hours}h ${minutes}m ${seconds}s`
+  if (minutes > 0) return `${minutes}m ${seconds}s`
+  return `${seconds}s`
 }
 
 function questionText(questionId: number): string {

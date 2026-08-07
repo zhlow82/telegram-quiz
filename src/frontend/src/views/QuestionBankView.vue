@@ -27,7 +27,7 @@
         </div>
         <button
           class="inline-flex items-center gap-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm font-semibold px-4 py-2 rounded-lg transition cursor-pointer"
-          @click="openImportModal"
+          @click="openImportModal()"
         >
           <Upload class="w-4 h-4" />
           Import
@@ -659,9 +659,35 @@
   <!-- Import modal -->
   <ImportModal
     :visible="importModalVisible"
-    @close="importModalVisible = false"
+    :initial-file="importInitialFile"
+    @close="closeImportModal"
     @imported="onImported"
   />
+
+  <!-- File drop overlay -->
+  <teleport to="body">
+    <transition
+      enter-active-class="transition-opacity duration-150"
+      enter-from-class="opacity-0"
+      enter-to-class="opacity-100"
+      leave-active-class="transition-opacity duration-150"
+      leave-from-class="opacity-100"
+      leave-to-class="opacity-0"
+    >
+      <div v-if="pageDragging" class="fixed inset-0 z-50 pointer-events-none">
+        <div class="absolute inset-0 bg-primary/10 backdrop-blur-[1px]" />
+        <div class="absolute inset-0 flex items-center justify-center">
+          <div class="bg-white rounded-2xl shadow-2xl px-10 py-8 flex flex-col items-center gap-3 border-2 border-dashed border-primary/50">
+            <div class="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center">
+              <Upload class="w-7 h-7 text-primary" />
+            </div>
+            <p class="text-sm font-bold text-slate-900">Drop your JSON file to import</p>
+            <p class="text-xs text-slate-500">Questions will be imported to the Unfiled folder</p>
+          </div>
+        </div>
+      </div>
+    </transition>
+  </teleport>
 
   <!-- Move to folder modal -->
   <teleport to="body">
@@ -725,7 +751,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, nextTick } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { VueDraggable } from 'vue-draggable-plus'
 import {
   Plus, AlertCircle, BookOpen, GripVertical, Pencil, Trash2,
@@ -806,11 +832,62 @@ function clearSelection() {
 // -- Export/Import modals ---------------------------------------------------
 const exportModalVisible = ref(false)
 const importModalVisible = ref(false)
+const importInitialFile = ref<File | null>(null)
 const beforeImportIds = ref<Set<number>>(new Set())
 
-function openImportModal() {
+// Page-level file drop (drag a JSON file anywhere onto the page)
+const pageDragging = ref(false)
+
+function isFileDrag(e: DragEvent): boolean {
+  return Array.from(e.dataTransfer?.types ?? []).includes('Files')
+}
+
+function onDocDragEnter(e: DragEvent) {
+  if (!isFileDrag(e) || modalVisible.value) return
+  pageDragging.value = true
+}
+
+function onDocDragOver(e: DragEvent) {
+  if (isFileDrag(e)) e.preventDefault()
+}
+
+function onDocDragLeave(e: DragEvent) {
+  if (!isFileDrag(e) || modalVisible.value) return
+  if (e.relatedTarget === null) pageDragging.value = false
+}
+
+function onDocDragEnd() {
+  pageDragging.value = false
+}
+
+function onDocDrop(e: DragEvent) {
+  pageDragging.value = false
+  if (!isFileDrag(e)) return
+  e.preventDefault()
+  if (modalVisible.value) return
+  const file = e.dataTransfer?.files?.[0]
+  if (!file) return
+  if (!file.name.toLowerCase().endsWith('.json') && file.type !== 'application/json') {
+    toast.error('Please drop a JSON file')
+    return
+  }
+  openImportModal(file)
+}
+
+function openImportModal(file?: File) {
   beforeImportIds.value = captureCurrentIds()
   importModalVisible.value = true
+  importInitialFile.value = null
+  if (file) {
+    nextTick(() => {
+      importInitialFile.value = file
+    })
+  }
+}
+
+function closeImportModal() {
+  importModalVisible.value = false
+  importInitialFile.value = null
 }
 
 // -- Mass operations --------------------------------------------------------
@@ -1448,6 +1525,14 @@ function onDialogCancel() {
 
 // -- Load -------------------------------------------------------------------
 onMounted(async () => {
+  const opts = { capture: true } as const
+  document.addEventListener('dragenter', onDocDragEnter, opts)
+  document.addEventListener('dragover', onDocDragOver, opts)
+  document.addEventListener('dragleave', onDocDragLeave, opts)
+  document.addEventListener('dragend', onDocDragEnd, opts)
+  document.addEventListener('drop', onDocDrop, opts)
+  window.addEventListener('blur', onDocDragEnd)
+
   loading.value = true
   loadError.value = false
   try {
@@ -1461,6 +1546,17 @@ onMounted(async () => {
   } finally {
     loading.value = false
   }
+})
+
+onUnmounted(() => {
+  const opts = { capture: true } as const
+  document.removeEventListener('dragenter', onDocDragEnter, opts)
+  document.removeEventListener('dragover', onDocDragOver, opts)
+  document.removeEventListener('dragleave', onDocDragLeave, opts)
+  document.removeEventListener('dragend', onDocDragEnd, opts)
+  document.removeEventListener('drop', onDocDrop, opts)
+  window.removeEventListener('blur', onDocDragEnd)
+  pageDragging.value = false
 })
 
 // -- Delete question --------------------------------------------------------

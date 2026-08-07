@@ -16,5 +16,7 @@ public record QuizSessionDto(
         LocalDateTime startedAt,
         LocalDateTime completedAt,
         LocalDateTime lastActivityAt,
-        LocalDateTime abandonedAt
+        LocalDateTime abandonedAt,
+        Long durationMs,
+        Integer hintsUsed
 ) {}

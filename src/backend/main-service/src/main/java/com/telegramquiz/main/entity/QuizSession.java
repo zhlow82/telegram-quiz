@@ -72,4 +72,10 @@ public class QuizSession {
 
     @Column(name = "abandoned_at")
     private LocalDateTime abandonedAt;
+
+    @Column(name = "duration_ms")
+    private Long durationMs;
+
+    @Column(name = "hints_used")
+    private Integer hintsUsed;
 }

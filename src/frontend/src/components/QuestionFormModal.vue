@@ -250,7 +250,7 @@
                               <img :src="`/api/files/${block.content}`" class="max-h-48 w-full object-contain block rounded-lg bg-slate-100" alt="" />
                               <button type="button" class="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-black/55 text-white border-none text-[0.7rem] cursor-pointer flex items-center justify-center leading-none hover:bg-red-600/90 transition-colors" @click="block.content = ''" title="Remove">✕</button>
                             </div>
-                            <div v-else class="border-2 border-dashed rounded-xl p-5 flex items-center justify-center cursor-pointer transition select-none border-slate-200 bg-slate-50 hover:border-amber-400 hover:bg-amber-50" @click="uploadImageBlock(block)">
+                            <div v-else class="border-2 border-dashed rounded-xl p-5 flex items-center justify-center cursor-pointer transition select-none" :class="imageDropTarget === block._id ? 'border-amber-400 bg-amber-50' : 'border-slate-200 bg-slate-50 hover:border-amber-400 hover:bg-amber-50'" @click="uploadImageBlock(block)" @dragover.prevent.stop="imageDropTarget = block._id" @dragleave.stop="imageDropTarget = null" @drop.prevent.stop="handleImageDrop(block, $event)">
                               <div class="flex flex-col items-center gap-1 pointer-events-none">
                                 <div class="text-3xl leading-none">🖼️</div>
                                 <div class="text-sm font-semibold text-slate-600">Click to upload</div>
@@ -397,7 +397,7 @@
                               <img :src="`/api/files/${block.content}`" class="max-h-48 w-full object-contain block rounded-lg bg-slate-100" alt="" />
                               <button type="button" class="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-black/55 text-white border-none text-[0.7rem] cursor-pointer flex items-center justify-center leading-none hover:bg-red-600/90 transition-colors" @click="block.content = ''" title="Remove">✕</button>
                             </div>
-                            <div v-else class="border-2 border-dashed rounded-xl p-5 flex items-center justify-center cursor-pointer transition select-none border-slate-200 bg-slate-50 hover:border-amber-400 hover:bg-amber-50" @click="uploadImageBlock(block)">
+                            <div v-else class="border-2 border-dashed rounded-xl p-5 flex items-center justify-center cursor-pointer transition select-none" :class="imageDropTarget === block._id ? 'border-amber-400 bg-amber-50' : 'border-slate-200 bg-slate-50 hover:border-amber-400 hover:bg-amber-50'" @click="uploadImageBlock(block)" @dragover.prevent.stop="imageDropTarget = block._id" @dragleave.stop="imageDropTarget = null" @drop.prevent.stop="handleImageDrop(block, $event)">
                               <div class="flex flex-col items-center gap-1 pointer-events-none">
                                 <div class="text-3xl leading-none">🖼️</div>
                                 <div class="text-sm font-semibold text-slate-600">Click to upload</div>
@@ -459,7 +459,7 @@
                               <img :src="`/api/files/${block.content}`" class="max-h-48 w-full object-contain block rounded-lg bg-slate-100" alt="" />
                               <button type="button" class="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-black/55 text-white border-none text-[0.7rem] cursor-pointer flex items-center justify-center leading-none hover:bg-red-600/90 transition-colors" @click="block.content = ''" title="Remove">✕</button>
                             </div>
-                            <div v-else class="border-2 border-dashed rounded-xl p-5 flex items-center justify-center cursor-pointer transition select-none border-slate-200 bg-slate-50 hover:border-amber-400 hover:bg-amber-50" @click="uploadImageBlock(block)">
+                            <div v-else class="border-2 border-dashed rounded-xl p-5 flex items-center justify-center cursor-pointer transition select-none" :class="imageDropTarget === block._id ? 'border-amber-400 bg-amber-50' : 'border-slate-200 bg-slate-50 hover:border-amber-400 hover:bg-amber-50'" @click="uploadImageBlock(block)" @dragover.prevent.stop="imageDropTarget = block._id" @dragleave.stop="imageDropTarget = null" @drop.prevent.stop="handleImageDrop(block, $event)">
                               <div class="flex flex-col items-center gap-1 pointer-events-none">
                                 <div class="text-3xl leading-none">🖼️</div>
                                 <div class="text-sm font-semibold text-slate-600">Click to upload</div>
@@ -551,7 +551,7 @@
                               <img :src="`/api/files/${block.content}`" class="max-h-48 w-full object-contain block rounded-lg bg-slate-100" alt="" />
                               <button type="button" class="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-black/55 text-white border-none text-[0.7rem] cursor-pointer flex items-center justify-center leading-none hover:bg-red-600/90 transition-colors" @click="block.content = ''" title="Remove">✕</button>
                             </div>
-                            <div v-else class="border-2 border-dashed rounded-xl p-5 flex items-center justify-center cursor-pointer transition select-none border-slate-200 bg-slate-50 hover:border-amber-400 hover:bg-amber-50" @click="uploadImageBlock(block)">
+                            <div v-else class="border-2 border-dashed rounded-xl p-5 flex items-center justify-center cursor-pointer transition select-none" :class="imageDropTarget === block._id ? 'border-amber-400 bg-amber-50' : 'border-slate-200 bg-slate-50 hover:border-amber-400 hover:bg-amber-50'" @click="uploadImageBlock(block)" @dragover.prevent.stop="imageDropTarget = block._id" @dragleave.stop="imageDropTarget = null" @drop.prevent.stop="handleImageDrop(block, $event)">
                               <div class="flex flex-col items-center gap-1 pointer-events-none">
                                 <div class="text-3xl leading-none">🖼️</div>
                                 <div class="text-sm font-semibold text-slate-600">Click to upload</div>
@@ -922,6 +922,7 @@ const error = ref('')
 const isEdit = ref(false)
 const activeTab = ref<'question' | 'answer' | 'mark' | 'hint' | 'explanation' | 'briefing'>('question')
 const tabContentRef = ref<HTMLDivElement | null>(null)
+const imageDropTarget = ref<string | null>(null)
 
 watch(activeTab, () => {
   nextTick(() => {
@@ -1164,6 +1165,21 @@ async function uploadImageBlock(block: FormBlock) {
     }
     input.click()
   })
+}
+
+async function handleImageDrop(block: FormBlock, e: DragEvent) {
+  imageDropTarget.value = null
+  const file = e.dataTransfer?.files?.[0]
+  if (!file) return
+  if (!file.type.startsWith('image/')) {
+    error.value = 'Only image files are supported.'
+    return
+  }
+  try {
+    block.content = await questionsService.uploadFile(file)
+  } catch {
+    error.value = 'Image upload failed.'
+  }
 }
 
 // ── Options helpers ────────────────────────────────────────────────────────

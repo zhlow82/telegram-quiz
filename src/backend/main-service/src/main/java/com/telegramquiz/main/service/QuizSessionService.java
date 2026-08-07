@@ -1,5 +1,6 @@
 package com.telegramquiz.main.service;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -56,7 +57,8 @@ public class QuizSessionService {
 
     @Transactional
     public void recordCompleted(Long quizId, long telegramUserId,
-                                 int score, int total, boolean passed) {
+                                 int score, int total, boolean passed,
+                                 Long durationMs, Integer hintsUsed) {
         repository.findByQuizIdAndTelegramUserIdAndStatus(quizId, telegramUserId, QuizSessionStatus.IN_PROGRESS)
                 .ifPresent(session -> {
                     session.setScore(score);
@@ -65,6 +67,8 @@ public class QuizSessionService {
                     session.setStatus(QuizSessionStatus.COMPLETED);
                     session.setCompletedAt(LocalDateTime.now());
                     session.setLastActivityAt(LocalDateTime.now());
+                    session.setDurationMs(durationMs);
+                    session.setHintsUsed(hintsUsed);
                     repository.save(session);
                 });
     }
@@ -134,7 +138,9 @@ public class QuizSessionService {
                         s.getStartedAt(),
                         s.getCompletedAt(),
                         s.getLastActivityAt(),
-                        s.getAbandonedAt()
+                        s.getAbandonedAt(),
+                        s.getDurationMs(),
+                        s.getHintsUsed()
                 ))
                 .toList();
     }
@@ -144,10 +150,12 @@ public class QuizSessionService {
         return repository.findById(sessionId).map(QuizSession::getQuizId);
     }
 
+    private static final Duration INACTIVITY_ABANDON_THRESHOLD = Duration.ofHours(6);
+
     @Scheduled(fixedRate = 3600000)
     @Transactional
     public void cleanupAbandonedSessions() {
-        LocalDateTime cutoff = LocalDateTime.now().minusHours(1);
+        LocalDateTime cutoff = LocalDateTime.now().minus(INACTIVITY_ABANDON_THRESHOLD);
         List<QuizSession> stale = repository.findByStatusAndLastActivityAtBefore(
                 QuizSessionStatus.IN_PROGRESS, cutoff);
         for (QuizSession session : stale) {

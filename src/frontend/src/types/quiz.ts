@@ -65,6 +65,8 @@ export interface QuizSessionSummary {
   completedAt: string | null
   lastActivityAt: string
   abandonedAt: string | null
+  durationMs: number | null
+  hintsUsed: number | null
 }
 
 export interface QuizSessionAnswer {
