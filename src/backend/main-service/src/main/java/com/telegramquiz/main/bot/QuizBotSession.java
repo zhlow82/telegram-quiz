@@ -265,16 +265,31 @@ public class QuizBotSession extends TelegramLongPollingBot {
         if (state.questionIndex >= quizData.questions().size()) {
             return;
         }
-
         QuizBotQuestion q = quizData.questions().get(state.questionIndex);
         if (!q.expectPhoto()) {
             return;
         }
 
-        state.cancelTimeout();
-
         String fileId = message.getPhoto().get(message.getPhoto().size() - 1).getFileId();
         String caption = message.getCaption();
+
+        // Player is re-attaching a photo for the same question — update the
+        // existing answer instead of recording a duplicate (no extra score).
+        if (state.photoAnsweredForQuestion == state.questionIndex) {
+            sessionService.updatePhotoAnswer(state.sessionId, q.id(), fileId, caption);
+            sendText(chatId, "📸 Photo updated!");
+            // Re-show the post-answer prompt while they wait on the Next button
+            // (only when a button is shown, so the question never double-advances).
+            if (q.showAfterAnswerButton() && !renderExplanationTexts(q, null).isEmpty()) {
+                if (state.lastMessageId != null) removeKeyboard(chatId, state.lastMessageId);
+                sendAfterAnswer(chatId, state, q, null, null);
+            }
+            return;
+        }
+        state.photoAnsweredForQuestion = state.questionIndex;
+
+        state.cancelTimeout();
+
         Integer responseTimeMs = state.questionStartedAt != null
                 ? (int) java.time.Duration.between(state.questionStartedAt, LocalDateTime.now()).toMillis()
                 : null;
@@ -318,6 +333,9 @@ public class QuizBotSession extends TelegramLongPollingBot {
             state.questionIndex++;
             sendCurrentQuestion(chatId, state);
         } else if (AFTER_ANSWER_READY.equals(data)) {
+            if (state.lastMessageId == null || !state.lastMessageId.equals(msgId)) {
+                return; // stale Next button from a previous prompt
+            }
             state.cancelTimeout();
             removeKeyboard(chatId, msgId);
             state.questionIndex++;

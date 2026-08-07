@@ -20,6 +20,7 @@ public class ChatQuizState {
     public volatile LocalDateTime activeStartAt = null;
     public volatile int hintCount = 0;
     public volatile int lastHintedQuestionIndex = -1;
+    public volatile int photoAnsweredForQuestion = -1;
     public volatile LocalDateTime deadline = null;
     private volatile ScheduledFuture<?> timeoutFuture = null;
     private volatile ScheduledFuture<?> deadlineFuture = null;

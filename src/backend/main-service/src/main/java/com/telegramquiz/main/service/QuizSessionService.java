@@ -104,6 +104,22 @@ public class QuizSessionService {
         });
     }
 
+    @Transactional
+    public void updatePhotoAnswer(Long sessionId, Long questionId, String photoFileId, String photoCaption) {
+        answerRepository.findFirstBySessionIdAndQuestionIdOrderByAnsweredAtDesc(sessionId, questionId)
+                .ifPresent(a -> {
+                    a.setPhotoFileId(photoFileId);
+                    a.setPhotoCaption(photoCaption);
+                    a.setAnsweredAt(LocalDateTime.now());
+                    answerRepository.save(a);
+                });
+
+        repository.findById(sessionId).ifPresent(session -> {
+            session.setLastActivityAt(LocalDateTime.now());
+            repository.save(session);
+        });
+    }
+
     @Transactional(readOnly = true)
     public List<QuizSessionAnswerDto> getAnswersBySessionId(Long sessionId) {
         return answerRepository.findBySessionIdOrderByAnsweredAtAsc(sessionId).stream()
