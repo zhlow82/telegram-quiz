@@ -1,153 +1,230 @@
-﻿<template>
-  <AppLayout>
-    <div>
+<template>
+  <div>
 
-      <!-- Page header (full width, above sidebar) -->
-      <div class="flex items-center justify-between gap-4 pb-6 mb-6 border-b border-slate-200 flex-wrap">
-        <div class="flex items-center gap-4">
-          <div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center flex-shrink-0">
-            <BookOpen class="w-5 h-5 text-white" />
-          </div>
-          <div>
-            <h1 class="text-2xl font-black text-slate-900 leading-tight">{{ currentFolderLabel }}</h1>
-            <p class="text-sm text-slate-500 mt-0.5">
-              {{ visibleQuestions.length }} question{{ visibleQuestions.length !== 1 ? 's' : '' }}
-              <template v-if="typeof selectedFolderFilter === 'number' || selectedFolderFilter === 'unfiled'"> · drag to reorder</template>
-            </p>
-          </div>
+    <!-- Page header (full width, above sidebar) -->
+    <div class="flex items-center justify-between gap-4 pb-6 mb-6 border-b border-slate-200 flex-wrap">
+      <div class="flex items-center gap-4">
+        <div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center flex-shrink-0">
+          <BookOpen class="w-5 h-5 text-white" />
         </div>
-        <div class="flex items-center gap-3">
-          <div class="flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 rounded-lg w-56">
-            <Search class="w-4 h-4 text-slate-400 flex-shrink-0" />
-            <input
-              v-model="searchQuery"
-              type="text"
-              placeholder="Search questions..."
-              class="flex-1 text-sm text-slate-700 placeholder-slate-400 bg-transparent outline-none"
-            />
-          </div>
-          <button
-            class="inline-flex items-center gap-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm font-semibold px-4 py-2 rounded-lg transition cursor-pointer"
-            @click="openImportModal"
-          >
-            <Upload class="w-4 h-4" />
-            Import
-          </button>
-          <button
-            class="inline-flex items-center gap-2 bg-primary hover:bg-primary-hover text-white text-sm font-semibold px-4 py-2 rounded-full transition cursor-pointer"
-            @click="openCreate"
-          >
-            <Plus class="w-4 h-4" />
-            Add Question
-          </button>
+        <div>
+          <h1 class="text-2xl font-black text-slate-900 leading-tight">{{ currentFolderLabel }}</h1>
+          <p class="text-sm text-slate-500 mt-0.5">
+            {{ visibleQuestions.length }} question{{ visibleQuestions.length !== 1 ? 's' : '' }}
+            <template v-if="typeof selectedFolderFilter === 'number' || selectedFolderFilter === 'unfiled'"> · drag to reorder</template>
+          </p>
         </div>
       </div>
+      <div class="flex items-center gap-3">
+        <div class="flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 rounded-lg w-56">
+          <Search class="w-4 h-4 text-slate-400 flex-shrink-0" />
+          <input
+            v-model="searchQuery"
+            type="text"
+            placeholder="Search questions..."
+            class="flex-1 text-sm text-slate-700 placeholder-slate-400 bg-transparent outline-none"
+          />
+        </div>
+        <button
+          class="inline-flex items-center gap-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm font-semibold px-4 py-2 rounded-lg transition cursor-pointer"
+          @click="openImportModal"
+        >
+          <Upload class="w-4 h-4" />
+          Import
+        </button>
+        <button
+          class="inline-flex items-center gap-2 bg-primary hover:bg-primary-hover text-white text-sm font-semibold px-4 py-2 rounded-full transition cursor-pointer"
+          @click="openCreate"
+        >
+          <Plus class="w-4 h-4" />
+          Add Question
+        </button>
+      </div>
+    </div>
 
-      <!-- Selection action bar -->
-      <div
-        v-if="someSelected"
-        class="flex items-center gap-3 mb-4 px-4 py-3 rounded-xl bg-blue-50 border border-blue-200 sticky top-0 z-10 shadow-sm"
+    <!-- Selection action bar -->
+    <div
+      v-if="someSelected"
+      class="flex items-center gap-3 mb-4 px-4 py-3 rounded-xl bg-blue-50 border border-blue-200 sticky top-0 z-10 shadow-sm"
+    >
+      <button
+        class="w-5 h-5 rounded flex items-center justify-center text-blue-600 cursor-pointer"
+        @click="toggleSelectAll"
       >
-        <button
-          class="w-5 h-5 rounded flex items-center justify-center text-blue-600 cursor-pointer"
-          @click="toggleSelectAll"
-        >
-          <CheckSquare v-if="allVisibleSelected" class="w-5 h-5" />
-          <Square v-else class="w-5 h-5" />
-        </button>
-        <span class="text-sm font-medium text-blue-900">
-          {{ selectedQuestionIds.size }} of {{ visibleQuestions.length }} selected
-        </span>
-        <div class="flex-1" />
-        <button
-          class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-blue-700 bg-white border border-blue-200 hover:bg-blue-100 rounded-lg transition cursor-pointer"
-          @click="exportModalVisible = true"
-        >
-          <Download class="w-4 h-4" />
-          Export
-        </button>
-        <button
-          class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-blue-700 bg-white border border-blue-200 hover:bg-blue-100 rounded-lg transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-          :disabled="duplicatingInProgress"
-          @click="duplicateSelectedQuestions"
-        >
-          <Copy class="w-4 h-4" />
-          Duplicate
-        </button>
-        <button
-          class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-blue-700 bg-white border border-blue-200 hover:bg-blue-100 rounded-lg transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-          :disabled="movingInProgress"
-          @click="openMoveToFolderModal"
-        >
-          <FolderPlus class="w-4 h-4" />
-          Move to Folder
-        </button>
-        <button
-          class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-red-700 bg-white border border-red-200 hover:bg-red-100 rounded-lg transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-          :disabled="deletingInProgress"
-          @click="deleteSelectedQuestions"
-        >
-          <Trash2 class="w-4 h-4" />
-          Delete
-        </button>
-        <button
-          class="px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-white rounded-lg transition cursor-pointer"
-          @click="clearSelection"
-        >
-          Clear
-        </button>
-      </div>
+        <CheckSquare v-if="allVisibleSelected" class="w-5 h-5" />
+        <Square v-else class="w-5 h-5" />
+      </button>
+      <span class="text-sm font-medium text-blue-900">
+        {{ selectedQuestionIds.size }} of {{ visibleQuestions.length }} selected
+      </span>
+      <div class="flex-1" />
+      <button
+        class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-blue-700 bg-white border border-blue-200 hover:bg-blue-100 rounded-lg transition cursor-pointer"
+        @click="exportModalVisible = true"
+      >
+        <Download class="w-4 h-4" />
+        Export
+      </button>
+      <button
+        class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-blue-700 bg-white border border-blue-200 hover:bg-blue-100 rounded-lg transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+        :disabled="duplicatingInProgress"
+        @click="duplicateSelectedQuestions"
+      >
+        <Copy class="w-4 h-4" />
+        Duplicate
+      </button>
+      <button
+        class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-blue-700 bg-white border border-blue-200 hover:bg-blue-100 rounded-lg transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+        :disabled="movingInProgress"
+        @click="openMoveToFolderModal"
+      >
+        <FolderPlus class="w-4 h-4" />
+        Move to Folder
+      </button>
+      <button
+        class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-red-700 bg-white border border-red-200 hover:bg-red-100 rounded-lg transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+        :disabled="deletingInProgress"
+        @click="deleteSelectedQuestions"
+      >
+        <Trash2 class="w-4 h-4" />
+        Delete
+      </button>
+      <button
+        class="px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-white rounded-lg transition cursor-pointer"
+        @click="clearSelection"
+      >
+        Clear
+      </button>
+    </div>
 
-      <div class="flex gap-5 items-start">
+    <div class="flex gap-5 items-start">
 
-      <!-- -- Folder sidebar -- -->
-      <aside class="w-52 flex-shrink-0 hidden md:block sticky top-4 self-start">
-        <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+    <!-- -- Folder sidebar -- -->
+    <aside class="w-52 flex-shrink-0 hidden md:block sticky top-4 self-start">
+      <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
 
-          <!-- All Questions -->
-          <button
-            class="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-sm font-medium transition-colors cursor-pointer relative"
+        <!-- All Questions -->
+        <button
+          class="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-sm font-medium transition-colors cursor-pointer relative"
+          :class="[
+            selectedFolderFilter === null
+              ? 'bg-blue-50 text-blue-700 font-semibold border-l-4 border-l-blue-500'
+              : 'text-slate-700 hover:bg-slate-50 border-l-4 border-l-transparent'
+          ]"
+          @click="selectedFolderFilter = null"
+        >
+          <Library class="w-4 h-4 flex-shrink-0" :class="selectedFolderFilter === null ? 'text-blue-600' : 'text-slate-400'" />
+          <span class="flex-1 text-left truncate">All Questions</span>
+          <span class="text-xs font-bold" :class="selectedFolderFilter === null ? 'text-blue-500' : 'text-slate-400'">{{ questions.length }}</span>
+        </button>
+
+        <!-- Unfiled (also a drop target) -->
+        <button
+          class="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-sm font-medium transition-colors cursor-pointer border-t border-slate-100 relative"
+          :class="[
+            selectedFolderFilter === 'unfiled' ? 'bg-blue-50 text-blue-700 font-semibold border-l-4 border-l-blue-500' : 'text-slate-700 hover:bg-slate-50 border-l-4 border-l-transparent',
+            dropTarget === 'unfiled' ? 'ring-2 ring-inset ring-blue-400 bg-blue-50' : ''
+          ]"
+          @click="selectedFolderFilter = 'unfiled'"
+          @dragover.prevent="onDragOver('unfiled')"
+          @dragleave="onDragLeave"
+          @drop.prevent="onDrop('unfiled')"
+        >
+          <Inbox class="w-4 h-4 flex-shrink-0" :class="selectedFolderFilter === 'unfiled' ? 'text-blue-600' : 'text-slate-400'" />
+          <span class="flex-1 text-left truncate">Unfiled</span>
+          <span class="text-xs font-bold" :class="selectedFolderFilter === 'unfiled' ? 'text-blue-500' : 'text-slate-400'">{{ unfiledCount }}</span>
+        </button>
+
+        <!-- Folders divider -->
+        <div v-if="ownedFoldersModel.length || sharedFolders.length" class="border-t border-slate-100"></div>
+
+        <!-- Owned folder list (draggable, paginated) -->
+        <VueDraggable
+          v-model="ownedFoldersModel"
+          handle=".folder-drag-handle"
+          :animation="150"
+          ghost-class="drag-ghost"
+          @end="persistFolderReorder"
+        >
+        <div v-for="folder in paginatedOwnedFolders" :key="folder.id">
+          <div
+            class="group flex items-center gap-2 px-3.5 py-2.5 transition-colors cursor-pointer relative"
             :class="[
-              selectedFolderFilter === null
-                ? 'bg-blue-50 text-blue-700 font-semibold border-l-4 border-l-blue-500'
-                : 'text-slate-700 hover:bg-slate-50 border-l-4 border-l-transparent'
+              selectedFolderFilter === folder.id ? 'bg-blue-50 text-blue-700 border-l-4 border-l-blue-500' : 'text-slate-700 hover:bg-slate-50 border-l-4 border-l-transparent',
+              dropTarget === folder.id ? 'ring-2 ring-inset ring-blue-400 bg-blue-50' : ''
             ]"
-            @click="selectedFolderFilter = null"
-          >
-            <Library class="w-4 h-4 flex-shrink-0" :class="selectedFolderFilter === null ? 'text-blue-600' : 'text-slate-400'" />
-            <span class="flex-1 text-left truncate">All Questions</span>
-            <span class="text-xs font-bold" :class="selectedFolderFilter === null ? 'text-blue-500' : 'text-slate-400'">{{ questions.length }}</span>
-          </button>
-
-          <!-- Unfiled (also a drop target) -->
-          <button
-            class="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-sm font-medium transition-colors cursor-pointer border-t border-slate-100 relative"
-            :class="[
-              selectedFolderFilter === 'unfiled' ? 'bg-blue-50 text-blue-700 font-semibold border-l-4 border-l-blue-500' : 'text-slate-700 hover:bg-slate-50 border-l-4 border-l-transparent',
-              dropTarget === 'unfiled' ? 'ring-2 ring-inset ring-blue-400 bg-blue-50' : ''
-            ]"
-            @click="selectedFolderFilter = 'unfiled'"
-            @dragover.prevent="onDragOver('unfiled')"
+            @click="selectedFolderFilter = folder.id"
+            @dragover.prevent="onDragOver(folder.id)"
             @dragleave="onDragLeave"
-            @drop.prevent="onDrop('unfiled')"
+            @drop.prevent="onDrop(folder.id)"
           >
-            <Inbox class="w-4 h-4 flex-shrink-0" :class="selectedFolderFilter === 'unfiled' ? 'text-blue-600' : 'text-slate-400'" />
-            <span class="flex-1 text-left truncate">Unfiled</span>
-            <span class="text-xs font-bold" :class="selectedFolderFilter === 'unfiled' ? 'text-blue-500' : 'text-slate-400'">{{ unfiledCount }}</span>
+            <!-- Rename in-place -->
+            <template v-if="editingFolderId === folder.id">
+              <FolderOpen class="w-4 h-4 flex-shrink-0 text-blue-500" />
+              <input
+                v-model="editingFolderName"
+                class="flex-1 min-w-0 text-sm border border-blue-400 rounded px-1.5 py-0.5 outline-none bg-white text-slate-900"
+                @keydown.enter.prevent="submitFolderRename(folder.id)"
+                @keydown.escape="cancelFolderRename"
+                @blur="submitFolderRename(folder.id)"
+                ref="folderInputRef"
+              />
+            </template>
+            <template v-else>
+              <FolderIcon class="w-4 h-4 flex-shrink-0" :class="selectedFolderFilter === folder.id ? 'text-blue-500' : 'text-slate-400 group-hover:text-slate-500'" />
+              <span class="flex-1 text-left truncate text-sm font-medium">{{ folder.name }}</span>
+              <span class="text-xs font-bold group-hover:hidden" :class="selectedFolderFilter === folder.id ? 'text-blue-500' : 'text-slate-400'">{{ folderCounts[folder.id] ?? 0 }}</span>
+              <!-- Hover actions -->
+              <div class="hidden group-hover:flex items-center gap-0.5">
+                <button
+                  class="folder-drag-handle w-5 h-5 rounded flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition cursor-grab active:cursor-grabbing"
+                  title="Drag to reorder"
+                  @click.stop
+                ><GripVertical class="w-3 h-3" /></button>
+                <button
+                  class="w-5 h-5 rounded flex items-center justify-center text-slate-400 hover:text-blue-600 hover:bg-blue-100 transition cursor-pointer"
+                  title="Share folder"
+                  @click.stop="openShareModal(folder)"
+                ><Share2 class="w-3 h-3" /></button>
+                <button
+                  class="w-5 h-5 rounded flex items-center justify-center text-slate-400 hover:text-blue-600 hover:bg-blue-100 transition cursor-pointer"
+                  title="Rename"
+                  @click.stop="startFolderRename(folder)"
+                ><Pencil class="w-3 h-3" /></button>
+                <button
+                  class="w-5 h-5 rounded flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-50 transition cursor-pointer"
+                  title="Delete folder"
+                  @click.stop="confirmDeleteFolder(folder)"
+                ><Trash2 class="w-3 h-3" /></button>
+              </div>
+            </template>
+          </div>
+        </div>
+        </VueDraggable>
+
+        <!-- Folder pagination -->
+        <div v-if="ownedFolderPages > 1" class="flex items-center justify-center gap-2 px-3.5 py-2 border-t border-slate-100">
+          <button
+            class="w-6 h-6 rounded flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer disabled:opacity-30 disabled:cursor-default"
+            :disabled="folderPage === 1"
+            @click="folderPage--"
+          >
+            <ChevronLeft class="w-3.5 h-3.5" />
           </button>
-
-          <!-- Folders divider -->
-          <div v-if="ownedFoldersModel.length || sharedFolders.length" class="border-t border-slate-100"></div>
-
-          <!-- Owned folder list (draggable, paginated) -->
-          <VueDraggable
-            v-model="ownedFoldersModel"
-            handle=".folder-drag-handle"
-            :animation="150"
-            ghost-class="drag-ghost"
-            @end="persistFolderReorder"
+          <span class="text-xs text-slate-400">{{ folderPage }} / {{ ownedFolderPages }}</span>
+          <button
+            class="w-6 h-6 rounded flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer disabled:opacity-30 disabled:cursor-default"
+            :disabled="folderPage === ownedFolderPages"
+            @click="folderPage++"
           >
-          <div v-for="folder in paginatedOwnedFolders" :key="folder.id">
+            <ChevronRight class="w-3.5 h-3.5" />
+          </button>
+        </div>
+
+        <!-- Shared folders (static) -->
+        <template v-if="sharedFolders.length">
+          <div class="px-3.5 py-1.5 text-[0.65rem] font-semibold text-slate-400 uppercase tracking-wide border-t border-slate-100">Shared with me</div>
+          <div v-for="folder in sharedFolders" :key="folder.id">
             <div
               class="group flex items-center gap-2 px-3.5 py-2.5 transition-colors cursor-pointer relative"
               :class="[
@@ -159,258 +236,267 @@
               @dragleave="onDragLeave"
               @drop.prevent="onDrop(folder.id)"
             >
-              <!-- Rename in-place -->
-              <template v-if="editingFolderId === folder.id">
-                <FolderOpen class="w-4 h-4 flex-shrink-0 text-blue-500" />
-                <input
-                  v-model="editingFolderName"
-                  class="flex-1 min-w-0 text-sm border border-blue-400 rounded px-1.5 py-0.5 outline-none bg-white text-slate-900"
-                  @keydown.enter.prevent="submitFolderRename(folder.id)"
-                  @keydown.escape="cancelFolderRename"
-                  @blur="submitFolderRename(folder.id)"
-                  ref="folderInputRef"
-                />
-              </template>
-              <template v-else>
-                <FolderIcon class="w-4 h-4 flex-shrink-0" :class="selectedFolderFilter === folder.id ? 'text-blue-500' : 'text-slate-400 group-hover:text-slate-500'" />
-                <span class="flex-1 text-left truncate text-sm font-medium">{{ folder.name }}</span>
-                <span class="text-xs font-bold group-hover:hidden" :class="selectedFolderFilter === folder.id ? 'text-blue-500' : 'text-slate-400'">{{ folderCounts[folder.id] ?? 0 }}</span>
-                <!-- Hover actions -->
-                <div class="hidden group-hover:flex items-center gap-0.5">
-                  <button
-                    class="folder-drag-handle w-5 h-5 rounded flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition cursor-grab active:cursor-grabbing"
-                    title="Drag to reorder"
-                    @click.stop
-                  ><GripVertical class="w-3 h-3" /></button>
-                  <button
-                    class="w-5 h-5 rounded flex items-center justify-center text-slate-400 hover:text-blue-600 hover:bg-blue-100 transition cursor-pointer"
-                    title="Share folder"
-                    @click.stop="openShareModal(folder)"
-                  ><Share2 class="w-3 h-3" /></button>
-                  <button
-                    class="w-5 h-5 rounded flex items-center justify-center text-slate-400 hover:text-blue-600 hover:bg-blue-100 transition cursor-pointer"
-                    title="Rename"
-                    @click.stop="startFolderRename(folder)"
-                  ><Pencil class="w-3 h-3" /></button>
-                  <button
-                    class="w-5 h-5 rounded flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-50 transition cursor-pointer"
-                    title="Delete folder"
-                    @click.stop="confirmDeleteFolder(folder)"
-                  ><Trash2 class="w-3 h-3" /></button>
-                </div>
-              </template>
-            </div>
-          </div>
-          </VueDraggable>
-
-          <!-- Folder pagination -->
-          <div v-if="ownedFolderPages > 1" class="flex items-center justify-center gap-2 px-3.5 py-2 border-t border-slate-100">
-            <button
-              class="w-6 h-6 rounded flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer disabled:opacity-30 disabled:cursor-default"
-              :disabled="folderPage === 1"
-              @click="folderPage--"
-            >
-              <ChevronLeft class="w-3.5 h-3.5" />
-            </button>
-            <span class="text-xs text-slate-400">{{ folderPage }} / {{ ownedFolderPages }}</span>
-            <button
-              class="w-6 h-6 rounded flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer disabled:opacity-30 disabled:cursor-default"
-              :disabled="folderPage === ownedFolderPages"
-              @click="folderPage++"
-            >
-              <ChevronRight class="w-3.5 h-3.5" />
-            </button>
-          </div>
-
-          <!-- Shared folders (static) -->
-          <template v-if="sharedFolders.length">
-            <div class="px-3.5 py-1.5 text-[0.65rem] font-semibold text-slate-400 uppercase tracking-wide border-t border-slate-100">Shared with me</div>
-            <div v-for="folder in sharedFolders" :key="folder.id">
-              <div
-                class="group flex items-center gap-2 px-3.5 py-2.5 transition-colors cursor-pointer relative"
-                :class="[
-                  selectedFolderFilter === folder.id ? 'bg-blue-50 text-blue-700 border-l-4 border-l-blue-500' : 'text-slate-700 hover:bg-slate-50 border-l-4 border-l-transparent',
-                  dropTarget === folder.id ? 'ring-2 ring-inset ring-blue-400 bg-blue-50' : ''
-                ]"
-                @click="selectedFolderFilter = folder.id"
-                @dragover.prevent="onDragOver(folder.id)"
-                @dragleave="onDragLeave"
-                @drop.prevent="onDrop(folder.id)"
-              >
-                <FolderSymlink class="w-4 h-4 flex-shrink-0" :class="selectedFolderFilter === folder.id ? 'text-blue-500' : 'text-slate-400 group-hover:text-slate-500'" />
-                <span class="flex-1 text-left truncate text-sm font-medium">{{ folder.name }}</span>
-                <span class="text-xs font-bold group-hover:hidden" :class="selectedFolderFilter === folder.id ? 'text-blue-500' : 'text-slate-400'">{{ folderCounts[folder.id] ?? 0 }}</span>
-                <!-- Hover actions for shared folder -->
-                <div class="hidden group-hover:flex items-center gap-0.5">
-                  <button
-                    class="w-5 h-5 rounded flex items-center justify-center text-slate-400 hover:text-blue-600 hover:bg-blue-100 transition cursor-pointer"
-                    :title="folder.role === 'CO_OWNER' ? 'Share folder' : 'View members'"
-                    @click.stop="openShareModal(folder)"
-                  ><Share2 class="w-3 h-3" /></button>
-                  <button
-                    v-if="folder.role === 'CO_OWNER'"
-                    class="w-5 h-5 rounded flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-50 transition cursor-pointer"
-                    title="Delete folder"
-                    @click.stop="confirmDeleteFolder(folder)"
-                  ><Trash2 class="w-3 h-3" /></button>
-                </div>
+              <FolderSymlink class="w-4 h-4 flex-shrink-0" :class="selectedFolderFilter === folder.id ? 'text-blue-500' : 'text-slate-400 group-hover:text-slate-500'" />
+              <span class="flex-1 text-left truncate text-sm font-medium">{{ folder.name }}</span>
+              <span class="text-xs font-bold group-hover:hidden" :class="selectedFolderFilter === folder.id ? 'text-blue-500' : 'text-slate-400'">{{ folderCounts[folder.id] ?? 0 }}</span>
+              <!-- Hover actions for shared folder -->
+              <div class="hidden group-hover:flex items-center gap-0.5">
+                <button
+                  class="w-5 h-5 rounded flex items-center justify-center text-slate-400 hover:text-blue-600 hover:bg-blue-100 transition cursor-pointer"
+                  :title="folder.role === 'CO_OWNER' ? 'Share folder' : 'View members'"
+                  @click.stop="openShareModal(folder)"
+                ><Share2 class="w-3 h-3" /></button>
+                <button
+                  v-if="folder.role === 'CO_OWNER'"
+                  class="w-5 h-5 rounded flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-50 transition cursor-pointer"
+                  title="Delete folder"
+                  @click.stop="confirmDeleteFolder(folder)"
+                ><Trash2 class="w-3 h-3" /></button>
               </div>
             </div>
-          </template>
+          </div>
+        </template>
 
-          <!-- Pending invitations -->
-          <template v-if="pendingInvitations.length">
-            <div class="border-t border-slate-100">
-              <button
-                class="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-sm font-medium text-amber-600 hover:bg-amber-50 transition-colors cursor-pointer"
-                @click="invitationsExpanded = !invitationsExpanded"
-              >
-                <Bell class="w-4 h-4 flex-shrink-0" />
-                <span class="flex-1 text-left">Invitations</span>
-                <span class="text-xs font-bold bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full">{{ pendingInvitations.length }}</span>
-                <ChevronDown class="w-3 h-3 flex-shrink-0 transition-transform" :class="invitationsExpanded ? 'rotate-180' : ''" />
-              </button>
-              <div v-if="invitationsExpanded" class="px-3 pb-2 space-y-2">
-                <div
-                  v-for="inv in pendingInvitations"
-                  :key="inv.id"
-                  class="rounded-lg bg-amber-50 border border-amber-100 p-2.5"
-                >
-                  <p class="text-xs font-semibold text-slate-800 mb-0.5 truncate">{{ inv.folderName }}</p>
-                  <p class="text-[0.65rem] text-slate-500 mb-1.5">
-                    {{ inv.invitedBy }} — {{ inv.role === 'CO_OWNER' ? 'Co-owner' : 'Contributor' }}
-                  </p>
-                  <div class="flex gap-1.5">
-                    <button
-                      class="flex-1 text-[0.65rem] font-semibold bg-primary hover:bg-primary-hover text-white px-2 py-1 rounded-full transition cursor-pointer"
-                      @click="acceptInvite(inv.id)"
-                    >Accept</button>
-                    <button
-                      class="flex-1 text-[0.65rem] font-semibold bg-white hover:bg-slate-100 text-slate-600 border border-slate-200 px-2 py-1 rounded-md transition cursor-pointer"
-                      @click="declineInvite(inv.id)"
-                    >Decline</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </template>
+        <!-- Pending invitations -->
+        <template v-if="pendingInvitations.length">
           <div class="border-t border-slate-100">
-            <div v-if="creatingFolder" class="flex items-center gap-2 px-3 py-2">
-              <FolderPlus class="w-4 h-4 text-blue-500 flex-shrink-0" />
-              <input
-                v-model="newFolderName"
-                class="flex-1 min-w-0 text-sm border border-blue-400 rounded px-1.5 py-0.5 outline-none bg-white text-slate-900"
-                placeholder="Folder name"
-                @keydown.enter.prevent="submitCreateFolder"
-                @keydown.escape="cancelCreateFolder"
-                @blur="submitCreateFolder"
-                ref="newFolderInputRef"
-              />
-            </div>
             <button
-              v-else
-              class="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-sm text-slate-400 hover:text-blue-600 hover:bg-slate-50 transition-colors cursor-pointer"
-              @click="startCreateFolder"
+              class="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-sm font-medium text-amber-600 hover:bg-amber-50 transition-colors cursor-pointer"
+              @click="invitationsExpanded = !invitationsExpanded"
             >
-              <FolderPlus class="w-4 h-4 flex-shrink-0" />
-              New folder
+              <Bell class="w-4 h-4 flex-shrink-0" />
+              <span class="flex-1 text-left">Invitations</span>
+              <span class="text-xs font-bold bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full">{{ pendingInvitations.length }}</span>
+              <ChevronDown class="w-3 h-3 flex-shrink-0 transition-transform" :class="invitationsExpanded ? 'rotate-180' : ''" />
             </button>
-          </div>
-
-        </div>
-      </aside>
-
-      <!-- -- Main content -- -->
-      <div class="flex-1 min-w-0">
-
-        <!-- Error state -->
-        <div
-          v-if="loadError"
-          class="flex items-center gap-3 mb-4 px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm"
-        >
-          <AlertCircle class="w-4 h-4 flex-shrink-0" />
-          Failed to load questions. Please refresh.
-        </div>
-
-        <!-- Loading skeleton -->
-        <div v-else-if="loading" class="bg-white rounded-xl border border-slate-200 overflow-hidden">
-          <div v-for="i in 4" :key="i" class="flex items-center gap-4 px-5 py-4 border-b border-slate-100 last:border-0">
-            <div class="w-4 h-8 bg-slate-200 rounded animate-pulse flex-shrink-0"></div>
-            <div class="flex-1 flex flex-col gap-2">
-              <div class="h-3.5 bg-slate-100 rounded animate-pulse" style="animation-delay: 0.05s"></div>
-              <div class="h-3 bg-slate-100 rounded animate-pulse w-2/5" style="animation-delay: 0.1s"></div>
+            <div v-if="invitationsExpanded" class="px-3 pb-2 space-y-2">
+              <div
+                v-for="inv in pendingInvitations"
+                :key="inv.id"
+                class="rounded-lg bg-amber-50 border border-amber-100 p-2.5"
+              >
+                <p class="text-xs font-semibold text-slate-800 mb-0.5 truncate">{{ inv.folderName }}</p>
+                <p class="text-[0.65rem] text-slate-500 mb-1.5">
+                  {{ inv.invitedBy }} — {{ inv.role === 'CO_OWNER' ? 'Co-owner' : 'Contributor' }}
+                </p>
+                <div class="flex gap-1.5">
+                  <button
+                    class="flex-1 text-[0.65rem] font-semibold bg-primary hover:bg-primary-hover text-white px-2 py-1 rounded-full transition cursor-pointer"
+                    @click="acceptInvite(inv.id)"
+                  >Accept</button>
+                  <button
+                    class="flex-1 text-[0.65rem] font-semibold bg-white hover:bg-slate-100 text-slate-600 border border-slate-200 px-2 py-1 rounded-md transition cursor-pointer"
+                    @click="declineInvite(inv.id)"
+                  >Decline</button>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-
-        <!-- Empty state -->
-        <div
-          v-else-if="visibleQuestions.length === 0"
-          class="bg-white rounded-xl border border-slate-200 flex flex-col items-center gap-4 py-16 px-6 text-center"
-        >
-          <div class="relative">
-            <div class="w-20 h-20 bg-gradient-to-br from-blue-100 to-blue-50 rounded-2xl flex items-center justify-center">
-              <BookOpen class="w-10 h-10 text-blue-600" />
-            </div>
-            <div class="absolute -top-2 -right-2 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-              <Plus class="w-5 h-5 text-white" />
-            </div>
-          </div>
-          <div>
-            <p class="font-bold text-slate-900 text-lg mb-2">No questions here</p>
-            <p class="text-sm text-slate-500 max-w-sm">
-              {{ selectedFolderFilter === null 
-                ? 'Start building your question bank by adding your first question.' 
-                : 'This folder is empty. Add questions or move them from other folders.' }}
-            </p>
+        </template>
+        <div class="border-t border-slate-100">
+          <div v-if="creatingFolder" class="flex items-center gap-2 px-3 py-2">
+            <FolderPlus class="w-4 h-4 text-blue-500 flex-shrink-0" />
+            <input
+              v-model="newFolderName"
+              class="flex-1 min-w-0 text-sm border border-blue-400 rounded px-1.5 py-0.5 outline-none bg-white text-slate-900"
+              placeholder="Folder name"
+              @keydown.enter.prevent="submitCreateFolder"
+              @keydown.escape="cancelCreateFolder"
+              @blur="submitCreateFolder"
+              ref="newFolderInputRef"
+            />
           </div>
           <button
-            class="inline-flex items-center gap-2 bg-primary hover:bg-primary-hover text-white text-sm font-semibold px-5 py-2.5 rounded-full transition cursor-pointer shadow-sm"
-            @click="openCreate"
+            v-else
+            class="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-sm text-slate-400 hover:text-blue-600 hover:bg-slate-50 transition-colors cursor-pointer"
+            @click="startCreateFolder"
           >
-            <Plus class="w-4 h-4" />
-            Add Question
+            <FolderPlus class="w-4 h-4 flex-shrink-0" />
+            New folder
           </button>
         </div>
 
-        <!-- Question list (All view — read only) -->
-        <div v-else-if="selectedFolderFilter === null" class="bg-white rounded-xl border border-slate-200 overflow-hidden">
-          <div v-for="(q, i) in questions" :key="q.id"
-            class="flex items-center gap-3 px-5 py-3.5 border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors relative"
+      </div>
+    </aside>
+
+    <!-- -- Main content -- -->
+    <div class="flex-1 min-w-0">
+
+      <!-- Error state -->
+      <div
+        v-if="loadError"
+        class="flex items-center gap-3 mb-4 px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm"
+      >
+        <AlertCircle class="w-4 h-4 flex-shrink-0" />
+        Failed to load questions. Please refresh.
+      </div>
+
+      <!-- Loading skeleton -->
+      <div v-else-if="loading" class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+        <div v-for="i in 4" :key="i" class="flex items-center gap-4 px-5 py-4 border-b border-slate-100 last:border-0">
+          <div class="w-4 h-8 bg-slate-200 rounded animate-pulse flex-shrink-0"></div>
+          <div class="flex-1 flex flex-col gap-2">
+            <div class="h-3.5 bg-slate-100 rounded animate-pulse" style="animation-delay: 0.05s"></div>
+            <div class="h-3 bg-slate-100 rounded animate-pulse w-2/5" style="animation-delay: 0.1s"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty state -->
+      <div
+        v-else-if="visibleQuestions.length === 0"
+        class="bg-white rounded-xl border border-slate-200 flex flex-col items-center gap-4 py-16 px-6 text-center"
+      >
+        <div class="relative">
+          <div class="w-20 h-20 bg-gradient-to-br from-blue-100 to-blue-50 rounded-2xl flex items-center justify-center">
+            <BookOpen class="w-10 h-10 text-blue-600" />
+          </div>
+          <div class="absolute -top-2 -right-2 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+            <Plus class="w-5 h-5 text-white" />
+          </div>
+        </div>
+        <div>
+          <p class="font-bold text-slate-900 text-lg mb-2">No questions here</p>
+          <p class="text-sm text-slate-500 max-w-sm">
+            {{ selectedFolderFilter === null 
+              ? 'Start building your question bank by adding your first question.' 
+              : 'This folder is empty. Add questions or move them from other folders.' }}
+          </p>
+        </div>
+        <button
+          class="inline-flex items-center gap-2 bg-primary hover:bg-primary-hover text-white text-sm font-semibold px-5 py-2.5 rounded-full transition cursor-pointer shadow-sm"
+          @click="openCreate"
+        >
+          <Plus class="w-4 h-4" />
+          Add Question
+        </button>
+      </div>
+
+      <!-- Question list (All view — read only) -->
+      <div v-else-if="selectedFolderFilter === null" class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+        <div v-for="(q, i) in questions" :key="q.id"
+          class="flex items-center gap-3 px-5 py-3.5 border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors relative"
+          :class="[
+            { 'question-highlight': highlightedQuestionIds.has(q.id) },
+            getQuestionTypeBorderClass(q)
+          ]"
+        >
+          <button
+            class="w-5 h-5 rounded flex items-center justify-center flex-shrink-0 cursor-pointer"
+            :class="selectedQuestionIds.has(q.id) ? 'text-blue-600' : 'text-slate-300 hover:text-slate-400'"
+            @click.stop="toggleSelect(q.id)"
+          >
+            <CheckSquare v-if="selectedQuestionIds.has(q.id)" class="w-5 h-5" />
+            <Square v-else class="w-5 h-5" />
+          </button>
+            <span class="text-[0.8125rem] font-bold text-slate-300 w-[22px] shrink-0 text-right">{{ i + 1 }}</span>
+            <div v-if="q.questionBlocks.some(b => b.type === 'image')" class="relative w-10 h-10 shrink-0">
+              <img
+                :src="`/api/files/${q.questionBlocks.find(b => b.type === 'image')?.content}`"
+                class="w-10 h-10 rounded-lg object-cover border border-slate-200 bg-slate-100"
+                alt=""
+              />
+              <span
+                v-if="totalImageCount(q) > 1"
+                class="absolute -bottom-1 -right-1 bg-slate-700 text-white text-[0.55rem] font-bold leading-none px-1 py-0.5 rounded-md"
+              >+{{ totalImageCount(q) - 1 }}</span>
+            </div>
+            <div v-else class="w-10 h-10 shrink-0" />
+            <div class="flex-1 min-w-0">
+              <span class="block text-sm text-slate-800 leading-snug max-h-[2.5rem] overflow-hidden" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">{{ stripHtml(q.questionBlocks.find(b => b.type === 'text')?.content || '') || '(no text)' }}</span>
+              <div class="flex gap-1.5 mt-1 flex-wrap">
+                <span v-if="q.isBriefing" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-amber-100 text-amber-700">
+                  <BookOpen class="w-3 h-3" />Briefing
+                </span>
+                <span v-else-if="q.expectsTextInput" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-700">
+                  <Users class="w-3 h-3" />Team Input
+              </span>
+              <span v-else-if="!q.expectPhoto && !q.isBriefing && !q.expectsTextInput" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-blue-100 text-blue-700">
+                <ListChecks class="w-3 h-3" />Multiple Choice
+              </span>
+              <span v-else-if="q.expectPhoto" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-violet-100 text-violet-700">
+                <Camera class="w-3 h-3" />Photo
+              </span>
+              <span v-if="!q.isBriefing && q.options.length" class="inline-flex items-center text-[0.6875rem] font-medium px-2 py-0.5 rounded-md bg-slate-100 text-slate-500">{{ q.options.length }} options</span>
+              <span v-if="q.folderId != null" class="inline-flex items-center gap-1 text-[0.6875rem] font-medium px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700">
+                <FolderIcon class="w-3 h-3" />{{ folders.find(f => f.id === q.folderId)?.name }}
+              </span>
+            </div>
+            <p v-if="q.updatedAt" class="text-[0.65rem] text-slate-400 mt-0.5 truncate">{{ formatRelative(q.updatedAt) }}<template v-if="q.updatedBy"> — {{ q.updatedBy }}</template></p>
+          </div>
+          <div class="flex items-center gap-1.5 flex-shrink-0">
+            <div v-if="!q.isBriefing && !q.expectsTextInput && q.mark != null && q.mark > 0" class="flex flex-col items-center justify-center w-9 shrink-0">
+              <span class="text-sm font-bold text-slate-700 leading-none">{{ q.mark }}</span>
+              <span class="text-[0.6rem] font-medium text-slate-400 uppercase tracking-wide leading-none mt-0.5">pts</span>
+            </div>
+            <div v-else class="w-9 shrink-0" />
+            <button class="w-8 h-8 rounded-lg bg-slate-50 hover:bg-slate-100 flex items-center justify-center text-slate-500 transition cursor-pointer" title="Duplicate" @click="duplicateQuestion(q)">
+              <Copy class="w-3.5 h-3.5" />
+            </button>
+            <button class="w-8 h-8 rounded-lg bg-blue-50 hover:bg-blue-100 flex items-center justify-center text-blue-600 transition cursor-pointer" title="Edit" @click="openEdit(q)">
+              <Pencil class="w-3.5 h-3.5" />
+            </button>
+            <button v-if="canDeleteQuestion(q)" class="w-8 h-8 rounded-lg bg-red-50 hover:bg-red-100 flex items-center justify-center text-red-500 transition cursor-pointer" title="Delete" @click="confirmDelete(q)">
+              <Trash2 class="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Question list (Unfiled view — draggable to reorder + draggable to sidebar folders) -->
+      <div v-else-if="selectedFolderFilter === 'unfiled'" class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+        <VueDraggable
+          v-model="unfiledQuestions"
+          handle=".drag-handle"
+          :animation="200"
+          ghost-class="drag-ghost"
+          @end="persistUnfiledQuestionsReorder"
+        >
+          <div v-for="(q, i) in unfiledQuestions" :key="q.id"
+            class="flex items-center gap-3 px-5 py-3.5 border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors select-none relative"
             :class="[
-              { 'question-highlight': highlightedQuestionIds.has(q.id) },
+              { 'opacity-50': draggingQuestions.some(dq => dq.id === q.id), 'question-highlight': highlightedQuestionIds.has(q.id) },
               getQuestionTypeBorderClass(q)
             ]"
+            draggable="true"
+            @dragstart="onDragStartFolder(q, $event)"
+            @dragend="onDragEnd"
           >
             <button
-              class="w-5 h-5 rounded flex items-center justify-center flex-shrink-0 cursor-pointer"
+              class="w-5 h-5 rounded flex items-center justify-center flex-shrink-0 cursor-pointer z-10"
               :class="selectedQuestionIds.has(q.id) ? 'text-blue-600' : 'text-slate-300 hover:text-slate-400'"
               @click.stop="toggleSelect(q.id)"
             >
               <CheckSquare v-if="selectedQuestionIds.has(q.id)" class="w-5 h-5" />
               <Square v-else class="w-5 h-5" />
             </button>
-              <span class="text-[0.8125rem] font-bold text-slate-300 w-[22px] shrink-0 text-right">{{ i + 1 }}</span>
-              <div v-if="q.questionBlocks.some(b => b.type === 'image')" class="relative w-10 h-10 shrink-0">
-                <img
-                  :src="`/api/files/${q.questionBlocks.find(b => b.type === 'image')?.content}`"
-                  class="w-10 h-10 rounded-lg object-cover border border-slate-200 bg-slate-100"
-                  alt=""
-                />
-                <span
-                  v-if="totalImageCount(q) > 1"
-                  class="absolute -bottom-1 -right-1 bg-slate-700 text-white text-[0.55rem] font-bold leading-none px-1 py-0.5 rounded-md"
-                >+{{ totalImageCount(q) - 1 }}</span>
-              </div>
-              <div v-else class="w-10 h-10 shrink-0" />
-              <div class="flex-1 min-w-0">
-                <span class="block text-sm text-slate-800 leading-snug max-h-[2.5rem] overflow-hidden" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">{{ stripHtml(q.questionBlocks.find(b => b.type === 'text')?.content || '') || '(no text)' }}</span>
-                <div class="flex gap-1.5 mt-1 flex-wrap">
-                  <span v-if="q.isBriefing" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-amber-100 text-amber-700">
-                    <BookOpen class="w-3 h-3" />Briefing
-                  </span>
-                  <span v-else-if="q.expectsTextInput" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-700">
-                    <Users class="w-3 h-3" />Team Input
+            <button
+              class="drag-handle bg-transparent border-0 cursor-grab p-1 rounded flex shrink-0 text-slate-300 hover:text-slate-400 active:cursor-grabbing transition-colors"
+              title="Drag to reorder" aria-label="Drag"
+            >
+              <GripVertical class="w-4 h-4" />
+            </button>
+            <span class="text-[0.8125rem] font-bold text-slate-300 w-[22px] shrink-0 text-right">{{ i + 1 }}</span>
+            <div v-if="q.questionBlocks.some(b => b.type === 'image')" class="relative w-10 h-10 shrink-0">
+              <img
+                :src="`/api/files/${q.questionBlocks.find(b => b.type === 'image')?.content}`"
+                class="w-10 h-10 rounded-lg object-cover border border-slate-200 bg-slate-100"
+                alt=""
+              />
+              <span
+                v-if="totalImageCount(q) > 1"
+                class="absolute -bottom-1 -right-1 bg-slate-700 text-white text-[0.55rem] font-bold leading-none px-1 py-0.5 rounded-md"
+              >+{{ totalImageCount(q) - 1 }}</span>
+            </div>
+            <div v-else class="w-10 h-10 shrink-0" />
+            <div class="flex-1 min-w-0">
+              <span class="block text-sm text-slate-800 leading-snug max-h-[2.5rem] overflow-hidden" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">{{ stripHtml(q.questionBlocks.find(b => b.type === 'text')?.content || '') || '(no text)' }}</span>
+              <div class="flex gap-1.5 mt-1 flex-wrap">
+                <span v-if="q.isBriefing" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-amber-100 text-amber-700">
+                  <BookOpen class="w-3 h-3" />Briefing
+                </span>
+                <span v-else-if="q.expectsTextInput" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-700">
+                  <Users class="w-3 h-3" />Team Input
                 </span>
                 <span v-else-if="!q.expectPhoto && !q.isBriefing && !q.expectsTextInput" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-blue-100 text-blue-700">
                   <ListChecks class="w-3 h-3" />Multiple Choice
@@ -419,9 +505,91 @@
                   <Camera class="w-3 h-3" />Photo
                 </span>
                 <span v-if="!q.isBriefing && q.options.length" class="inline-flex items-center text-[0.6875rem] font-medium px-2 py-0.5 rounded-md bg-slate-100 text-slate-500">{{ q.options.length }} options</span>
-                <span v-if="q.folderId != null" class="inline-flex items-center gap-1 text-[0.6875rem] font-medium px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700">
-                  <FolderIcon class="w-3 h-3" />{{ folders.find(f => f.id === q.folderId)?.name }}
+              </div>
+              <p v-if="q.updatedAt" class="text-[0.65rem] text-slate-400 mt-0.5 truncate">{{ formatRelative(q.updatedAt) }}<template v-if="q.updatedBy"> — {{ q.updatedBy }}</template></p>
+            </div>
+            <div class="flex items-center gap-1.5 flex-shrink-0">
+              <div v-if="!q.isBriefing && !q.expectsTextInput && q.mark != null && q.mark > 0" class="flex flex-col items-center justify-center w-9 shrink-0">
+                <span class="text-sm font-bold text-slate-700 leading-none">{{ q.mark }}</span>
+                <span class="text-[0.6rem] font-medium text-slate-400 uppercase tracking-wide leading-none mt-0.5">pts</span>
+              </div>
+              <div v-else class="w-9 shrink-0" />
+              <button class="w-8 h-8 rounded-lg bg-slate-50 hover:bg-slate-100 flex items-center justify-center text-slate-500 transition cursor-pointer" title="Duplicate" @click="duplicateQuestion(q)">
+                <Copy class="w-3.5 h-3.5" />
+              </button>
+              <button class="w-8 h-8 rounded-lg bg-blue-50 hover:bg-blue-100 flex items-center justify-center text-blue-600 transition cursor-pointer" title="Edit" @click="openEdit(q)">
+                <Pencil class="w-3.5 h-3.5" />
+              </button>
+              <button class="w-8 h-8 rounded-lg bg-red-50 hover:bg-red-100 flex items-center justify-center text-red-500 transition cursor-pointer" title="Delete" @click="confirmDelete(q)">
+                <Trash2 class="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+        </VueDraggable>
+      </div>
+
+      <!-- Question list (Folder view — draggable to reorder within folder) -->
+      <div v-else class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+        <VueDraggable
+          v-model="folderQuestions"
+          handle=".drag-handle"
+          :animation="200"
+          ghost-class="drag-ghost"
+          @end="persistFolderQuestionsReorder"
+        >
+          <div v-for="(q, i) in folderQuestions" :key="q.id"
+            class="flex items-center gap-3 px-5 py-3.5 border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors select-none relative"
+            :class="[
+              { 'opacity-50': draggingQuestions.some(dq => dq.id === q.id), 'question-highlight': highlightedQuestionIds.has(q.id) },
+              getQuestionTypeBorderClass(q)
+            ]"
+            draggable="true"
+            @dragstart="onDragStartFolder(q, $event)"
+            @dragend="onDragEnd"
+          >
+            <button
+              class="w-5 h-5 rounded flex items-center justify-center flex-shrink-0 cursor-pointer z-10"
+              :class="selectedQuestionIds.has(q.id) ? 'text-blue-600' : 'text-slate-300 hover:text-slate-400'"
+              @click.stop="toggleSelect(q.id)"
+            >
+              <CheckSquare v-if="selectedQuestionIds.has(q.id)" class="w-5 h-5" />
+              <Square v-else class="w-5 h-5" />
+            </button>
+            <button
+              class="drag-handle bg-transparent border-0 cursor-grab p-1 rounded flex shrink-0 text-slate-300 hover:text-slate-400 active:cursor-grabbing transition-colors"
+              title="Drag to reorder" aria-label="Drag"
+            >
+              <GripVertical class="w-4 h-4" />
+            </button>
+            <span class="text-[0.8125rem] font-bold text-slate-300 w-[22px] shrink-0 text-right">{{ i + 1 }}</span>
+            <div v-if="q.questionBlocks.some(b => b.type === 'image')" class="relative w-10 h-10 shrink-0">
+              <img
+                :src="`/api/files/${q.questionBlocks.find(b => b.type === 'image')?.content}`"
+                class="w-10 h-10 rounded-lg object-cover border border-slate-200 bg-slate-100"
+                alt=""
+              />
+              <span
+                v-if="totalImageCount(q) > 1"
+                class="absolute -bottom-1 -right-1 bg-slate-700 text-white text-[0.55rem] font-bold leading-none px-1 py-0.5 rounded-md"
+              >+{{ totalImageCount(q) - 1 }}</span>
+            </div>
+            <div v-else class="w-10 h-10 shrink-0" />
+            <div class="flex-1 min-w-0">
+              <span class="block text-sm text-slate-800 leading-snug max-h-[2.5rem] overflow-hidden" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">{{ stripHtml(q.questionBlocks.find(b => b.type === 'text')?.content || '') || '(no text)' }}</span>
+              <div class="flex gap-1.5 mt-1 flex-wrap">
+                <span v-if="q.isBriefing" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-amber-100 text-amber-700">
+                  <BookOpen class="w-3 h-3" />Briefing
                 </span>
+                <span v-else-if="q.expectsTextInput" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-700">
+                  <Users class="w-3 h-3" />Team Input
+                </span>
+                <span v-else-if="!q.expectPhoto && !q.isBriefing && !q.expectsTextInput" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-blue-100 text-blue-700">
+                  <ListChecks class="w-3 h-3" />Multiple Choice
+                </span>
+                <span v-else-if="q.expectPhoto" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-violet-100 text-violet-700">
+                  <Camera class="w-3 h-3" />Photo
+                </span>
+                <span v-if="!q.isBriefing && q.options.length" class="inline-flex items-center text-[0.6875rem] font-medium px-2 py-0.5 rounded-md bg-slate-100 text-slate-500">{{ q.options.length }} options</span>
               </div>
               <p v-if="q.updatedAt" class="text-[0.65rem] text-slate-400 mt-0.5 truncate">{{ formatRelative(q.updatedAt) }}<template v-if="q.updatedBy"> — {{ q.updatedBy }}</template></p>
             </div>
@@ -442,288 +610,118 @@
               </button>
             </div>
           </div>
-        </div>
+        </VueDraggable>
+      </div>
 
-        <!-- Question list (Unfiled view — draggable to reorder + draggable to sidebar folders) -->
-        <div v-else-if="selectedFolderFilter === 'unfiled'" class="bg-white rounded-xl border border-slate-200 overflow-hidden">
-          <VueDraggable
-            v-model="unfiledQuestions"
-            handle=".drag-handle"
-            :animation="200"
-            ghost-class="drag-ghost"
-            @end="persistUnfiledQuestionsReorder"
+    </div>
+  </div>
+
+  <!-- Form modal -->
+  <QuestionFormModal
+    :visible="modalVisible"
+    :question="editingQuestion"
+    :folders="folders"
+    :default-folder-id="activeFolderId"
+    @close="modalVisible = false"
+    @saved="onSaved"
+  />
+
+  <!-- App dialog (confirm / alert) -->
+  <AppDialog
+    :visible="dialogVisible"
+    :type="dialogType"
+    :title="dialogTitle"
+    :message="dialogMessage"
+    @confirm="onDialogConfirm"
+    @cancel="onDialogCancel"
+  />
+
+  <!-- Folder members / share modal -->
+  <FolderMembersModal
+    :visible="shareModalFolderId !== null"
+    :folder-id="shareModalFolderId"
+    :folder-name="shareModalFolderName"
+    :folder-owner="shareModalFolderOwner"
+    :current-username="currentUsername"
+    :readonly="shareModalReadonly"
+    @close="closeShareModal"
+  />
+
+  <!-- Export modal -->
+  <ExportModal
+    :visible="exportModalVisible"
+    :selected-count="selectedQuestionIds.size"
+    :question-ids="Array.from(selectedQuestionIds)"
+    @close="exportModalVisible = false"
+    @exported="clearSelection"
+  />
+
+  <!-- Import modal -->
+  <ImportModal
+    :visible="importModalVisible"
+    @close="importModalVisible = false"
+    @imported="onImported"
+  />
+
+  <!-- Move to folder modal -->
+  <teleport to="body">
+    <transition
+      enter-active-class="transition-opacity duration-150"
+      enter-from-class="opacity-0"
+      enter-to-class="opacity-100"
+      leave-active-class="transition-opacity duration-150"
+      leave-from-class="opacity-100"
+      leave-to-class="opacity-0"
+    >
+    <div v-if="moveToFolderModalVisible" class="fixed inset-0 z-50 flex items-center justify-center">
+      <div class="fixed inset-0 bg-black/40" />
+      <div class="relative bg-white rounded-xl shadow-xl w-full max-w-sm mx-4 overflow-hidden">
+        <div class="flex items-center justify-between px-5 py-4 border-b border-slate-200">
+          <h3 class="text-lg font-bold text-slate-900">Move to Folder</h3>
+          <button class="w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition cursor-pointer" @click="moveToFolderModalVisible = false">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+        <div class="px-5 py-4">
+          <p class="text-sm text-slate-600 mb-3">Move {{ selectedQuestionIds.size }} question(s) to:</p>
+          <select
+            v-model="moveToFolderTarget"
+            class="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-primary bg-white text-slate-700"
           >
-            <div v-for="(q, i) in unfiledQuestions" :key="q.id"
-              class="flex items-center gap-3 px-5 py-3.5 border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors select-none relative"
-              :class="[
-                { 'opacity-50': draggingQuestions.some(dq => dq.id === q.id), 'question-highlight': highlightedQuestionIds.has(q.id) },
-                getQuestionTypeBorderClass(q)
-              ]"
-              draggable="true"
-              @dragstart="onDragStartFolder(q, $event)"
-              @dragend="onDragEnd"
-            >
-              <button
-                class="w-5 h-5 rounded flex items-center justify-center flex-shrink-0 cursor-pointer z-10"
-                :class="selectedQuestionIds.has(q.id) ? 'text-blue-600' : 'text-slate-300 hover:text-slate-400'"
-                @click.stop="toggleSelect(q.id)"
-              >
-                <CheckSquare v-if="selectedQuestionIds.has(q.id)" class="w-5 h-5" />
-                <Square v-else class="w-5 h-5" />
-              </button>
-              <button
-                class="drag-handle bg-transparent border-0 cursor-grab p-1 rounded flex shrink-0 text-slate-300 hover:text-slate-400 active:cursor-grabbing transition-colors"
-                title="Drag to reorder" aria-label="Drag"
-              >
-                <GripVertical class="w-4 h-4" />
-              </button>
-              <span class="text-[0.8125rem] font-bold text-slate-300 w-[22px] shrink-0 text-right">{{ i + 1 }}</span>
-              <div v-if="q.questionBlocks.some(b => b.type === 'image')" class="relative w-10 h-10 shrink-0">
-                <img
-                  :src="`/api/files/${q.questionBlocks.find(b => b.type === 'image')?.content}`"
-                  class="w-10 h-10 rounded-lg object-cover border border-slate-200 bg-slate-100"
-                  alt=""
-                />
-                <span
-                  v-if="totalImageCount(q) > 1"
-                  class="absolute -bottom-1 -right-1 bg-slate-700 text-white text-[0.55rem] font-bold leading-none px-1 py-0.5 rounded-md"
-                >+{{ totalImageCount(q) - 1 }}</span>
-              </div>
-              <div v-else class="w-10 h-10 shrink-0" />
-              <div class="flex-1 min-w-0">
-                <span class="block text-sm text-slate-800 leading-snug max-h-[2.5rem] overflow-hidden" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">{{ stripHtml(q.questionBlocks.find(b => b.type === 'text')?.content || '') || '(no text)' }}</span>
-                <div class="flex gap-1.5 mt-1 flex-wrap">
-                  <span v-if="q.isBriefing" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-amber-100 text-amber-700">
-                    <BookOpen class="w-3 h-3" />Briefing
-                  </span>
-                  <span v-else-if="q.expectsTextInput" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-700">
-                    <Users class="w-3 h-3" />Team Input
-                  </span>
-                  <span v-else-if="!q.expectPhoto && !q.isBriefing && !q.expectsTextInput" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-blue-100 text-blue-700">
-                    <ListChecks class="w-3 h-3" />Multiple Choice
-                  </span>
-                  <span v-else-if="q.expectPhoto" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-violet-100 text-violet-700">
-                    <Camera class="w-3 h-3" />Photo
-                  </span>
-                  <span v-if="!q.isBriefing && q.options.length" class="inline-flex items-center text-[0.6875rem] font-medium px-2 py-0.5 rounded-md bg-slate-100 text-slate-500">{{ q.options.length }} options</span>
-                </div>
-                <p v-if="q.updatedAt" class="text-[0.65rem] text-slate-400 mt-0.5 truncate">{{ formatRelative(q.updatedAt) }}<template v-if="q.updatedBy"> — {{ q.updatedBy }}</template></p>
-              </div>
-              <div class="flex items-center gap-1.5 flex-shrink-0">
-                <div v-if="!q.isBriefing && !q.expectsTextInput && q.mark != null && q.mark > 0" class="flex flex-col items-center justify-center w-9 shrink-0">
-                  <span class="text-sm font-bold text-slate-700 leading-none">{{ q.mark }}</span>
-                  <span class="text-[0.6rem] font-medium text-slate-400 uppercase tracking-wide leading-none mt-0.5">pts</span>
-                </div>
-                <div v-else class="w-9 shrink-0" />
-                <button class="w-8 h-8 rounded-lg bg-slate-50 hover:bg-slate-100 flex items-center justify-center text-slate-500 transition cursor-pointer" title="Duplicate" @click="duplicateQuestion(q)">
-                  <Copy class="w-3.5 h-3.5" />
-                </button>
-                <button class="w-8 h-8 rounded-lg bg-blue-50 hover:bg-blue-100 flex items-center justify-center text-blue-600 transition cursor-pointer" title="Edit" @click="openEdit(q)">
-                  <Pencil class="w-3.5 h-3.5" />
-                </button>
-                <button class="w-8 h-8 rounded-lg bg-red-50 hover:bg-red-100 flex items-center justify-center text-red-500 transition cursor-pointer" title="Delete" @click="confirmDelete(q)">
-                  <Trash2 class="w-3.5 h-3.5" />
-                </button>
-              </div>
+            <option :value="null">Unfiled</option>
+            <option v-for="f in folders" :key="f.id" :value="f.id">{{ f.name }}</option>
+          </select>
+          <div v-if="movingInProgress || duplicatingInProgress || deletingInProgress" class="mt-3">
+            <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+              <div
+                class="h-full bg-blue-600 rounded-full transition-all duration-300"
+                :style="{ width: `${progressPercent}%` }"
+              />
             </div>
-          </VueDraggable>
+            <p class="text-xs text-slate-500 mt-1.5">{{ progressLabel }}</p>
+          </div>
         </div>
-
-        <!-- Question list (Folder view — draggable to reorder within folder) -->
-        <div v-else class="bg-white rounded-xl border border-slate-200 overflow-hidden">
-          <VueDraggable
-            v-model="folderQuestions"
-            handle=".drag-handle"
-            :animation="200"
-            ghost-class="drag-ghost"
-            @end="persistFolderQuestionsReorder"
+        <div class="flex items-center justify-end gap-2 px-5 py-3 bg-slate-50 border-t border-slate-200">
+          <button
+            class="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg transition cursor-pointer"
+            @click="moveToFolderModalVisible = false"
+            :disabled="movingInProgress || duplicatingInProgress || deletingInProgress"
           >
-            <div v-for="(q, i) in folderQuestions" :key="q.id"
-              class="flex items-center gap-3 px-5 py-3.5 border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors select-none relative"
-              :class="[
-                { 'opacity-50': draggingQuestions.some(dq => dq.id === q.id), 'question-highlight': highlightedQuestionIds.has(q.id) },
-                getQuestionTypeBorderClass(q)
-              ]"
-              draggable="true"
-              @dragstart="onDragStartFolder(q, $event)"
-              @dragend="onDragEnd"
-            >
-              <button
-                class="w-5 h-5 rounded flex items-center justify-center flex-shrink-0 cursor-pointer z-10"
-                :class="selectedQuestionIds.has(q.id) ? 'text-blue-600' : 'text-slate-300 hover:text-slate-400'"
-                @click.stop="toggleSelect(q.id)"
-              >
-                <CheckSquare v-if="selectedQuestionIds.has(q.id)" class="w-5 h-5" />
-                <Square v-else class="w-5 h-5" />
-              </button>
-              <button
-                class="drag-handle bg-transparent border-0 cursor-grab p-1 rounded flex shrink-0 text-slate-300 hover:text-slate-400 active:cursor-grabbing transition-colors"
-                title="Drag to reorder" aria-label="Drag"
-              >
-                <GripVertical class="w-4 h-4" />
-              </button>
-              <span class="text-[0.8125rem] font-bold text-slate-300 w-[22px] shrink-0 text-right">{{ i + 1 }}</span>
-              <div v-if="q.questionBlocks.some(b => b.type === 'image')" class="relative w-10 h-10 shrink-0">
-                <img
-                  :src="`/api/files/${q.questionBlocks.find(b => b.type === 'image')?.content}`"
-                  class="w-10 h-10 rounded-lg object-cover border border-slate-200 bg-slate-100"
-                  alt=""
-                />
-                <span
-                  v-if="totalImageCount(q) > 1"
-                  class="absolute -bottom-1 -right-1 bg-slate-700 text-white text-[0.55rem] font-bold leading-none px-1 py-0.5 rounded-md"
-                >+{{ totalImageCount(q) - 1 }}</span>
-              </div>
-              <div v-else class="w-10 h-10 shrink-0" />
-              <div class="flex-1 min-w-0">
-                <span class="block text-sm text-slate-800 leading-snug max-h-[2.5rem] overflow-hidden" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">{{ stripHtml(q.questionBlocks.find(b => b.type === 'text')?.content || '') || '(no text)' }}</span>
-                <div class="flex gap-1.5 mt-1 flex-wrap">
-                  <span v-if="q.isBriefing" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-amber-100 text-amber-700">
-                    <BookOpen class="w-3 h-3" />Briefing
-                  </span>
-                  <span v-else-if="q.expectsTextInput" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-700">
-                    <Users class="w-3 h-3" />Team Input
-                  </span>
-                  <span v-else-if="!q.expectPhoto && !q.isBriefing && !q.expectsTextInput" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-blue-100 text-blue-700">
-                    <ListChecks class="w-3 h-3" />Multiple Choice
-                  </span>
-                  <span v-else-if="q.expectPhoto" class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-md bg-violet-100 text-violet-700">
-                    <Camera class="w-3 h-3" />Photo
-                  </span>
-                  <span v-if="!q.isBriefing && q.options.length" class="inline-flex items-center text-[0.6875rem] font-medium px-2 py-0.5 rounded-md bg-slate-100 text-slate-500">{{ q.options.length }} options</span>
-                </div>
-                <p v-if="q.updatedAt" class="text-[0.65rem] text-slate-400 mt-0.5 truncate">{{ formatRelative(q.updatedAt) }}<template v-if="q.updatedBy"> — {{ q.updatedBy }}</template></p>
-              </div>
-              <div class="flex items-center gap-1.5 flex-shrink-0">
-                <div v-if="!q.isBriefing && !q.expectsTextInput && q.mark != null && q.mark > 0" class="flex flex-col items-center justify-center w-9 shrink-0">
-                  <span class="text-sm font-bold text-slate-700 leading-none">{{ q.mark }}</span>
-                  <span class="text-[0.6rem] font-medium text-slate-400 uppercase tracking-wide leading-none mt-0.5">pts</span>
-                </div>
-                <div v-else class="w-9 shrink-0" />
-                <button class="w-8 h-8 rounded-lg bg-slate-50 hover:bg-slate-100 flex items-center justify-center text-slate-500 transition cursor-pointer" title="Duplicate" @click="duplicateQuestion(q)">
-                  <Copy class="w-3.5 h-3.5" />
-                </button>
-                <button class="w-8 h-8 rounded-lg bg-blue-50 hover:bg-blue-100 flex items-center justify-center text-blue-600 transition cursor-pointer" title="Edit" @click="openEdit(q)">
-                  <Pencil class="w-3.5 h-3.5" />
-                </button>
-                <button v-if="canDeleteQuestion(q)" class="w-8 h-8 rounded-lg bg-red-50 hover:bg-red-100 flex items-center justify-center text-red-500 transition cursor-pointer" title="Delete" @click="confirmDelete(q)">
-                  <Trash2 class="w-3.5 h-3.5" />
-                </button>
-              </div>
-            </div>
-          </VueDraggable>
+            Cancel
+          </button>
+          <button
+            class="px-4 py-2 text-sm font-semibold text-white bg-primary hover:bg-primary-hover rounded-full transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            @click="moveSelectedToFolder"
+            :disabled="movingInProgress"
+          >
+            Move
+          </button>
         </div>
-
       </div>
     </div>
-
-    <!-- Form modal -->
-    <QuestionFormModal
-      :visible="modalVisible"
-      :question="editingQuestion"
-      :folders="folders"
-      :default-folder-id="activeFolderId"
-      @close="modalVisible = false"
-      @saved="onSaved"
-    />
-
-    <!-- App dialog (confirm / alert) -->
-    <AppDialog
-      :visible="dialogVisible"
-      :type="dialogType"
-      :title="dialogTitle"
-      :message="dialogMessage"
-      @confirm="onDialogConfirm"
-      @cancel="onDialogCancel"
-    />
-
-    <!-- Folder members / share modal -->
-    <FolderMembersModal
-      :visible="shareModalFolderId !== null"
-      :folder-id="shareModalFolderId"
-      :folder-name="shareModalFolderName"
-      :folder-owner="shareModalFolderOwner"
-      :current-username="currentUsername"
-      :readonly="shareModalReadonly"
-      @close="closeShareModal"
-    />
-
-    <!-- Export modal -->
-    <ExportModal
-      :visible="exportModalVisible"
-      :selected-count="selectedQuestionIds.size"
-      :question-ids="Array.from(selectedQuestionIds)"
-      @close="exportModalVisible = false"
-      @exported="clearSelection"
-    />
-
-    <!-- Import modal -->
-    <ImportModal
-      :visible="importModalVisible"
-      @close="importModalVisible = false"
-      @imported="onImported"
-    />
-
-    <!-- Move to folder modal -->
-    <teleport to="body">
-      <transition
-        enter-active-class="transition-opacity duration-150"
-        enter-from-class="opacity-0"
-        enter-to-class="opacity-100"
-        leave-active-class="transition-opacity duration-150"
-        leave-from-class="opacity-100"
-        leave-to-class="opacity-0"
-      >
-      <div v-if="moveToFolderModalVisible" class="fixed inset-0 z-50 flex items-center justify-center">
-        <div class="fixed inset-0 bg-black/40" />
-        <div class="relative bg-white rounded-xl shadow-xl w-full max-w-sm mx-4 overflow-hidden">
-          <div class="flex items-center justify-between px-5 py-4 border-b border-slate-200">
-            <h3 class="text-lg font-bold text-slate-900">Move to Folder</h3>
-            <button class="w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition cursor-pointer" @click="moveToFolderModalVisible = false">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-            </button>
-          </div>
-          <div class="px-5 py-4">
-            <p class="text-sm text-slate-600 mb-3">Move {{ selectedQuestionIds.size }} question(s) to:</p>
-            <select
-              v-model="moveToFolderTarget"
-              class="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-primary bg-white text-slate-700"
-            >
-              <option :value="null">Unfiled</option>
-              <option v-for="f in folders" :key="f.id" :value="f.id">{{ f.name }}</option>
-            </select>
-            <div v-if="movingInProgress || duplicatingInProgress || deletingInProgress" class="mt-3">
-              <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
-                <div
-                  class="h-full bg-blue-600 rounded-full transition-all duration-300"
-                  :style="{ width: `${progressPercent}%` }"
-                />
-              </div>
-              <p class="text-xs text-slate-500 mt-1.5">{{ progressLabel }}</p>
-            </div>
-          </div>
-          <div class="flex items-center justify-end gap-2 px-5 py-3 bg-slate-50 border-t border-slate-200">
-            <button
-              class="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg transition cursor-pointer"
-              @click="moveToFolderModalVisible = false"
-              :disabled="movingInProgress || duplicatingInProgress || deletingInProgress"
-            >
-              Cancel
-            </button>
-            <button
-              class="px-4 py-2 text-sm font-semibold text-white bg-primary hover:bg-primary-hover rounded-full transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-              @click="moveSelectedToFolder"
-              :disabled="movingInProgress"
-            >
-              Move
-            </button>
-          </div>
-        </div>
-      </div>
-      </transition>
-    </teleport>
-    </div>
-  </AppLayout>
+    </transition>
+  </teleport>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -736,7 +734,6 @@ import {
   Folder as FolderIcon, FolderSymlink, Search, Copy,
   Download, Upload, CheckSquare, Square,
 } from '@lucide/vue'
-import AppLayout from '@/components/AppLayout.vue'
 import QuestionFormModal from '@/components/QuestionFormModal.vue'
 import AppDialog from '@/components/AppDialog.vue'
 import FolderMembersModal from '@/components/FolderMembersModal.vue'

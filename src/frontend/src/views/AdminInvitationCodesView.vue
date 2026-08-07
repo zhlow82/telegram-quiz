@@ -1,122 +1,119 @@
 <template>
-  <AppLayout>
-    <div class="flex items-center gap-4 pb-6 mb-6 border-b border-slate-200 flex-wrap">
-      <div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center flex-shrink-0">
-        <KeyRound class="w-5 h-5 text-white" />
-      </div>
-      <div class="flex-1 min-w-0">
-        <h1 class="text-2xl font-black text-slate-900 leading-tight">Invitation Codes</h1>
-        <p class="text-sm text-slate-500 mt-0.5">Generate codes for new Google sign-ups</p>
-      </div>
-      <button
-        class="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary-hover text-white text-sm font-semibold rounded-full transition-colors cursor-pointer disabled:opacity-50"
-        :disabled="generating"
-        @click="generate"
-      >
-        <Plus class="w-4 h-4" />
-        Generate Code
-      </button>
+  <div class="flex items-center gap-4 pb-6 mb-6 border-b border-slate-200 flex-wrap">
+    <div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center flex-shrink-0">
+      <KeyRound class="w-5 h-5 text-white" />
     </div>
-
-    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
-      <div v-if="loading" class="divide-y divide-slate-100">
-        <div v-for="i in 4" :key="i" class="flex items-center gap-4 px-5 py-4">
-          <div class="h-4 bg-slate-100 rounded animate-pulse w-40"></div>
-          <div class="h-4 bg-slate-100 rounded animate-pulse w-24"></div>
-          <div class="h-4 bg-slate-100 rounded animate-pulse w-32"></div>
-          <div class="h-6 bg-slate-100 rounded animate-pulse w-32"></div>
-          <div class="h-6 bg-slate-100 rounded animate-pulse w-8 ml-auto"></div>
-        </div>
-      </div>
-      <AppEmptyState
-        v-else-if="codes.length === 0"
-        icon="key"
-        title="No invitation codes yet"
-        description="Generate a code above for new Google sign-ups"
-      />
-      <table v-else class="w-full text-sm">
-        <thead>
-          <tr class="bg-white border-b-2 border-slate-200">
-            <th class="text-left px-4 py-3 text-xs font-semibold text-slate-600 uppercase tracking-wider">CODE</th>
-            <th class="text-left px-4 py-3 text-xs font-semibold text-slate-600 uppercase tracking-wider">CREATED BY</th>
-            <th class="text-left px-4 py-3 text-xs font-semibold text-slate-600 uppercase tracking-wider">CREATED AT</th>
-            <th class="text-left px-4 py-3 text-xs font-semibold text-slate-600 uppercase tracking-wider">STATUS</th>
-            <th class="px-4 py-3"></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr
-            v-for="c in codes"
-            :key="c.id"
-            class="border-b border-slate-50 hover:bg-slate-50 transition-colors"
-          >
-            <td class="px-4 py-3">
-              <div class="flex items-center gap-2">
-                <code class="font-mono font-bold text-slate-900 tracking-widest">{{ c.code }}</code>
-                <button
-                  class="text-slate-400 hover:text-primary transition-colors cursor-pointer"
-                  title="Copy"
-                  @click="copy(c.code, c.id)"
-                >
-                  <Check v-if="copiedId === c.id" class="w-3.5 h-3.5 text-green-600" />
-                  <Copy v-else class="w-3.5 h-3.5" />
-                </button>
-              </div>
-            </td>
-            <td class="px-4 py-3 text-slate-600">{{ c.createdBy }}</td>
-            <td class="px-4 py-3 text-slate-500" :title="formatDate(c.createdAt)">{{ formatRelativeTime(c.createdAt) }}</td>
-            <td class="px-4 py-3">
-              <div class="flex items-center gap-3">
-                <span
-                  :class="[
-                    'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold',
-                    c.active ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500 line-through'
-                  ]"
-                >{{ c.active ? 'Active' : 'Inactive' }}</span>
-                <button
-                  role="switch"
-                  :aria-checked="c.active"
-                  class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none"
-                  :class="c.active ? 'bg-primary' : 'bg-slate-200'"
-                  @click="toggleCode(c)"
-                >
-                  <span
-                    class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200"
-                    :class="c.active ? 'translate-x-5' : 'translate-x-0'"
-                  />
-                </button>
-              </div>
-            </td>
-            <td class="px-4 py-3 text-right">
-              <button
-                class="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition cursor-pointer"
-                title="Delete permanently"
-                @click="confirmDelete(c)"
-              >
-                <Trash2 class="w-3.5 h-3.5" />
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+    <div class="flex-1 min-w-0">
+      <h1 class="text-2xl font-black text-slate-900 leading-tight">Invitation Codes</h1>
+      <p class="text-sm text-slate-500 mt-0.5">Generate codes for new Google sign-ups</p>
     </div>
+    <button
+      class="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary-hover text-white text-sm font-semibold rounded-full transition-colors cursor-pointer disabled:opacity-50"
+      :disabled="generating"
+      @click="generate"
+    >
+      <Plus class="w-4 h-4" />
+      Generate Code
+    </button>
+  </div>
 
-    <!-- Delete confirmation dialog -->
-    <AppDialog
-      :visible="deleteDialogVisible"
-      type="confirm"
-      title="Delete Invitation Code"
-      :message="`Permanently delete code ${deletingCode?.code}? This cannot be undone.`"
-      @confirm="doDelete"
-      @cancel="deleteDialogVisible = false"
+  <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+    <div v-if="loading" class="divide-y divide-slate-100">
+      <div v-for="i in 4" :key="i" class="flex items-center gap-4 px-5 py-4">
+        <div class="h-4 bg-slate-100 rounded animate-pulse w-40"></div>
+        <div class="h-4 bg-slate-100 rounded animate-pulse w-24"></div>
+        <div class="h-4 bg-slate-100 rounded animate-pulse w-32"></div>
+        <div class="h-6 bg-slate-100 rounded animate-pulse w-32"></div>
+        <div class="h-6 bg-slate-100 rounded animate-pulse w-8 ml-auto"></div>
+      </div>
+    </div>
+    <AppEmptyState
+      v-else-if="codes.length === 0"
+      icon="key"
+      title="No invitation codes yet"
+      description="Generate a code above for new Google sign-ups"
     />
-  </AppLayout>
+    <table v-else class="w-full text-sm">
+      <thead>
+        <tr class="bg-white border-b-2 border-slate-200">
+          <th class="text-left px-4 py-3 text-xs font-semibold text-slate-600 uppercase tracking-wider">CODE</th>
+          <th class="text-left px-4 py-3 text-xs font-semibold text-slate-600 uppercase tracking-wider">CREATED BY</th>
+          <th class="text-left px-4 py-3 text-xs font-semibold text-slate-600 uppercase tracking-wider">CREATED AT</th>
+          <th class="text-left px-4 py-3 text-xs font-semibold text-slate-600 uppercase tracking-wider">STATUS</th>
+          <th class="px-4 py-3"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          v-for="c in codes"
+          :key="c.id"
+          class="border-b border-slate-50 hover:bg-slate-50 transition-colors"
+        >
+          <td class="px-4 py-3">
+            <div class="flex items-center gap-2">
+              <code class="font-mono font-bold text-slate-900 tracking-widest">{{ c.code }}</code>
+              <button
+                class="text-slate-400 hover:text-primary transition-colors cursor-pointer"
+                title="Copy"
+                @click="copy(c.code, c.id)"
+              >
+                <Check v-if="copiedId === c.id" class="w-3.5 h-3.5 text-green-600" />
+                <Copy v-else class="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </td>
+          <td class="px-4 py-3 text-slate-600">{{ c.createdBy }}</td>
+          <td class="px-4 py-3 text-slate-500" :title="formatDate(c.createdAt)">{{ formatRelativeTime(c.createdAt) }}</td>
+          <td class="px-4 py-3">
+            <div class="flex items-center gap-3">
+              <span
+                :class="[
+                  'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold',
+                  c.active ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500 line-through'
+                ]"
+              >{{ c.active ? 'Active' : 'Inactive' }}</span>
+              <button
+                role="switch"
+                :aria-checked="c.active"
+                class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none"
+                :class="c.active ? 'bg-primary' : 'bg-slate-200'"
+                @click="toggleCode(c)"
+              >
+                <span
+                  class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200"
+                  :class="c.active ? 'translate-x-5' : 'translate-x-0'"
+                />
+              </button>
+            </div>
+          </td>
+          <td class="px-4 py-3 text-right">
+            <button
+              class="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition cursor-pointer"
+              title="Delete permanently"
+              @click="confirmDelete(c)"
+            >
+              <Trash2 class="w-3.5 h-3.5" />
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Delete confirmation dialog -->
+  <AppDialog
+    :visible="deleteDialogVisible"
+    type="confirm"
+    title="Delete Invitation Code"
+    :message="`Permanently delete code ${deletingCode?.code}? This cannot be undone.`"
+    @confirm="doDelete"
+    @cancel="deleteDialogVisible = false"
+  />
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { KeyRound, Plus, Copy, Check, Trash2 } from '@lucide/vue'
-import AppLayout from '@/components/AppLayout.vue'
 import AppEmptyState from '@/components/AppEmptyState.vue'
 import AppDialog from '@/components/AppDialog.vue'
 import { adminService } from '@/services/adminService'
