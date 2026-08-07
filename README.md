@@ -38,6 +38,10 @@ telegram-quiz/
 ├── docker-compose.yml           # Full stack deployment (VPS)
 ├── .devcontainer/                 # VS Code dev container (Postgres, Redis, pgAdmin, Java 21, Node 20)
 ├── render.yaml                  # Render cloud deployment blueprint
+├── start.bat                    # End-user: build & start full stack (Docker Desktop only)
+├── stop.bat                     # End-user: stop services (data preserved)
+├── zip.bat                      # End-user: create slim distribution zip
+├── SETUP-GUIDE.txt              # Step-by-step guide for end users
 └── .gitignore
 ```
 
@@ -168,6 +172,22 @@ Login with:
 
 ---
 
+### Run it on your own machine — no dev tools needed
+
+If you just want to *host* the app locally (no Java/Node/Maven installation), the repo ships a zero-config flow that only needs **Docker Desktop**:
+
+1. Run `zip.bat` to build a slim `telegram-quiz.zip` distribution package
+2. Give the zip + `SETUP-GUIDE.txt` to the end user
+3. End user: install Docker Desktop → extract zip → double-click `start.bat`
+4. App is served at **http://localhost/tg-quiz** — log in with `localadmin` / `password88`
+
+- `start.bat` builds & starts the full stack, waits until the app responds, then prints Ready
+- `stop.bat` stops all services (data preserved); `docker compose down -v` fully resets data
+- First start needs an internet connection and takes a few minutes (image downloads + builds)
+- Full walkthrough in `SETUP-GUIDE.txt` (including a quick guide on creating questions and running quizzes)
+
+---
+
 ## Service Ports
 
 | Service | Port |
@@ -197,7 +217,8 @@ All requests go through the API Gateway at `http://localhost:8080`.
 | `POST` | `/auth/change-password` | Bearer token | Change password (local accounts only) |
 | `GET` | `/auth/settings/branding` | No | Get app branding (name, welcome text, logo URL) |
 | `GET` | `/auth/oauth2/configured` | No | Whether Google OAuth2 credentials are configured |
-| `GET` | `/auth/oauth2/complete` | No | Complete Google OAuth2 registration with invitation code |
+| `GET` | `/auth/users/search?q=` | Bearer token | Search users by username (folder invites) |
+| `POST` | `/auth/oauth2/complete` | No | Complete Google OAuth2 registration with invitation code |
 
 ### Admin (ROLE_ADMIN only)
 | Method | Path | Auth | Description |
@@ -223,8 +244,9 @@ All requests go through the API Gateway at `http://localhost:8080`.
 ### Quiz Sessions
 | Method | Path | Auth | Description |
 |---|---|---|---|
-| `GET` | `/api/quizzes/{id}/sessions` | ROLE_ADMIN | List participant sessions for a quiz |
-| `GET` | `/api/quizzes/sessions/{sessionId}/answers` | ROLE_ADMIN | View participant's individual answers |
+| `GET` | `/api/quizzes/{id}/sessions` | Bearer (quiz owner) | List participant sessions for a quiz |
+| `GET` | `/api/quizzes/sessions/{sessionId}/answers` | Bearer (quiz owner) | View a participant's individual answers |
+| `GET` | `/api/quizzes/sessions/{sessionId}/photos?fileId=` | Bearer (quiz owner) | Download a participant's photo answer |
 
 ### Questions
 | Method | Path | Auth | Description |
@@ -258,15 +280,16 @@ All requests go through the API Gateway at `http://localhost:8080`.
 | `POST` | `/api/quizzes` | Bearer token | Create quiz |
 | `PUT` | `/api/quizzes/{id}` | Bearer token | Update quiz |
 | `DELETE` | `/api/quizzes/{id}` | Bearer token | Delete quiz |
-| `POST` | `/api/quizzes/{id}/activate` | Bearer token | Activate quiz (start bot) |
+| `POST` | `/api/quizzes/{id}/activate` | Bearer token | Activate quiz (start bot). Fails with 409 if the bot token already runs another active quiz |
 | `POST` | `/api/quizzes/{id}/stop` | Bearer token | Stop quiz |
-| `GET` | `/api/quizzes/{id}/sessions` | ROLE_ADMIN | List participant sessions |
-| `POST` | `/api/bot/validate-token` | Bearer token | Validate a Telegram bot token (calls Telegram `getMe`) |
+| `GET` | `/api/quizzes/{id}/sessions` | Bearer (quiz owner) | List participant sessions |
+| `POST` | `/api/bot/validate-token` | Bearer token | Validate a Telegram bot token (calls Telegram `getMe`). Body `{ token, excludeQuizId? }`; response includes `inUse` / `inUseByQuizName` |
 
 ### Quiz Session Answers
 | Method | Path | Auth | Description |
 |---|---|---|---|
-| `GET` | `/api/quizzes/sessions/{sessionId}/answers` | ROLE_ADMIN | View participant's individual answers |
+| `GET` | `/api/quizzes/sessions/{sessionId}/answers` | Bearer (quiz owner) | View participant's individual answers |
+| `GET` | `/api/quizzes/sessions/{sessionId}/photos` | Bearer (quiz owner) | Download a participant's photo answer |
 
 ### Admin Logs
 | Method | Path | Auth | Description |
@@ -278,7 +301,7 @@ All requests go through the API Gateway at `http://localhost:8080`.
 | Method | Path | Auth | Description |
 |---|---|---|---|
 | `POST` | `/api/files/upload` | Bearer token | Upload image (multipart); returns `{ "path": "<id>" }` |
-| `GET` | `/api/files/{id}` | Bearer token | Serve image bytes inline |
+| `GET` | `/api/files/{id}` | No (public) | Serve image bytes inline |
 
 ### Home
 | Method | Path | Auth | Description |
@@ -297,8 +320,7 @@ Response:
 ```json
 {
   "accessToken": "<jwt>",
-  "refreshToken": "<jwt>",
-  "tokenType": "Bearer"
+  "refreshToken": "<jwt>"
 }
 ```
 
@@ -308,12 +330,14 @@ Response:
 
 ```
 Frontend → API Gateway (8080)
-              ├── /auth/** → Auth Service (8081) → PostgreSQL + Redis
-              └── /api/**  → Main Service (8082) → validates JWT locally
+              ├── /auth/**   → Auth Service (8081) → PostgreSQL + Redis
+              ├── /oauth2/** → Auth Service (8081) (Google OAuth2)
+              └── /api/**    → Main Service (8082) → validates JWT locally
 ```
 
 - **Access token**: 24 hours, stateless JWT
 - **Refresh token**: 7 days, stored in Redis (deleted on logout)
+- Tokens carry a `type` claim (`access` / `refresh`); both services reject refresh tokens presented as Bearer tokens
 - Main Service validates JWT using the shared secret — no DB calls required
 
 ---
@@ -330,7 +354,7 @@ Key settings in `application.yml` per service:
 | `spring.datasource.*` | auth-service | PostgreSQL connection |
 | `spring.data.redis.*` | auth-service | Redis connection |
 
-> **Security note**: Change `jwt.secret` before deploying to any non-local environment and store it as an environment variable, not in source code.
+> **Security note**: The JWT secret falls back to a built-in development key when `JWT_SECRET` is unset. Change it before exposing the app beyond your own machine (set `JWT_SECRET` as an environment variable or in `.env`).
 
 ---
 
@@ -340,7 +364,7 @@ The project supports two deployment methods:
 
 ### Method 1: VPS with Docker Compose
 
-Deploy the entire stack on a Linux VPS (DigitalOcean, Hetzner, Linode, etc.) using `docker-compose.yml`.
+Deploy the entire stack on a Linux VPS (DigitalOcean, Hetzner, Linode, etc.) using `docker-compose.yml` (compose project name: `telegram-quiz`).
 
 **Prerequisites:**
 - A Linux VPS with Docker and Docker Compose installed
@@ -406,8 +430,9 @@ docker compose up -d --build
 | `POSTGRES_DB` | Database name | `postgres` |
 | `POSTGRES_USER` | Database username | `postgres` |
 | `POSTGRES_PASSWORD` | Database password | `postgres` |
-| `JWT_SECRET` | Base64-encoded JWT signing secret | (built-in default) |
-| `BOT_TOKEN_ENCRYPTION_KEY` | Base64-encoded AES-256 key for bot token encryption | (built-in default) |
+| `JWT_SECRET` | Base64-encoded JWT signing secret | (built-in dev key) |
+| `BOT_TOKEN_ENCRYPTION_KEY` | Base64-encoded AES-256 key for bot token encryption | (built-in dev key) |
+| `FRONTEND_URL` | Public origin used for the OAuth2 post-login redirect | `http://localhost/tg-quiz` |
 
 > **Important:** For production, change the default passwords and secrets. Never commit `.env` files or hardcoded secrets to Git.
 
@@ -460,7 +485,7 @@ src/backend/auth-service/src/main/resources/db/migration/
 src/backend/main-service/src/main/resources/db/migration/
   └─ History table: flyway_schema_history_main
   └─ Manages: questions, image_blobs, folders, folder_members,
-              quizzes, quiz_questions, quiz_sessions tables
+              quizzes, quiz_questions, quiz_sessions, quiz_session_answers tables
 ```
 
 ### Naming convention
