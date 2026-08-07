@@ -10,6 +10,8 @@
 
   1. Docker Desktop (free) - Download from docker.com
   2. The project folder (telegram-quiz.zip)
+  3. An internet connection (needed for the first start
+     only, to download the required images)
 
   That's it! No Java, no Node.js, no database installation needed.
   Docker handles everything automatically.
@@ -48,8 +50,10 @@
   1. Open the extracted telegram-quiz folder
   2. Double-click start.bat
   3. A window will appear showing the progress
-  4. Wait for "Services started successfully!" message
-  5. Press any key to close the window
+  4. The first start takes a few minutes (it downloads
+     and builds everything). Later starts are much faster
+  5. Wait for the "Telegram Quiz - Ready!" message
+  6. Press any key to close the window
 
   [Insert screenshot: start.bat running with success message]
 
@@ -59,14 +63,18 @@
 --------------------------------------------------------
 
   1. Open your browser
-  2. Go to: http://localhost
-  3. Log in with the provided credentials
+  2. Go to: http://localhost/tg-quiz
+  3. Log in with the credentials below
 
   Default Admin Login:
     Username: localadmin
     Password: password88
 
-  [Insert screenshot: Login page at http://localhost]
+  IMPORTANT: After your first login, open My Profile
+  (click your name in the bottom-left corner) and change
+  the password. The default password is public.
+
+  [Insert screenshot: Login page at http://localhost/tg-quiz]
 
 
 --------------------------------------------------------
@@ -80,7 +88,57 @@
 
   To start again, just double-click start.bat.
 
+  To completely reset everything and start fresh,
+  run: docker compose down -v
+
   [Insert screenshot: stop.bat file in folder]
+
+
+--------------------------------------------------------
+  HOW TO USE (QUICK GUIDE)
+--------------------------------------------------------
+
+  A. Create questions (Question Bank)
+     - Open the "Question Bank" page (left menu)
+     - Click "Add Question" (top right) and pick a type:
+         * Multiple Choice - players pick from the options
+         * Photo - players send a photo as their answer
+         * Briefing - an intro / info screen for players
+         * Team Input - players enter their team name
+     - Fill in the question text, options, and the correct
+       answer, then Save
+     - Tip: use the left sidebar to create folders and drag
+       questions into them to stay organised
+
+  B. Create a quiz
+     - Click "Create Quiz" (top right of the Quizzes page)
+     - Step 1: read the BotFather instructions
+     - Step 2: paste your bot token and click "Validate"
+     - Step 3: set the quiz name, timing and pass score
+     - Step 4: click questions to add them (drag to reorder)
+     - Step 5: review everything and click "Create Quiz"
+
+  C. Start the quiz
+     - On the Quizzes page, click "Start" on your quiz
+     - When the quiz is live, click the QR icon and share
+       the bot link (https://t.me/YourBotName) with players
+     - Players open the bot in Telegram and press /start
+
+  D. Watch results live
+     - Click a quiz to open its Participants page
+     - See attempts, pass rate, and each player's answers
+     - Click a player to view their detailed answers
+     - Click "Stop" on the Quizzes page when the quiz is over
+
+  E. Dashboard
+     - The home page gives you an overview: question count,
+       active quizzes, participants, and pass rate
+
+  Where do I get a bot token?
+     - Open Telegram, search for @BotFather
+     - Send the command /newbot and follow the prompts
+     - BotFather replies with your bot token - paste it into
+       the quiz wizard (Step 2)
 
 
 --------------------------------------------------------
@@ -97,7 +155,11 @@
 
   Services not starting?
     - Open Docker Desktop to check container status
-    - Right-click start.bat and select "Run as Administrator"
+    - Make sure you have an internet connection on the first start
+
+  Forgot the admin password?
+    - Delete the containers and volumes, then start again:
+      docker compose down -v
 
   Need help?
     - Contact your system administrator

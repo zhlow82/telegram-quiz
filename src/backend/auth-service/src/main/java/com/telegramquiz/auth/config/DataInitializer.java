@@ -4,7 +4,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,7 +15,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Component
-@Profile({"dev", "default"})
 @RequiredArgsConstructor
 @Slf4j
 public class DataInitializer implements CommandLineRunner {
