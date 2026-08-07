@@ -35,7 +35,7 @@
             <div class="flex-1 relative">
               <input
                 v-model="inviteUsername"
-                class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                 placeholder="Search username..."
                 autocomplete="off"
                 @input="onSearchInput"
@@ -66,7 +66,7 @@
             </div>
             <select
               v-model="inviteRole"
-              class="border border-slate-200 rounded-lg px-2 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 bg-white cursor-pointer"
+              class="border border-slate-200 rounded-lg px-2 py-2 text-sm outline-none focus:ring-2 focus:ring-primary bg-white cursor-pointer"
             >
               <option value="CONTRIBUTOR">Contributor</option>
               <option value="CO_OWNER">Co-owner</option>
@@ -130,7 +130,7 @@
                   <select
                     v-if="m.status === 'ACCEPTED'"
                     :value="m.role"
-                    class="text-xs border border-slate-200 rounded-md px-1.5 py-1 bg-white cursor-pointer outline-none focus:ring-1 focus:ring-blue-400"
+                    class="text-xs border border-slate-200 rounded-md px-1.5 py-1 bg-white cursor-pointer outline-none focus:ring-1 focus:ring-primary"
                     @change="changeRole(m.username, ($event.target as HTMLSelectElement).value)"
                   >
                     <option value="CONTRIBUTOR">Contributor</option>

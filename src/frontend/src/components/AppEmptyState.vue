@@ -32,7 +32,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { Plus, BookOpen, Zap, Users, FolderOpen, Search, FileText } from '@lucide/vue'
+import { Plus, BookOpen, Zap, Users, FolderOpen, Search, FileText, KeyRound } from '@lucide/vue'
 import type { Component } from 'vue'
 
 const props = withDefaults(defineProps<{
@@ -60,6 +60,7 @@ const iconMap: Record<string, Component> = {
   'folder': FolderOpen,
   'search': Search,
   'file': FileText,
+  'key': KeyRound,
 }
 
 const iconComponent = computed(() => (props.icon ? iconMap[props.icon] : null) || BookOpen)

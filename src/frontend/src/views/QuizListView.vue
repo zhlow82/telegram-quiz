@@ -52,22 +52,16 @@
     <!-- Empty state -->
     <div
       v-else-if="quizzes.length === 0"
-      class="bg-white rounded-xl border border-slate-200 flex flex-col items-center gap-4 py-14 px-6 text-center"
+      class="bg-white rounded-xl border border-slate-200"
     >
-      <div class="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center">
-        <Zap class="w-7 h-7 text-blue-600" />
-      </div>
-      <div>
-        <p class="font-semibold text-slate-900 mb-1">No quizzes yet</p>
-        <p class="text-sm text-slate-500">Create your first quiz to get started</p>
-      </div>
-      <router-link
-        to="/quizzes/new"
-        class="inline-flex items-center gap-2 bg-primary hover:bg-primary-hover text-white text-sm font-semibold px-4 py-2 rounded-full transition no-underline"
-      >
-        <Plus class="w-4 h-4" />
-        Create Quiz
-      </router-link>
+      <AppEmptyState
+        icon="zap"
+        variant="blue"
+        title="No quizzes yet"
+        description="Create your first quiz to get started"
+        action-label="Create Quiz"
+        @action="router.push('/quizzes/new')"
+      />
     </div>
 
     <!-- Quiz list -->
@@ -195,11 +189,11 @@
           </p>
           <div class="flex gap-2 justify-end">
             <button
-              class="px-4 py-2 rounded-xl border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-100 transition cursor-pointer"
+              class="px-4 py-2 rounded-lg border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-100 transition cursor-pointer"
               @click="deleteTarget = null"
             >Cancel</button>
             <button
-              class="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-sm font-semibold transition cursor-pointer disabled:opacity-60"
+              class="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-semibold transition cursor-pointer disabled:opacity-60"
               :disabled="deleting"
               @click="doDelete"
             >Delete</button>
@@ -233,11 +227,11 @@
           </p>
           <div class="flex gap-2 justify-end">
             <button
-              class="px-4 py-2 rounded-xl border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-100 transition cursor-pointer"
+              class="px-4 py-2 rounded-lg border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-100 transition cursor-pointer"
               @click="startTarget = null"
             >Cancel</button>
             <button
-              class="px-4 py-2 rounded-xl bg-green-600 hover:bg-green-700 text-white text-sm font-semibold transition cursor-pointer disabled:opacity-60 inline-flex items-center gap-2"
+              class="px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white text-sm font-semibold transition cursor-pointer disabled:opacity-60 inline-flex items-center gap-2"
               :disabled="togglingId === startTarget?.id"
               @click="confirmStart"
             >
@@ -274,7 +268,7 @@
           </p>
           <div class="flex gap-2 justify-end">
             <button
-              class="px-4 py-2 rounded-xl border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-100 transition cursor-pointer"
+              class="px-4 py-2 rounded-lg border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-100 transition cursor-pointer"
               @click="startError = null"
             >Close</button>
           </div>
@@ -347,7 +341,7 @@
                 View Participants
               </button>
               <button
-                class="block w-full text-center border border-slate-200 text-slate-600 text-sm font-medium px-4 py-2.5 rounded-xl transition hover:bg-slate-50 cursor-pointer"
+                class="block w-full text-center border border-slate-200 text-slate-600 text-sm font-medium px-4 py-2.5 rounded-lg transition hover:bg-slate-50 cursor-pointer"
                 @click="copyLink"
               >
                 {{ copied ? 'Copied!' : 'Copy link' }}
@@ -372,6 +366,7 @@ import { useRouter } from 'vue-router'
 import QRCode from 'qrcode'
 import { Plus, AlertCircle, Zap, BookOpen, Clock, CheckCircle, Trash2, Play, Square, QrCode, X, Users, Search, Pencil, Loader2, Send } from '@lucide/vue'
 import AppLayout from '@/components/AppLayout.vue'
+import AppEmptyState from '@/components/AppEmptyState.vue'
 import { quizService } from '@/services/quizService'
 import { useToast } from '@/composables/useToast'
 import type { QuizSummary } from '@/types/quiz'

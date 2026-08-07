@@ -36,7 +36,7 @@
             <input
               v-model="includeImages"
               type="checkbox"
-              class="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+              class="w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary"
             />
             <div class="flex-1">
               <p class="text-sm font-medium text-slate-700">Include images</p>

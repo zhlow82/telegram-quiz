@@ -147,11 +147,12 @@
                     <Pencil class="w-3.5 h-3.5" />
                   </router-link>
                   <button
-                    class="w-8 h-8 rounded-lg bg-red-50 hover:bg-red-100 flex items-center justify-center text-red-500 transition cursor-pointer"
+                    class="h-8 px-3 rounded-lg bg-red-50 hover:bg-red-100 flex items-center gap-1.5 text-red-600 text-xs font-semibold transition cursor-pointer"
                     title="Stop quiz"
                     @click="stopQuiz(quiz)"
                   >
                     <Square class="w-3.5 h-3.5 fill-red-500" />
+                    Stop
                   </button>
                 </div>
               </div>
@@ -225,7 +226,7 @@
             <div
               v-for="p in recentParticipants"
               :key="p.sessionId"
-              class="px-5 py-3 flex items-center gap-3"
+              class="px-5 py-3 flex items-center gap-3 hover:bg-slate-50 transition-colors"
             >
               <!-- Avatar -->
               <div class="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"

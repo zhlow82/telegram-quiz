@@ -164,7 +164,7 @@
                 <div class="relative flex-1">
                   <select
                     v-model="form.folderId"
-                    class="w-full text-xs border border-slate-200 rounded-lg pl-3 pr-8 py-1.5 bg-white text-slate-700 outline-none focus:border-blue-400 cursor-pointer transition appearance-none"
+                    class="w-full text-xs border border-slate-200 rounded-lg pl-3 pr-8 py-1.5 bg-white text-slate-700 outline-none focus:border-primary cursor-pointer transition appearance-none"
                   >
                     <option :value="null">— No folder —</option>
                     <option v-for="f in props.folders" :key="f.id" :value="f.id">{{ f.name }}</option>
@@ -241,7 +241,7 @@
                             <textarea
                               :ref="(el) => { questionTextareas[block._id] = el as HTMLTextAreaElement }"
                               v-model="block.content"
-                              class="tg-auto-textarea w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 resize-none transition bg-white text-slate-900 placeholder-slate-400 font-[inherit]"
+                              class="tg-auto-textarea w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 resize-none transition bg-white text-slate-900 placeholder-slate-400 font-[inherit]"
                               placeholder="Type your question here…"
                             ></textarea>
                           </div>
@@ -327,7 +327,7 @@
                             type="number"
                             min="0"
                             step="1"
-                            class="w-32 px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition bg-white text-slate-900 placeholder-slate-400"
+                            class="w-32 px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition bg-white text-slate-900 placeholder-slate-400"
                             placeholder="e.g. 1"
                             @input="onMarkInput"
                           />
@@ -388,7 +388,7 @@
                             <textarea
                               :ref="(el) => { hintTextareas[block._id] = el as HTMLTextAreaElement }"
                               v-model="block.content"
-                              class="tg-auto-textarea w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 resize-none transition bg-white text-slate-900 placeholder-slate-400 font-[inherit]"
+                              class="tg-auto-textarea w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 resize-none transition bg-white text-slate-900 placeholder-slate-400 font-[inherit]"
                               placeholder="Type hint text here…"
                             ></textarea>
                           </div>
@@ -450,7 +450,7 @@
                             <textarea
                               :ref="(el) => { explanationTextareas[block._id] = el as HTMLTextAreaElement }"
                               v-model="block.content"
-                              class="tg-auto-textarea w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 resize-none transition bg-white text-slate-900 placeholder-slate-400 font-[inherit]"
+                              class="tg-auto-textarea w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 resize-none transition bg-white text-slate-900 placeholder-slate-400 font-[inherit]"
                               placeholder="Type post answer content here…"
                             ></textarea>
                           </div>
@@ -542,7 +542,7 @@
                             <textarea
                               :ref="(el) => { questionTextareas[block._id] = el as HTMLTextAreaElement }"
                               v-model="block.content"
-                              class="tg-auto-textarea w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 resize-none transition bg-white text-slate-900 placeholder-slate-400 font-[inherit]"
+                              class="tg-auto-textarea w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 resize-none transition bg-white text-slate-900 placeholder-slate-400 font-[inherit]"
                               placeholder="Type here…"
                             ></textarea>
                           </div>
@@ -653,7 +653,7 @@
               <span v-if="error" class="text-red-500 text-xs mr-auto">{{ error }}</span>
               <button
                 type="button"
-                class="px-4 py-2 rounded-xl border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-100 transition cursor-pointer"
+                class="px-4 py-2 rounded-lg border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-100 transition cursor-pointer"
                 @click="$emit('close')"
               >Cancel</button>
               <button

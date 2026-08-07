@@ -1,6 +1,6 @@
 <template>
   <AppLayout>
-    <div class="flex items-center gap-4 pb-6 mb-6 border-b border-slate-200">
+    <div class="flex items-center gap-4 pb-6 mb-6 border-b border-slate-200 flex-wrap">
       <div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center flex-shrink-0">
         <Settings class="w-5 h-5 text-white" />
       </div>
@@ -58,7 +58,7 @@
           <input
             v-model="form.clientId"
             type="text"
-            class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary"
             placeholder="xxxx.apps.googleusercontent.com"
           />
         </div>
@@ -70,7 +70,7 @@
           <input
             v-model="form.clientSecret"
             type="password"
-            class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary"
             :placeholder="configured ? '...' : 'GOCSPX-...'"
           />
         </div>
@@ -105,7 +105,7 @@
             type="text"
             maxlength="60"
             placeholder="Telegram Quiz"
-            class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"
           />
           <p class="text-xs text-slate-400 mt-1">Shown in the sidebar and login page</p>
         </div>
@@ -117,7 +117,7 @@
             rows="2"
             maxlength="200"
             placeholder="Create and manage engaging quiz games for your Telegram community."
-            class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+            class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none"
           />
           <p class="text-xs text-slate-400 mt-1">Subtitle shown on the left panel of the login page</p>
         </div>

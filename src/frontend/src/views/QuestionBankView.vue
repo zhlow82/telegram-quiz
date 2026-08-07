@@ -27,7 +27,7 @@
             />
           </div>
           <button
-            class="inline-flex items-center gap-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm font-semibold px-4 py-2 rounded-xl transition cursor-pointer"
+            class="inline-flex items-center gap-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm font-semibold px-4 py-2 rounded-lg transition cursor-pointer"
             @click="openImportModal"
           >
             <Upload class="w-4 h-4" />
@@ -101,7 +101,7 @@
       <div class="flex gap-5 items-start">
 
       <!-- -- Folder sidebar -- -->
-      <aside class="w-52 flex-shrink-0 hidden md:block">
+      <aside class="w-52 flex-shrink-0 hidden md:block sticky top-4 self-start">
         <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
 
           <!-- All Questions -->
@@ -687,7 +687,7 @@
             <p class="text-sm text-slate-600 mb-3">Move {{ selectedQuestionIds.size }} question(s) to:</p>
             <select
               v-model="moveToFolderTarget"
-              class="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 bg-white text-slate-700"
+              class="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-primary bg-white text-slate-700"
             >
               <option :value="null">Unfiled</option>
               <option v-for="f in folders" :key="f.id" :value="f.id">{{ f.name }}</option>

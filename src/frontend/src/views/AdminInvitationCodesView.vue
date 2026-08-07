@@ -1,6 +1,6 @@
 <template>
   <AppLayout>
-    <div class="flex items-center gap-4 pb-6 mb-6 border-b border-slate-200">
+    <div class="flex items-center gap-4 pb-6 mb-6 border-b border-slate-200 flex-wrap">
       <div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center flex-shrink-0">
         <KeyRound class="w-5 h-5 text-white" />
       </div>
@@ -28,7 +28,12 @@
           <div class="h-6 bg-slate-100 rounded animate-pulse w-8 ml-auto"></div>
         </div>
       </div>
-      <div v-else-if="codes.length === 0" class="p-8 text-center text-slate-400">No invitation codes yet. Generate one above.</div>
+      <AppEmptyState
+        v-else-if="codes.length === 0"
+        icon="key"
+        title="No invitation codes yet"
+        description="Generate a code above for new Google sign-ups"
+      />
       <table v-else class="w-full text-sm">
         <thead>
           <tr class="bg-white border-b-2 border-slate-200">
@@ -49,7 +54,7 @@
               <div class="flex items-center gap-2">
                 <code class="font-mono font-bold text-slate-900 tracking-widest">{{ c.code }}</code>
                 <button
-                  class="text-slate-400 hover:text-blue-600 transition-colors cursor-pointer"
+                  class="text-slate-400 hover:text-primary transition-colors cursor-pointer"
                   title="Copy"
                   @click="copy(c.code, c.id)"
                 >
@@ -72,7 +77,7 @@
                   role="switch"
                   :aria-checked="c.active"
                   class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none"
-                  :class="c.active ? 'bg-blue-600' : 'bg-slate-200'"
+                  :class="c.active ? 'bg-primary' : 'bg-slate-200'"
                   @click="toggleCode(c)"
                 >
                   <span
@@ -112,6 +117,7 @@
 import { ref, onMounted } from 'vue'
 import { KeyRound, Plus, Copy, Check, Trash2 } from '@lucide/vue'
 import AppLayout from '@/components/AppLayout.vue'
+import AppEmptyState from '@/components/AppEmptyState.vue'
 import AppDialog from '@/components/AppDialog.vue'
 import { adminService } from '@/services/adminService'
 import { useToast } from '@/composables/useToast'

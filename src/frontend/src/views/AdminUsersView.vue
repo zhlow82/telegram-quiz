@@ -1,6 +1,6 @@
 <template>
   <AppLayout>
-    <div class="flex items-center gap-4 pb-6 mb-6 border-b border-slate-200">
+    <div class="flex items-center gap-4 pb-6 mb-6 border-b border-slate-200 flex-wrap">
       <div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center flex-shrink-0">
         <Users class="w-5 h-5 text-white" />
       </div>
@@ -47,7 +47,7 @@
             <th class="text-left px-4 py-3 text-xs font-semibold text-slate-600 uppercase tracking-wider">
               <button
                 class="flex items-center gap-1 transition-colors cursor-pointer hover:text-slate-900"
-                :class="sortKey === 'firstName' ? 'text-blue-600' : ''"
+                :class="sortKey === 'firstName' ? 'text-primary' : ''"
                 @click="setSort('firstName')"
               >
                 FIRST NAME
@@ -57,7 +57,7 @@
             <th class="text-left px-4 py-3 text-xs font-semibold text-slate-600 uppercase tracking-wider">
               <button
                 class="flex items-center gap-1 transition-colors cursor-pointer hover:text-slate-900"
-                :class="sortKey === 'lastName' ? 'text-blue-600' : ''"
+                :class="sortKey === 'lastName' ? 'text-primary' : ''"
                 @click="setSort('lastName')"
               >
                 LAST NAME
@@ -67,7 +67,7 @@
             <th class="text-left px-4 py-3 text-xs font-semibold text-slate-600 uppercase tracking-wider">
               <button
                 class="flex items-center gap-1 transition-colors cursor-pointer hover:text-slate-900"
-                :class="sortKey === 'username' ? 'text-blue-600' : ''"
+                :class="sortKey === 'username' ? 'text-primary' : ''"
                 @click="setSort('username')"
               >
                 USERNAME / EMAIL
@@ -77,7 +77,7 @@
             <th class="text-left px-4 py-3 text-xs font-semibold text-slate-600 uppercase tracking-wider">
               <button
                 class="flex items-center gap-1 transition-colors cursor-pointer hover:text-slate-900"
-                :class="sortKey === 'provider' ? 'text-blue-600' : ''"
+                :class="sortKey === 'provider' ? 'text-primary' : ''"
                 @click="setSort('provider')"
               >
                 TYPE
@@ -87,7 +87,7 @@
             <th class="text-left px-4 py-3 text-xs font-semibold text-slate-600 uppercase tracking-wider">
               <button
                 class="flex items-center gap-1 transition-colors cursor-pointer hover:text-slate-900"
-                :class="sortKey === 'role' ? 'text-blue-600' : ''"
+                :class="sortKey === 'role' ? 'text-primary' : ''"
                 @click="setSort('role')"
               >
                 ROLE
@@ -156,7 +156,7 @@
                 role="switch"
                 :aria-checked="user.active"
                 class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none"
-                :class="user.active ? 'bg-blue-600' : 'bg-slate-200'"
+                :class="user.active ? 'bg-primary' : 'bg-slate-200'"
                 @click="toggleUserActive(user)"
               >
                 <span
@@ -238,7 +238,7 @@
                 <input
                   v-model="editForm.firstName"
                   type="text"
-                  class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                   placeholder="First name"
                 />
               </div>
@@ -247,7 +247,7 @@
                 <input
                   v-model="editForm.lastName"
                   type="text"
-                  class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                   placeholder="Last name"
                 />
               </div>
@@ -260,7 +260,7 @@
                   <input
                     v-model="editForm.newPassword"
                     :type="editShowPassword ? 'text' : 'password'"
-                    class="w-full px-3 py-2 pr-10 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    class="w-full px-3 py-2 pr-10 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                     placeholder="New password"
                     autocomplete="new-password"
                   />
@@ -280,7 +280,7 @@
                   <input
                     v-model="editForm.confirmPassword"
                     :type="editShowConfirmPassword ? 'text' : 'password'"
-                    class="w-full px-3 py-2 pr-10 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    class="w-full px-3 py-2 pr-10 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                     :class="editForm.confirmPassword && editForm.newPassword !== editForm.confirmPassword ? 'border-red-400 focus:ring-red-400' : ''"
                     placeholder="Repeat password"
                     autocomplete="new-password"
@@ -345,7 +345,7 @@
                 <input
                   v-model="form.firstName"
                   type="text"
-                  class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                   placeholder="First name"
                 />
               </div>
@@ -354,7 +354,7 @@
                 <input
                   v-model="form.lastName"
                   type="text"
-                  class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                   placeholder="Last name"
                 />
               </div>
@@ -364,7 +364,7 @@
               <input
                 v-model="form.username"
                 type="text"
-                class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                 placeholder="e.g. johndoe"
               />
             </div>
@@ -374,7 +374,7 @@
                 <input
                   v-model="form.password"
                   :type="createShowPassword ? 'text' : 'password'"
-                  class="w-full px-3 py-2 pr-10 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  class="w-full px-3 py-2 pr-10 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                   placeholder="Temporary password"
                 />
                 <button
@@ -399,7 +399,7 @@
                 <input
                   v-model="form.confirmPassword"
                   :type="createShowConfirmPassword ? 'text' : 'password'"
-                  class="w-full px-3 py-2 pr-10 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  class="w-full px-3 py-2 pr-10 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                   :class="form.confirmPassword && form.password !== form.confirmPassword ? 'border-red-400 focus:ring-red-400' : ''"
                   placeholder="Repeat password"
                 />

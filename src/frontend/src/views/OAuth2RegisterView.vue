@@ -22,7 +22,7 @@
             ref="codeInput"
             v-model="code"
             type="text"
-            class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-mono uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-mono uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-primary"
             placeholder="XXXXXXXXXXXX"
             @keyup.enter="submit"
           />
@@ -39,7 +39,7 @@
 
       <p class="mt-4 text-xs text-center text-slate-400">
         Wrong account?
-        <a :href="`${baseUrl}login`" class="text-blue-600 hover:underline">Go back</a>
+        <a :href="`${baseUrl}login`" class="text-primary hover:underline">Go back</a>
       </p>
     </div>
   </div>

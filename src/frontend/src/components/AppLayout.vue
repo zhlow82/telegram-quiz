@@ -189,7 +189,7 @@
               <input
                 v-model="profileForm.firstName"
                 type="text"
-                class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                 placeholder="First name"
               />
             </div>
@@ -198,7 +198,7 @@
               <input
                 v-model="profileForm.lastName"
                 type="text"
-                class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                 placeholder="Last name"
               />
             </div>
@@ -228,7 +228,7 @@
                     <input
                       v-model="cpForm.current"
                       :type="cpShowCurrent ? 'text' : 'password'"
-                      class="w-full px-3 py-2 pr-10 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      class="w-full px-3 py-2 pr-10 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                       placeholder="Current password"
                     />
                     <button type="button" class="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 transition cursor-pointer" @click="cpShowCurrent = !cpShowCurrent">
@@ -243,7 +243,7 @@
                     <input
                       v-model="cpForm.newPwd"
                       :type="cpShowNew ? 'text' : 'password'"
-                      class="w-full px-3 py-2 pr-10 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      class="w-full px-3 py-2 pr-10 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                       placeholder="At least 8 characters"
                     />
                     <button type="button" class="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 transition cursor-pointer" @click="cpShowNew = !cpShowNew">
@@ -258,7 +258,7 @@
                     <input
                       v-model="cpForm.confirm"
                       :type="cpShowConfirm ? 'text' : 'password'"
-                      class="w-full px-3 py-2 pr-10 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      class="w-full px-3 py-2 pr-10 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                       placeholder="Repeat new password"
                       @keyup.enter="submitChangePassword"
                     />

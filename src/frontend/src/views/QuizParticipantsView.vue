@@ -4,7 +4,7 @@
     <div class="flex items-center justify-between gap-4 pb-6 mb-6 border-b border-slate-200 flex-wrap">
       <div class="flex items-center gap-4">
         <button
-          class="w-9 h-9 rounded-lg bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600 transition cursor-pointer flex-shrink-0"
+          class="w-9 h-9 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-center text-slate-500 hover:text-slate-700 transition cursor-pointer flex-shrink-0"
           @click="router.push('/quizzes')"
         >
           <ArrowLeft class="w-4 h-4" />
@@ -53,7 +53,7 @@
     </div>
 
     <!-- Stats cards -->
-    <div v-if="!sessionsLoading && sessions.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-5">
+    <div v-if="!sessionsLoading && sessions.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-5">
       <div class="bg-white rounded-xl border border-slate-200 p-5" title="Total number of times someone has started this quiz">
         <div class="flex items-center justify-between">
           <div>
@@ -91,7 +91,7 @@
         <div class="flex items-center justify-between">
           <div>
             <p class="text-[0.6875rem] uppercase tracking-[0.07em] text-slate-500 font-semibold mb-1">Pass Rate</p>
-            <p class="text-2xl font-black text-blue-600">{{ passRate }}%</p>
+            <p class="text-2xl font-black text-purple-600">{{ passRate }}%</p>
           </div>
           <div class="w-[42px] h-[42px] min-w-[42px] rounded-xl flex items-center justify-center bg-purple-50">
             <Trophy class="w-5 h-5 text-purple-600" />
@@ -124,14 +124,13 @@
     </div>
 
     <!-- Empty -->
-    <div v-else-if="sessions.length === 0" class="bg-white rounded-xl border border-slate-200 flex flex-col items-center gap-4 py-14 px-6 text-center">
-      <div class="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center">
-        <Users class="w-7 h-7 text-slate-400" />
-      </div>
-      <div>
-        <p class="font-semibold text-slate-900 mb-1">No participants yet</p>
-        <p class="text-sm text-slate-500">Participants will appear here when they start the bot</p>
-      </div>
+    <div v-else-if="sessions.length === 0" class="bg-white rounded-xl border border-slate-200">
+      <AppEmptyState
+        icon="users"
+        variant="slate"
+        title="No participants yet"
+        description="Participants will appear here when they start the bot"
+      />
     </div>
 
     <!-- Session list -->
@@ -246,7 +245,7 @@
           <div v-else>
             <!-- Summary bar -->
             <div v-if="answers.length > 0" class="bg-white rounded-xl border border-slate-200 p-4 mb-3">
-              <div class="flex items-center justify-between gap-4 mb-3">
+              <div class="flex items-center justify-between gap-4 mb-3 flex-wrap">
                 <div class="flex items-center gap-6">
                   <div class="flex items-center gap-2">
                     <CheckCircle class="w-4 h-4 text-slate-400" />
@@ -411,6 +410,7 @@ import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ArrowLeft, Users, CheckCircle, XCircle, Minus, Clock, RefreshCw, FileText, Camera, X, AlertCircle, ChevronDown, ChevronLeft, ChevronRight, Search, Trophy, Eye } from '@lucide/vue'
 import AppLayout from '@/components/AppLayout.vue'
+import AppEmptyState from '@/components/AppEmptyState.vue'
 import { quizService } from '@/services/quizService'
 import type { Quiz, QuizSessionSummary, QuizSessionAnswer } from '@/types/quiz'
 
