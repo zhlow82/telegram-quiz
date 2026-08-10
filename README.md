@@ -38,10 +38,10 @@ telegram-quiz/
 ├── docker-compose.yml           # Full stack deployment (VPS)
 ├── .devcontainer/                 # VS Code dev container (Postgres, Redis, pgAdmin, Java 21, Node 20)
 ├── render.yaml                  # Render cloud deployment blueprint
-├── start.bat                    # End-user: build & start full stack (Docker Desktop only)
-├── stop.bat                     # End-user: stop services (data preserved)
-├── zip.bat                      # End-user: create slim distribution zip
-├── SETUP-GUIDE.txt              # Step-by-step guide for end users
+├── installation/                # End-user installation scripts
+│   ├── windows/                 # Windows: start.bat, stop.bat, zip.bat, SETUP-GUIDE.txt
+│   └── mac/                     # macOS: start.sh, stop.sh, zip.sh, SETUP-GUIDE.txt
+├── USAGE-GUIDE.txt              # How-to guide for end users (platform-neutral)
 └── .gitignore
 ```
 
@@ -176,15 +176,15 @@ Login with:
 
 If you just want to *host* the app locally (no Java/Node/Maven installation), the repo ships a zero-config flow that only needs **Docker Desktop**:
 
-1. Run `zip.bat` to build a slim `telegram-quiz.zip` distribution package
-2. Give the zip + `SETUP-GUIDE.txt` to the end user
-3. End user: install Docker Desktop → extract zip → double-click `start.bat`
+1. Run `installation/windows/zip.bat` (Windows) or `installation/mac/zip.sh` (Mac) to build a slim `telegram-quiz.zip` distribution package — the zip contains `src`, `docker-compose.yml`, `USAGE-GUIDE.txt` and that platform's `start`/`stop` scripts + `SETUP-GUIDE.txt` at the package root (the zip scripts themselves are not shipped)
+2. Give the zip + `USAGE-GUIDE.txt` to the end user
+3. End user: install Docker Desktop → extract zip → **Windows:** double-click `start.bat` · **Mac:** run `./start.sh` in the extracted folder
 4. App is served at **http://localhost/tg-quiz** — log in with `localadmin` / `password88`
 
-- `start.bat` builds & starts the full stack, waits until the app responds, then prints Ready
-- `stop.bat` stops all services (data preserved); `docker compose down -v` fully resets data
+- `start.bat` / `start.sh` builds & starts the full stack, waits until the app responds, then prints Ready
+- `stop.bat` / `stop.sh` stops all services (data preserved); `docker compose down -v` fully resets data
 - First start needs an internet connection and takes a few minutes (image downloads + builds)
-- Full walkthrough in `SETUP-GUIDE.txt` (including a quick guide on creating questions and running quizzes)
+- Full walkthrough in `installation/windows/SETUP-GUIDE.txt` / `installation/mac/SETUP-GUIDE.txt`, plus `USAGE-GUIDE.txt` (a quick guide on creating questions and running quizzes)
 
 ---
 

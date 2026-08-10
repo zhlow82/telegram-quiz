@@ -1,5 +1,5 @@
 @echo off
-cd /d "%~dp0"
+cd /d "%~dp0..\.."
 
 echo ========================================
 echo   Telegram Quiz - Creating Distribution Package
@@ -18,7 +18,8 @@ tar -a -c -f "%ZIP_NAME%" ^
     --exclude "src/frontend/dist" ^
     --exclude ".git" ^
     --exclude ".env" ^
-    src docker-compose.yml start.bat stop.bat SETUP-GUIDE.txt USAGE-GUIDE.txt
+    -C installation\windows start.bat stop.bat SETUP-GUIDE.txt ^
+    -C ..\.. src docker-compose.yml USAGE-GUIDE.txt
 
 if %errorlevel% neq 0 (
     echo.
@@ -35,7 +36,7 @@ echo.
 echo Next, you need to:
 echo   1. Install Docker Desktop
 echo   2. Extract this zip
-echo   3. Double-click start.bat
+echo   3. Double-click start.bat (in the extracted folder)
 echo   4. Open http://localhost/tg-quiz
 echo.
 pause

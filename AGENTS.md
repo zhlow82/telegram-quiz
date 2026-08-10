@@ -53,14 +53,16 @@ docker compose up -d --build
 
 ### End-user local hosting (no dev tools required)
 
-The repo ships a zero-config distribution flow for people who just want to run the app on their own machine (only Docker Desktop needed):
+The repo ships a zero-config distribution flow for people who just want to run the app on their own machine (only Docker Desktop needed). Platform scripts live in `installation/windows/` and `installation/mac/` subfolders:
 
-- `start.bat` — checks Docker, builds & starts the full stack, waits until the app responds at `http://localhost/tg-quiz`, then prints Ready
-- `stop.bat` — stops all services (data preserved via Docker volumes)
-- `zip.bat` — creates a slim `telegram-quiz.zip` distribution package (`tar` with excludes for `node_modules`/`target`/`dist`/`.git`/`.env`)
-- `SETUP-GUIDE.txt` — step-by-step end-user guide (install Docker, extract zip, start, login, how to use)
+- `windows/start.bat` — checks Docker, builds & starts the full stack, waits until the app responds at `http://localhost/tg-quiz`, then prints Ready
+- `windows/stop.bat` — stops all services (data preserved via Docker volumes)
+- `windows/zip.bat` / `mac/zip.sh` — creates a slim `telegram-quiz.zip` distribution package (`tar` with excludes for `node_modules`/`target`/`dist`/`.git`/`.env`) containing `src`, `docker-compose.yml`, `USAGE-GUIDE.txt` and **only its own platform's** `start`/`stop`/`SETUP-GUIDE.txt` files at the package root (the zip scripts themselves are not shipped to end users)
+- `windows/SETUP-GUIDE.txt` — step-by-step Windows end-user guide (install Docker, extract zip, start, login, how to use)
+- `mac/start.sh`, `mac/stop.sh`, `mac/SETUP-GUIDE.txt` — macOS equivalents (run via Terminal: `chmod +x start.sh stop.sh`, then `./start.sh`)
+- `USAGE-GUIDE.txt` — platform-neutral end-user how-to (shared by both platforms)
 
-If you change anything that affects these scripts (ports, URLs, env vars, compose file names), update them and re-run `zip.bat` to refresh the package.
+If you change anything that affects these scripts (ports, URLs, env vars, compose file names), update the Windows AND Mac versions and re-run `zip.bat`/`zip.sh` to refresh the package.
 
 **Important:** The user starts backend services manually via VS Code `launch.json`. If you start any server yourself for testing, **always stop it after testing is complete**.
 
@@ -110,7 +112,7 @@ All profiles include an **in-memory circular buffer** (last 1000 entries) access
 - Tokens carry a `type` claim (`access` | `refresh`). `JwtAuthFilter` in **both** services only authenticates `type=access` — refresh tokens presented as Bearer tokens are rejected.
 - Both services sign/validate JWTs independently with the same `JWT_SECRET`. The secret falls back to a built-in dev key when the env var is unset; override `JWT_SECRET` for any non-local deployment.
 - Roles: `ROLE_ADMIN`, `ROLE_MEMBER`.
-- `localadmin` / `password88` (ROLE_ADMIN) is seeded by `DataInitializer` in **every** environment by design (documented in `SETUP-GUIDE.txt`).
+- `localadmin` / `password88` (ROLE_ADMIN) is seeded by `DataInitializer` in **every** environment by design (documented in `installation/windows/SETUP-GUIDE.txt` and `installation/mac/SETUP-GUIDE.txt`).
 - Bot tokens are AES-256-GCM encrypted at rest (`BOT_TOKEN_ENCRYPTION_KEY`, built-in dev fallback).
 - **One bot token can only power one active quiz at a time.** `QuizService.activate()` rejects a second active quiz with the same token (409 + quiz name); `TelegramBotManager` keeps a `tokenToQuizId` map as a second guard (covers app-startup restarts); `POST /api/bot/validate-token` reports `inUse`/`inUseByQuizName` so the wizard can warn before saving.
 - main-service: `/api/admin/**` requires `ROLE_ADMIN` (e.g. `GET /api/admin/logs`). Session answers/photos endpoints (`/api/quizzes/sessions/**`) verify the caller owns the quiz.
