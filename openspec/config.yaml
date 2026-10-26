@@ -26,6 +26,8 @@ rules:
     - Add a separate task for the Flyway migration and the matching entity update when the schema changes.
     - Add `cd src/frontend && npx vue-tsc --noEmit` as verification for frontend tasks.
     - Never leave backend or frontend dev servers running after a task.
+    - Every behavior change adds or updates automated tests for the affected spec scenarios.
+    - Name tests after the capability and scenario they cover.
 
 operations:
   apply:
@@ -33,6 +35,7 @@ operations:
       - Do not run git commit or git push; the user handles version control.
       - Do not execute Flyway migrations manually; the user starts services to apply them.
       - Update the OpenSpec task checkboxes as tasks complete.
+      - Do not run test suites unless the user explicitly asks. Creating or updating tests is still required; execution is opt-in.
   archive:
     guidance:
       - Summarize the user-visible behavior change and list the capabilities updated.

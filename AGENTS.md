@@ -60,6 +60,19 @@ cd src/frontend && npm run build
 docker compose up -d --build
 ```
 
+## Testing
+
+**Execution policy:** write and update test cases as part of behavior changes, but do **not** run test suites unless the user explicitly asks. Test runs are opt-in because the integration suite is slow; CI is the authoritative run.
+
+- **Backend fast tests:** `cd src/backend/auth-service && mvn test` (same for `main-service`). No Docker required.
+- **Backend integration tests:** `mvn verify` in each service. Requires Docker Desktop for Testcontainers PostgreSQL/Redis.
+- **Frontend tests:** `cd src/frontend && npm run test:unit` (watch: `npm run test:unit:watch`).
+- **Type check / build:** `npx vue-tsc --noEmit` and `npm run build`.
+- Name tests after the capability and scenario they cover (`@DisplayName("auth / Password sign-in / Deactivated account")`).
+- Use PostgreSQL containers, never H2. Do not test private methods or the Telegram network.
+- When asked to run tests, run only the scope requested (single class, service, or frontend file) and report the command used.
+- Full conventions: `testing-conventions` skill.
+
 ### End-user local hosting (no dev tools required)
 
 The repo ships a zero-config distribution flow for people who just want to run the app on their own machine (only Docker Desktop needed). Platform scripts live in `installation/windows/` and `installation/mac/` subfolders:
