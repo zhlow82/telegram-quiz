@@ -15,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.telegramquiz.main.dto.FolderInviteRequestDto;
 import com.telegramquiz.main.dto.FolderRoleUpdateDto;
 import com.telegramquiz.main.entity.Folder;
 import com.telegramquiz.main.entity.FolderMember;
