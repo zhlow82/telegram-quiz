@@ -27,6 +27,15 @@ All frontend API calls go through the gateway at `localhost:8080`. Vite proxies 
 | Bot | telegrambots 6.9.7.1 (long-polling) |
 | Build | Maven, Java 21 (Eclipse Temurin) |
 
+## Where the rules live
+
+- Always-on invariants, commands, ports, and hard "never" rules: this file (authoritative)
+- Detailed domain patterns and examples: `.agents/skills/<domain>/SKILL.md`
+- Behavior contracts: `openspec/specs/`
+- OpenSpec artifact rules: `openspec/config.yaml`
+
+If a skill disagrees with this file on a hard rule, this file wins — fix the skill. If a change alters an implementation pattern, update the matching skill in the same change.
+
 ## Commands
 
 ```bash
@@ -68,6 +77,25 @@ If you change anything that affects these scripts (ports, URLs, env vars, compos
 
 **Git:** The user prefers to handle git commits and pushes to GitHub themselves. Do not commit or push code unless explicitly asked.
 
+## Spec Workflow (OpenSpec)
+
+Behavior is specified with [OpenSpec](https://openspec.dev). Two layers, no overlap:
+
+- `AGENTS.md` + `.agents/skills/` — how to write code (conventions, patterns, commands)
+- `openspec/specs/` — what the system does (observable behavior, invariants, permissions)
+
+Rules:
+
+- Before implementing a feature or behavior change, create a change with the `openspec-propose` skill (`/openspec-propose` in OpenCode and GitHub Copilot, `$openspec-propose` in Codex). Review `proposal.md`, `specs/`, `design.md`, and `tasks.md` before coding.
+- Implement with `openspec-apply-change` (`/openspec-apply-change` in OpenCode and Copilot, `$openspec-apply-change` in Codex). `openspec/specs/` is read-only during implementation — requirement changes go in the change's `specs/` delta and merge when the change is archived with `openspec-archive-change`.
+- Run `openspec validate --all --strict` before archiving. Use `openspec list` for active changes and `openspec list --specs` for the capability inventory.
+- Keep at most 2–3 active changes at once to limit archive conflicts within the same capability.
+- Internal refactors, dependency bumps, and tooling changes need no proposal. Anything that changes observable behavior does.
+- Workflow skills are generated once under `.agents/skills/` and are read by OpenCode, GitHub Copilot, and Codex. Refresh them with `openspec update`; do not re-run `openspec init --tools ...` with extra tools or the per-tool copies return.
+- Commit `openspec/`, `AGENTS.md`, and `.agents/skills/` with the code.
+
+If the CLI is missing, install it with `npm install -g @fission-ai/openspec@latest`. After upgrading, run `openspec update` to refresh the generated skills.
+
 ## Logging Profiles
 
 | Profile | Output | Use Case |
@@ -89,22 +117,21 @@ All profiles include an **in-memory circular buffer** (last 1000 entries) access
 
 ### Code Patterns
 
-- **Entities**: Lombok `@Getter`, `@Setter`, `@Builder`, `@NoArgsConstructor`, `@AllArgsConstructor`. Use `@Builder.Default` for collection defaults. `GenerationType.IDENTITY` for IDs.
-- **DTOs**: Java `record` types (immutable). Use `@Valid`, `@NotBlank`, `@Size`, `@Pattern` for validation.
-- **Dependency injection**: Constructor injection via `@RequiredArgsConstructor` with `final` fields. Never use `@Autowired`.
-- **Controllers**: `@RestController` with `@RequestMapping` base path. Extract username via `@AuthenticationPrincipal String username`.
-- **Services**: `@Service` annotated. Manual DTO mapping via private `toDto()` methods (no MapStruct).
-- **Error handling**: `ResponseStatusException` for HTTP errors. `EntityNotFoundException` for 404s. No global `@ControllerAdvice`.
-- **Logging**: Slf4j via Lombok `@Slf4j`.
+- **Entities**: Lombok `@Getter`, `@Setter`, `@Builder`, `@NoArgsConstructor`, `@AllArgsConstructor`; `@Builder.Default` for collection defaults; `GenerationType.IDENTITY` for IDs.
+- **DTOs**: Java `record` types with `@Valid`, `@NotBlank`, `@Size`, and `@Pattern` validation.
+- **Dependency injection**: constructor injection via `@RequiredArgsConstructor` with `final` fields. Never use `@Autowired`.
+- **Controllers**: `@RestController` with `@RequestMapping`; extract the username via `@AuthenticationPrincipal String username`.
+- **Services**: `@Service`; manual DTO mapping via private `toDto()` methods (no MapStruct); `@Slf4j` for logging.
+- **Error handling**: `ResponseStatusException` for HTTP errors and `EntityNotFoundException` for 404s. A `GlobalExceptionHandler` maps them (see Important Notes).
 
 ### Database Migrations (Flyway)
 
-- **auth-service**: `src/backend/auth-service/src/main/resources/db/migration/` — history table: `flyway_schema_history`
-- **main-service**: `src/backend/main-service/src/main/resources/db/migration/` — history table: `flyway_schema_history_main`
-- **Naming**: `V{YYYYMMDDHHMMSS}__{verb}_{object}.sql` using current local datetime
-- **Rules**: Never edit or delete applied migrations. Always use a new timestamp.
-- **Execution**: After creating migration files, **do NOT execute them automatically**. Wait for the user to start the server, which will trigger Flyway migrations on startup. Only execute manually if explicitly asked.
-- **JPA**: `ddl-auto: validate` — Flyway owns the schema. Always update the Java entity to match new migrations.
+- **auth-service**: `src/backend/auth-service/src/main/resources/db/migration/` — history table `flyway_schema_history`
+- **main-service**: `src/backend/main-service/src/main/resources/db/migration/` — history table `flyway_schema_history_main`
+- Never edit or delete an applied migration; always add a new file with the current local timestamp.
+- Never execute migrations manually — the user starts the service and Flyway applies them. Run them manually only when explicitly asked.
+- `ddl-auto: validate`: Flyway owns the schema; always update the matching Java entity in the same change.
+- Naming, SQL templates, and common patterns: see the `database-migrations` skill.
 
 ### Security
 
@@ -121,55 +148,38 @@ All profiles include an **in-memory circular buffer** (last 1000 entries) access
 
 ## Frontend Conventions
 
-### Structure
-
-```
-src/frontend/src/
-├── components/     # Reusable components (PascalCase filenames)
-├── views/          # Page-level components (NameView.vue)
-├── router/         # Vue Router config with navigation guards
-├── stores/         # Pinia stores (Composition API pattern)
-├── services/       # API client modules (exported as objects with arrow functions)
-└── types/          # TypeScript interfaces (co-located by domain)
-```
-
 ### Code Patterns
 
 - **Components**: `<script setup lang="ts">` (Composition API). Template first, script second, style third.
 - **Naming**: PascalCase for components, camelCase for services/stores/types/refs/functions.
-- **Services**: Exported as plain objects with arrow-function methods (e.g., `quizService.list()`).
-- **Types**: Exported interfaces with PascalCase, co-located in `src/types/`.
+- **Services**: plain objects with arrow-function methods (e.g., `quizService.list()`); never call axios directly from a component.
+- **Types**: PascalCase interfaces co-located in `src/types/`.
 - **Store**: Composition API pattern `defineStore('name', () => { ... })`.
 - **Props/Emits**: `defineProps<{...}>()` and `defineEmits<{...}>()` with generic type parameters.
-- **Path alias**: `@/` maps to `./src/`. Use it consistently for all imports.
-- **Styling**: Tailwind utility classes inline in templates. `slate-*` neutrals, `primary` (sky-500) for primary actions, `red-500/600` destructive, `green-*` success, `amber-*` warnings.
-- **Sidebar**: Light background (`bg-white`) with pill-shaped active nav items (`bg-primary text-white rounded-full`).
-- **Buttons**: Primary CTAs use `bg-primary hover:bg-primary-hover rounded-full`.
-- **Modals**: `<teleport to="body">` for z-index isolation. **NEVER** add a click handler to the backdrop (overlay). Users must explicitly click the X or Cancel button to dismiss.
-- **Layout**: All authenticated views wrap in `<AppLayout>` component.
+- **Path alias**: `@/` maps to `./src/`; use it for all imports.
+- **Styling**: Tailwind inline; `slate-*` neutrals, `primary` (sky-500) primary actions, red/green/amber semantics. Primary CTAs use `bg-primary hover:bg-primary-hover rounded-full`; sidebar active items are `bg-primary text-white rounded-full` on `bg-white`.
+- **Modals**: `<teleport to="body">` for z-index isolation. **NEVER** add a click handler to the backdrop (overlay); users dismiss via X or Cancel.
+- **Layout**: all authenticated views wrap in `<AppLayout>`.
 - **Drag-and-drop**: `vue-draggable-plus` for list reordering, native HTML5 DnD for cross-container moves.
 
 ### Router
 
-- Base path: `/` (local dev), configurable via `VITE_BASE_URL` env var for production
-- Route meta: `requiresAuth`, `requiresGuest`, `requiresAdmin`
-- Guards redirect to `/login` or `/home` based on auth state.
+- Base path `/` in local dev, configurable via `VITE_BASE_URL`.
+- Route meta: `requiresAuth`, `requiresGuest`, `requiresAdmin`; guards redirect to `/login` or `/home`.
 
 ### API Client
 
-- Axios instance in `src/services/api.ts`
-- Request interceptor: attaches JWT, checks expiration
-- Response interceptor: 401 → refresh via `/auth/refresh` (single-flight, queued) → retry; if refresh fails, clears session and redirects to login
-- Vite dev proxy: `/auth`, `/api`, `/oauth2`, `/login/oauth2` → `http://localhost:8080`
+- 401 handling is centralized in `src/services/api.ts` (single-flight refresh via `/auth/refresh`, then retry; on failure clear session and redirect to login). Use the service layer, don't reimplement it.
+- Vite dev proxy: `/auth`, `/api`, `/oauth2`, `/login/oauth2` → `http://localhost:8080`.
+
+For full examples, use the `frontend-conventions` skill.
 
 ## Important Notes
 
 - No tests exist yet in any module.
 - Both services have a `@RestControllerAdvice` (`GlobalExceptionHandler`) mapping `EntityNotFoundException` → 404, `ResponseStatusException`, validation failures → 400, and a generic 500 fallback.
 - CORS: backend services hardcode `http://localhost:5173`; the gateway uses `allowedOriginPatterns: "*"` with credentials (mostly inert — dev uses Vite proxy, prod uses Nginx same-origin).
-- The gateway is a transparent proxy (per-IP rate limiting via Redis, `Origin` header removed) — all authorization happens downstream.
 - `GET /api/files/**` is publicly accessible without auth (image serving); uploads (`POST /api/files/upload`) require auth.
-- Default admin account: `localadmin` / `password88` (seeded by `DataInitializer` in every environment).
 
 ## Deployment
 

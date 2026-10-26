@@ -5,6 +5,8 @@ description: Use when creating or modifying backend Java code in auth-service or
 
 # Backend Conventions
 
+> Scope: implementation patterns only. Behavior contracts live in `openspec/specs/`; the propose → apply → archive workflow is in `AGENTS.md`.
+
 ## Entity Patterns
 
 ```java
@@ -174,7 +176,7 @@ throw new ResponseStatusException(HttpStatus.CONFLICT, "Already exists");
 ## Security
 
 - Extract current user: `@AuthenticationPrincipal String username`
-- Admin-only endpoints: use `@PreAuthorize("hasRole('ADMIN')")` or configure in `SecurityConfig`
+- Admin-only endpoints: configure in `SecurityConfig` with `hasAuthority("ROLE_ADMIN")` (this repo does not use method-level `@PreAuthorize`)
 - JWT validation is automatic via `JwtAuthFilter`
 - Bot tokens must be encrypted via `BotTokenEncryptionService` before storage
 

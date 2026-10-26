@@ -5,6 +5,8 @@ description: Use when creating or modifying database schema via Flyway migration
 
 # Database Migrations (Flyway)
 
+> Scope: implementation patterns only. Behavior contracts live in `openspec/specs/`; the propose → apply → archive workflow is in `AGENTS.md`.
+
 ## Migration Locations
 
 | Service | Path | History Table |
@@ -36,6 +38,7 @@ Examples:
 2. **Never delete a migration** — Same checksum issue
 3. **Always use a new timestamp** — Versions must be unique and increasing
 4. **Always update the Java entity** — JPA `ddl-auto: validate` requires entity to match schema
+5. **Never execute migrations manually** — the user starts the service and Flyway applies them on startup. Run them manually only when explicitly asked.
 
 ## Migration Template
 

@@ -5,6 +5,20 @@ description: Use when creating or modifying frontend Vue 3 + TypeScript code. Co
 
 # Frontend Conventions
 
+> Scope: implementation patterns only. Behavior contracts live in `openspec/specs/`; the propose → apply → archive workflow is in `AGENTS.md`.
+
+## Folder Structure
+
+```
+src/frontend/src/
+├── components/     # Reusable components (PascalCase filenames)
+├── views/          # Page-level components (NameView.vue)
+├── router/         # Vue Router config with navigation guards
+├── stores/         # Pinia stores (Composition API pattern)
+├── services/       # API client modules (exported as objects with arrow functions)
+└── types/          # TypeScript interfaces (co-located by domain)
+```
+
 ## Component Structure
 
 ```vue
@@ -154,7 +168,7 @@ const emit = defineEmits<{
 <template>
   <teleport to="body">
     <div v-if="visible" class="fixed inset-0 z-50 flex items-center justify-center">
-      <div class="fixed inset-0 bg-black/50" @click="close" />
+      <div class="fixed inset-0 bg-black/50" />
       <div class="relative z-10 bg-white rounded-2xl shadow-xl max-w-2xl w-full mx-4 p-6">
         <h2 class="text-xl font-bold text-slate-900 mb-4">{{ title }}</h2>
         <slot />
@@ -249,6 +263,14 @@ router.push({ name: 'quiz-detail', params: { id: 123 } })
 // Get params
 const id = Number(route.params.id)
 ```
+
+## API Client
+
+- Axios instance: `src/services/api.ts`
+- Request interceptor: attaches the JWT and checks expiration
+- Response interceptor: on 401, refreshes via `/auth/refresh` (single-flight, queued) and retries
+- If refresh fails: clears the session and redirects to login
+- Components call the service layer, never `axios` directly
 
 ## Error Handling
 
