@@ -1,0 +1,38 @@
+schema: spec-driven
+
+context: |
+  Telegram Quiz: a Vue 3 SPA plus three Spring Boot services — auth-service (:8081),
+  main-service (:8082), api-gateway (:8080). PostgreSQL 17 schema is owned by Flyway
+  (ddl-auto: validate); Redis holds refresh tokens, OAuth2 pending state, and gateway
+  rate-limit counters. Telegram bots run on long polling (telegrambots 6.9.7.1).
+  Coding conventions, package layout, and build/run commands live in AGENTS.md and
+  .agents/skills; do not restate them in artifacts.
+  Specs describe observable behavior — what a user, bot player, or operator can see.
+  Do not write class names, framework choices, endpoint inventories, or step-by-step
+  implementation in specs; those belong in design.md and tasks.md.
+
+rules:
+  proposal:
+    - Keep the proposal under one page; link to AGENTS.md instead of repeating conventions.
+    - State explicitly what is out of scope.
+  specs:
+    - Each requirement is a SHALL statement with at least one WHEN/THEN scenario.
+    - One behavior per requirement; keep the description under 500 characters.
+    - Cover ownership and permission behavior whenever the change touches user data.
+  design:
+    - Include the authorization and ownership implications of new endpoints.
+    - Preserve the one-active-quiz-per-bot-token invariant; call out any deliberate change.
+  tasks:
+    - Add a separate task for the Flyway migration and the matching entity update when the schema changes.
+    - Add `cd src/frontend && npx vue-tsc --noEmit` as verification for frontend tasks.
+    - Never leave backend or frontend dev servers running after a task.
+
+operations:
+  apply:
+    guidance:
+      - Do not run git commit or git push; the user handles version control.
+      - Do not execute Flyway migrations manually; the user starts services to apply them.
+      - Update the OpenSpec task checkboxes as tasks complete.
+  archive:
+    guidance:
+      - Summarize the user-visible behavior change and list the capabilities updated.
