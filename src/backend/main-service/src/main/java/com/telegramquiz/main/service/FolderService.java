@@ -197,6 +197,9 @@ public class FolderService {
         if (!member.getUsername().equals(username)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not your invitation");
         }
+        if (member.getStatus() != FolderMemberStatus.PENDING) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invitation already processed");
+        }
         member.setStatus(FolderMemberStatus.DECLINED);
         memberRepository.save(member);
     }
