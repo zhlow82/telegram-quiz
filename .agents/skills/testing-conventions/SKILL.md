@@ -61,4 +61,6 @@ Reference the capability path at the top of the class when the mapping is not ob
 
 Phase 1 covers JWT claims, bot-token encryption, folder access levels, quiz activation/token conflicts, question access queries + JSONB, the auth flow, `AppDialog`, the auth store, and the API client. Add tests to the same classes when a change touches those behaviors.
 
+The `auth` capability has full scenario coverage: all 36 spec scenarios map to named tests (scenario→test map recorded in the archived `backfill-auth-scenario-tests` change's `tasks.md`). Auth test classes: `JwtUtilTest`, `OAuth2SuccessHandlerTest`, `DataInitializerTest` (unit); `AuthFlowIT`, `AuthLoginIT`, `ProfileAndPasswordIT`, `AdminUserManagementIT`, `GoogleRegistrationIT`, `BrandingSettingsIT` (Testcontainers). Extend these classes when a change touches auth behavior.
+
 Deferred coverage: `api-gateway` and `logging` scenarios — the gateway module has no test sources or test infrastructure, and the log buffer and admin logs endpoints are untested. These scenarios gain coverage in a dedicated gateway/logging test-infrastructure change (deferral recorded per the coverage-ratchet rule in `openspec/config.yaml`).
