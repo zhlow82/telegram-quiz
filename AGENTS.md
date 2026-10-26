@@ -102,6 +102,7 @@ Rules:
 - Before implementing a feature or behavior change, create a change with the `openspec-propose` skill (`/openspec-propose` in OpenCode and GitHub Copilot, `$openspec-propose` in Codex). Review `proposal.md`, `specs/`, `design.md`, and `tasks.md` before coding.
 - Implement with `openspec-apply-change` (`/openspec-apply-change` in OpenCode and Copilot, `$openspec-apply-change` in Codex). `openspec/specs/` is read-only during implementation — requirement changes go in the change's `specs/` delta and merge when the change is archived with `openspec-archive-change`.
 - Run `openspec validate --all --strict` before archiving. Use `openspec list` for active changes and `openspec list --specs` for the capability inventory.
+- When archiving, sweep `AGENTS.md` and the affected `.agents/skills/` for statements the change invalidated (facts, counts, patterns, APIs) and fix them in the same archive — stale docs are an incomplete archive.
 - Keep at most 2–3 active changes at once to limit archive conflicts within the same capability.
 - Internal refactors, dependency bumps, and tooling changes need no proposal. Anything that changes observable behavior does.
 - Workflow skills are generated once under `.agents/skills/` and are read by OpenCode, GitHub Copilot, and Codex. Refresh them with `openspec update`; do not re-run `openspec init --tools ...` with extra tools or the per-tool copies return.
@@ -113,7 +114,7 @@ If the CLI is missing, install it with `npm install -g @fission-ai/openspec@late
 
 | Profile | Output | Use Case |
 |---|---|---|
-| `dev` | Colored console, DEBUG level | Local development |
+| `dev` | Colored console; DEBUG for `com.telegramquiz` packages, INFO otherwise | Local development |
 | `prod-render` | JSON structured to console | Render cloud platform |
 | `prod-vps` | File + console, daily rotation (30 days, 3GB cap) | VPS with Docker Compose |
 
@@ -157,7 +158,7 @@ All profiles include an **in-memory circular buffer** (last 1000 entries) access
 - **One bot token can only power one active quiz at a time.** `QuizService.activate()` rejects a second active quiz with the same token (409 + quiz name); `TelegramBotManager` keeps a `tokenToQuizId` map as a second guard (covers app-startup restarts); `POST /api/bot/validate-token` reports `inUse`/`inUseByQuizName` so the wizard can warn before saving.
 - main-service: `/api/admin/**` requires `ROLE_ADMIN` (e.g. `GET /api/admin/logs`). Session answers/photos endpoints (`/api/quizzes/sessions/**`) verify the caller owns the quiz.
 - Google OAuth2 credentials stored in `app_settings` table (dynamic registration).
-- The gateway is a transparent proxy (rate-limited per IP, `Origin` header removed); all authorization happens downstream in auth-service and main-service.
+- The gateway is a transparent proxy (rate-limited per IP on `/auth/**` and `/api/**`, OAuth2 sign-in routes exempt; `Origin` header removed); all authorization happens downstream in auth-service and main-service.
 
 ## Frontend Conventions
 
@@ -189,7 +190,6 @@ For full examples, use the `frontend-conventions` skill.
 
 ## Important Notes
 
-- No tests exist yet in any module.
 - Both services have a `@RestControllerAdvice` (`GlobalExceptionHandler`) mapping `EntityNotFoundException` → 404, `ResponseStatusException`, validation failures → 400, and a generic 500 fallback.
 - CORS: backend services hardcode `http://localhost:5173`; the gateway uses `allowedOriginPatterns: "*"` with credentials (mostly inert — dev uses Vite proxy, prod uses Nginx same-origin).
 - `GET /api/files/**` is publicly accessible without auth (image serving); uploads (`POST /api/files/upload`) require auth.

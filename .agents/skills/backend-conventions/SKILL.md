@@ -197,16 +197,24 @@ private List<ContentBlock> contentBlocks = new ArrayList<>();
 
 ## Access Control
 
-Use enum-based access levels for hierarchical permissions:
+Hierarchical folder permissions use an ordinal enum declared most- to least-privileged, plus a single service-level guard (see `entity/FolderAccessLevel.java` and `FolderService.requireMinAccess` in main-service):
 
 ```java
-public enum AccessLevel {
-    OWNER(0), CO_OWNER(1), CONTRIBUTOR(2), NONE(3);
-    
-    private final int level;
-    
-    public boolean isAtLeast(AccessLevel required) {
-        return this.level <= required.level;
+// Ordered by privilege (lower ordinal = more access): OWNER=0 ... NONE=3
+public enum FolderAccessLevel {
+    OWNER, CO_OWNER, CONTRIBUTOR, NONE
+}
+
+// One guard reused by every folder operation:
+private void requireMinAccess(Long folderId, String username, FolderAccessLevel minimum) {
+    FolderAccessLevel actual = getAccessLevel(folderId, username);
+    if (actual == FolderAccessLevel.NONE) {
+        throw new EntityNotFoundException("Folder not found: " + folderId);                  // 404
+    }
+    if (actual.ordinal() > minimum.ordinal()) {
+        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Insufficient folder access"); // 403
     }
 }
 ```
+
+Rules: privilege order is encoded in declaration order (compare `ordinal()`; do not add parallel level fields or a separate `isAtLeast` API); no access at all is always 404, insufficient role is 403; `getAccessLevel` returns `NONE` for pending/declined memberships and `OWNER` for the folder creator even without a membership row.

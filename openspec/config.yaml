@@ -27,6 +27,7 @@ rules:
     - Add `cd src/frontend && npx vue-tsc --noEmit` as verification for frontend tasks.
     - Never leave backend or frontend dev servers running after a task.
     - Every behavior change adds or updates automated tests for the affected spec scenarios.
+    - Coverage ratchets per capability — by archive, every scenario of the touched requirements has a named automated test, unless `testing-conventions` explicitly defers that coverage (e.g. Telegram network flows); record any deferral in `tasks.md`.
     - Name tests after the capability and scenario they cover.
 
 operations:
@@ -39,3 +40,4 @@ operations:
   archive:
     guidance:
       - Summarize the user-visible behavior change and list the capabilities updated.
+      - Before completing the archive, sweep `AGENTS.md` and the affected `.agents/skills/*/SKILL.md` for statements the change invalidated (facts, counts, patterns, APIs), verify the skill patterns still match the real code, and fix both in the same archive.

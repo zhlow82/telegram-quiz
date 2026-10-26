@@ -60,3 +60,5 @@ Reference the capability path at the top of the class when the mapping is not ob
 ## Current coverage
 
 Phase 1 covers JWT claims, bot-token encryption, folder access levels, quiz activation/token conflicts, question access queries + JSONB, the auth flow, `AppDialog`, the auth store, and the API client. Add tests to the same classes when a change touches those behaviors.
+
+Deferred coverage: `api-gateway` and `logging` scenarios — the gateway module has no test sources or test infrastructure, and the log buffer and admin logs endpoints are untested. These scenarios gain coverage in a dedicated gateway/logging test-infrastructure change (deferral recorded per the coverage-ratchet rule in `openspec/config.yaml`).
