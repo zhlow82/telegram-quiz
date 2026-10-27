@@ -8,8 +8,9 @@ A full-stack application template built with a microservice backend and Vue 3 fr
 
 | Layer | Technology |
 |---|---|
-| Frontend | Vue 3, TypeScript, Pinia, Vue Router, Axios, Vite, **Tailwind CSS v3**, **@lucide/vue**, **vue-draggable-plus** |
+| Frontend | Vue 3.4, TypeScript 5.4, Pinia 2, Vue Router 4, Axios, Vite 5, **Tailwind CSS v3**, **@lucide/vue**, **vue-draggable-plus**, **@fontsource/inter**, **qrcode**, **sortablejs** |
 | Backend | Spring Boot 4.0.6, Spring Security, Spring Data JPA |
+| Bot | Telegram Bot API (telegrambots 6.9.7.1), Thumbnailator 0.4.20 |
 | Auth | JWT (jjwt 0.12.6), BCrypt |
 | Gateway | Spring Cloud Gateway 2025.1.1 (Oakwood) |
 | Database | PostgreSQL 17 |
@@ -35,8 +36,12 @@ telegram-quiz/
 │       ├── Dockerfile
 │       ├── nginx.conf           # Nginx reverse proxy config
 │       └── entrypoint.sh        # Runtime env var substitution
+├── prototype/                   # Legacy prototype (stitch_telegram_quiz_studio)
+├── openspec/                    # OpenSpec behavior specs and changes
+├── .agents/                     # AI agent skills (conventions, testing, etc.)
+├── AGENTS.md                    # AI coding framework instructions
 ├── docker-compose.yml           # Full stack deployment (VPS)
-├── .devcontainer/                 # VS Code dev container (Postgres, Redis, pgAdmin, Java 21, Node 20)
+├── .devcontainer/               # VS Code dev container (Postgres, Redis, pgAdmin, Java 21, Node 20)
 ├── render.yaml                  # Render cloud deployment blueprint
 ├── installation/                # End-user installation scripts
 │   ├── windows/                 # Windows: start.bat, stop.bat, zip.bat, SETUP-GUIDE.txt
@@ -188,6 +193,57 @@ If you just want to *host* the app locally (no Java/Node/Maven installation), th
 
 ---
 
+## AI Coding Framework
+
+This project uses [OpenSpec](https://openspec.dev) — a structured, spec-driven workflow for AI-assisted development. All behavior changes go through OpenSpec before implementation.
+
+### Two layers, no overlap
+
+| Layer | Location | Purpose |
+|---|---|---|
+| **Conventions** | `AGENTS.md` + `.agents/skills/` | *How* to write code — patterns, commands, style |
+| **Specs** | `openspec/specs/` | *What* the system does — observable behavior, invariants, permissions |
+
+If a skill disagrees with `AGENTS.md` on a hard rule, `AGENTS.md` wins.
+
+### OpenSpec workflow
+
+1. **Propose** — Describe what to build; OpenSpec generates `proposal.md`, `specs/`, `design.md`, and `tasks.md` in one step.
+2. **Apply** — Implement tasks from the change, one at a time.
+3. **Sync specs** (optional) — Push delta specs to main specs without archiving.
+4. **Archive** — Finalize the change, sweep docs for stale statements.
+
+Commands (available in OpenCode, GitHub Copilot, and Codex):
+- `/openspec-propose` — Create a new change proposal
+- `/openspec-apply-change` — Implement tasks from a change
+- `/openspec-update-change` — Revise a change's plan
+- `/openspec-sync-specs` — Sync delta specs to main specs
+- `/openspec-archive-change` — Archive a completed change
+- `/openspec-explore` — Explore mode for thinking through problems
+
+Keep at most 2–3 active changes at once to limit archive conflicts.
+
+### AI agent skills
+
+Domain-specific skills live in `.agents/skills/` and are loaded by AI agents (OpenCode, GitHub Copilot, Codex) on demand:
+
+| Skill | Description |
+|---|---|
+| `backend-conventions` | Java entity/DTO/service patterns, Spring Boot best practices |
+| `bot-conventions` | Telegram bot runtime, activation-time config, timer scheduling |
+| `database-migrations` | Flyway migrations, SQL conventions, entity sync |
+| `frontend-conventions` | Vue 3 components, Pinia stores, Tailwind styling, routing |
+| `testing-conventions` | JUnit/Testcontainers backend, Vitest frontend, test naming |
+| `openspec-*` | Workflow skills for propose, apply, update, sync, archive, explore |
+
+Refresh skills with `openspec update` after upgrading OpenSpec.
+
+### Internal refactors, dependency bumps, and tooling changes need no proposal. Anything that changes observable behavior does.
+
+Validate before archiving: `openspec validate --all --strict`
+
+---
+
 ## Service Ports
 
 | Service | Port |
@@ -240,13 +296,7 @@ All requests go through the API Gateway at `http://localhost:8080`.
 | `PUT` | `/auth/admin/settings/google` | ROLE_ADMIN | Save Google OAuth2 credentials |
 | `PUT` | `/auth/admin/settings/branding` | ROLE_ADMIN | Save branding settings (app name, welcome text, logo) |
 | `GET` | `/auth/admin/logs` | ROLE_ADMIN | View in-memory application logs (auth-service) |
-
-### Quiz Sessions
-| Method | Path | Auth | Description |
-|---|---|---|---|
-| `GET` | `/api/quizzes/{id}/sessions` | Bearer (quiz owner) | List participant sessions for a quiz |
-| `GET` | `/api/quizzes/sessions/{sessionId}/answers` | Bearer (quiz owner) | View a participant's individual answers |
-| `GET` | `/api/quizzes/sessions/{sessionId}/photos?fileId=` | Bearer (quiz owner) | Download a participant's photo answer |
+| `GET` | `/api/admin/logs` | ROLE_ADMIN | View in-memory application logs (main-service) |
 
 ### Questions
 | Method | Path | Auth | Description |
@@ -258,19 +308,28 @@ All requests go through the API Gateway at `http://localhost:8080`.
 | `DELETE` | `/api/questions/{id}` | Bearer token | Delete question |
 | `PATCH` | `/api/questions/reorder` | Bearer token | Reorder — body `{ "orderedIds": [1, 2, 3] }` |
 | `PATCH` | `/api/questions/{id}/folder` | Bearer token | Move question to folder — body `{ "folderId": 1 }` |
+| `POST` | `/api/questions/export` | Bearer token | Export questions — body `{ "questionIds": [...] }`, returns serialized JSON |
+| `POST` | `/api/questions/import` | Bearer token | Import questions from exported JSON payload |
 
 ### Folders
 | Method | Path | Auth | Description |
 |---|---|---|---|
 | `GET` | `/api/folders` | Bearer token | List owned + shared folders |
 | `POST` | `/api/folders` | Bearer token | Create folder |
-| `PATCH` | `/api/folders/{id}/name` | Bearer token | Rename folder |
+| `PATCH` | `/api/folders/{id}` | Bearer token | Rename folder |
 | `DELETE` | `/api/folders/{id}` | Bearer token | Delete folder |
 | `PATCH` | `/api/folders/reorder` | Bearer token | Reorder owned folders |
 | `GET` | `/api/folders/{id}/members` | Bearer token | List folder members |
 | `POST` | `/api/folders/{id}/members` | Bearer token | Invite user to folder |
 | `PATCH` | `/api/folders/{id}/members/{username}/role` | Bearer token | Change member role |
 | `DELETE` | `/api/folders/{id}/members/{username}` | Bearer token | Remove member |
+
+### Folder Invitations
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| `GET` | `/api/folders/invitations` | Bearer token | List pending folder invitations for current user |
+| `POST` | `/api/folders/invitations/{id}/accept` | Bearer token | Accept a folder invitation |
+| `POST` | `/api/folders/invitations/{id}/decline` | Bearer token | Decline a folder invitation |
 
 ### Quizzes
 | Method | Path | Auth | Description |
@@ -283,19 +342,9 @@ All requests go through the API Gateway at `http://localhost:8080`.
 | `POST` | `/api/quizzes/{id}/activate` | Bearer token | Activate quiz (start bot). Fails with 409 if the bot token already runs another active quiz |
 | `POST` | `/api/quizzes/{id}/stop` | Bearer token | Stop quiz |
 | `GET` | `/api/quizzes/{id}/sessions` | Bearer (quiz owner) | List participant sessions |
-| `POST` | `/api/bot/validate-token` | Bearer token | Validate a Telegram bot token (calls Telegram `getMe`). Body `{ token, excludeQuizId? }`; response includes `inUse` / `inUseByQuizName` |
-
-### Quiz Session Answers
-| Method | Path | Auth | Description |
-|---|---|---|---|
 | `GET` | `/api/quizzes/sessions/{sessionId}/answers` | Bearer (quiz owner) | View participant's individual answers |
-| `GET` | `/api/quizzes/sessions/{sessionId}/photos` | Bearer (quiz owner) | Download a participant's photo answer |
-
-### Admin Logs
-| Method | Path | Auth | Description |
-|---|---|---|---|
-| `GET` | `/auth/admin/logs` | ROLE_ADMIN | View in-memory application logs (auth-service) |
-| `GET` | `/api/admin/logs` | ROLE_ADMIN | View in-memory application logs (main-service) |
+| `GET` | `/api/quizzes/sessions/{sessionId}/photos?fileId=` | Bearer (quiz owner) | Download a participant's photo answer |
+| `POST` | `/api/bot/validate-token` | Bearer token | Validate a Telegram bot token (calls Telegram `getMe`). Body `{ token, excludeQuizId? }`; response includes `inUse` / `inUseByQuizName` |
 
 ### Files
 | Method | Path | Auth | Description |
